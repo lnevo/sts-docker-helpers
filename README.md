@@ -1,58 +1,92 @@
-# HART STS Docker helpers
+# sts-docker-helpers
 
-PHP CLI scripts and shell wrappers for warm-start simulation, live session prep, CK1 weigh tests, and syncing manual DB edits back into `hart_seed_config.json`.
+Self-contained HART STS toolkit: seed generation, database restore, warm-start simulation, live session prep, and config sync.
 
-Works with [sts-docker](https://github.com/lnevo/sts-docker) and the HART Car Cards project (`apply_hart_seed.sh`, `sts-backups/`, `hart_seed_config.json`).
+Works with [sts-docker](https://github.com/lnevo/sts-docker) (clone or symlink as `./sts-docker`).
 
 ## Layout
 
 ```
 sts-docker-helpers/
-  apply_warm_start.sh      Simulate prior sessions → hart_warm_start backup
-  begin_session.sh         Begin live session after STG-SCULLY
-  rewind_ck1_weigh.sh      Restore warm start + re-weigh CK1 coke cars
-  sync_hart_seed_config.py Pull jobs/shipments/locations from DB → config JSON
-  sts/                     PHP helpers (copied into container at run time)
-  lib/paths.sh             Resolves sts-docker and Car Cards paths
+  apply_hart_seed.sh       Generate/restore hart_seed SQL
+  apply_warm_start.sh        Simulate prior sessions → hart_warm_start
+  apply_shipment_tune.sh     Tune shipment intervals in live DB
+  begin_session.sh           Begin live session (STG-SCULLY gate)
+  rewind_ck1_weigh.sh        Restore warm start + re-weigh CK1 coke
+  sync_hart_seed_config.py   Pull DB edits → hart_seed_config.json
+  sync_hart_car_images.py    Build backup photos from CarImagesFinal/
+  generate_hart_seed.py      Build hart_seed SQL from config + roster
+  import_hart_job_matrix.py  Refresh jobs from Excel matrix
+  hart_seed_config.json      Jobs, shipments, locations, criteria
+  backups/hart_seed          Seed SQL snapshot (also ./hart_seed)
+  migrations/                Historical SQL patches
+  track_scale/               Track scale config reference
+  sts/                       PHP helpers (synced into container at run time)
+  lib/paths.sh               Path resolution for shell scripts
 ```
 
-## Prerequisites
-
-- Docker: `sts-docker` running with `--profile build`
-- HART Car Cards project (parent directory or set `HART_CARDS_ROOT`) for backups and seed restore
-- Optional: `STS_DOCKER` env var if `sts-docker` is not a sibling directory
-
-Typical clone layout:
-
-```
-~/HART/Car Cards/          # HART_CARDS_ROOT (apply_hart_seed.sh, sts-backups/)
-~/HART/Car Cards/sts-docker/
-~/HART/Car Cards/sts-docker-helpers/   # this repo
-```
-
-## Commands
+## Setup
 
 ```bash
-# Warm start (restore hart_seed, simulate sessions, save hart_warm_start)
-./apply_warm_start.sh --tracked --max-sessions 10
+git clone https://github.com/lnevo/sts-docker-helpers.git
+cd sts-docker-helpers
 
-# Continue tracked warm start from current session
-./apply_warm_start.sh --tracked --continue --sessions 3 --max-sessions 7
+# Clone sts-docker alongside or symlink your existing tree:
+git clone https://github.com/lnevo/sts-docker.git
+# ln -sf /path/to/sts-docker ./sts-docker
 
-# Begin live session (blocked until STG-SCULLY is clear)
-./begin_session.sh --run-stg-scully --backup=session_10_start
-
-# Sync manual STS edits into hart_seed_config.json
-./sync_hart_seed_config.sh --backup
-
-# CK1 weigh test rewind
-./rewind_ck1_weigh.sh
+cd sts-docker && docker compose --profile build up -d
 ```
 
-## Package
+Optional: symlink a host `sts-backups` mount used by Docker:
 
-Included in `hart_seed_package/` when you run `build_hart_seed_package.sh` from the Car Cards project (portable backup alongside the seed generator).
+```bash
+ln -sf ~/sts/sts-backups ./sts-backups
+```
 
-## Install into container
+Or use the bundled `./backups/` directory (default for scripts).
 
-Scripts `docker cp` files from `sts/` into the running web container before each run. You do not need to commit these into the sts-docker fork unless you want them baked into the image.
+## Generate seed SQL
+
+```bash
+python3 generate_hart_seed.py --output ./backups/hart_seed
+```
+
+Requires `CarImagesFinal/` for revenue cars (not in repo — copy from Car Cards project or run with 0 cars by omitting images).
+
+## Restore to Docker
+
+```bash
+./apply_hart_seed.sh --generate
+./apply_hart_seed.sh --sql-file ./backups/hart_seed
+./apply_hart_seed.sh --sync-images   # needs CarImagesFinal/
+```
+
+## Warm start & live session
+
+```bash
+./apply_warm_start.sh --tracked --max-sessions 10
+./begin_session.sh --run-stg-scully --backup=session_start
+```
+
+## Sync manual STS edits into config
+
+```bash
+./sync_hart_seed_config.sh --backup
+python3 generate_hart_seed.py --output ./backups/hart_seed
+```
+
+## Refresh jobs from Excel
+
+```bash
+python3 import_hart_job_matrix.py
+python3 generate_hart_seed.py --output ./backups/hart_seed
+```
+
+## Requirements
+
+- Python 3.10+
+- Docker ([sts-docker](https://github.com/lnevo/sts-docker))
+- `pip install openpyxl` (matrix import)
+
+See `HART_STS_REQUIREMENTS.md` for layout design notes.

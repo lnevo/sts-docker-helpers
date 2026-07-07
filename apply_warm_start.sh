@@ -35,7 +35,7 @@ Options:
   -h, --help         Show this help
 
 Requires the build-profile web + db containers to be running.
-Requires HART Car Cards project (apply_hart_seed.sh, sts-backups/) unless --no-restore.
+Uses ./backups/hart_seed (or sts-backups mount) unless --no-restore.
 EOF
 }
 
@@ -67,12 +67,16 @@ for php in warm_start_helpers.php warm_start_session_stats.php simulate_warm_sta
 done
 
 if [[ "${RESTORE_BASE}" -eq 1 ]]; then
-  if [[ ! -x "${APPLY_HART_SEED}" ]]; then
-    echo "apply_hart_seed.sh not found at ${APPLY_HART_SEED}. Set HART_CARDS_ROOT or use --no-restore." >&2
+  if [[ ! -f "${APPLY_HART_SEED}" ]]; then
+    echo "apply_hart_seed.sh not found at ${APPLY_HART_SEED}." >&2
     exit 1
   fi
+  seed_file="${BACKUPS_DIR}/hart_seed"
+  if [[ ! -f "${seed_file}" && -f "${SCRIPT_DIR}/hart_seed" ]]; then
+    seed_file="${SCRIPT_DIR}/hart_seed"
+  fi
   echo "==> Restoring base hart_seed"
-  "${APPLY_HART_SEED}" --sql-file "${BACKUPS_DIR}/hart_seed"
+  "${APPLY_HART_SEED}" --sql-file "${seed_file}"
 fi
 
 SIM_ARGS=(--sessions="${COMPLETED_SESSIONS}" --max-sessions="${MAX_SESSIONS}" --backup="${BACKUP_NAME}")

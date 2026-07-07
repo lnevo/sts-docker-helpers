@@ -1,0 +1,24 @@
+Industry,Spot #,Usage,Cars Applicable
+Calgon Carbon,1,Coal Unload,Loaded Hopper; Empty Hopper
+Calgon Carbon,2,Coal Unload,Loaded Hopper; Empty Hopper
+Calgon Carbon,3,Carbon Load,Covered Hopper
+Calgon Carbon,4,Chemical Unload,Tank Car
+Calgon Carbon,5,Off Spot,Hopper; Covered Hopper; Tank Car
+Kosmos Cement,1,Cement Unload,Covered Hopper
+Kosmos Cement,2,Cement Unload,Covered Hopper
+Kosmos Cement,3,Cement Unload,Covered Hopper
+Kosmos Cement,4,Aggregate Unload,Hopper; Gondola
+Kosmos Cement,5,Off Spot,Covered Hopper; Hopper; Gondola
+Ferrel Gas,1,LPG Unload,Tank Car
+Ferrel Gas,2,LPG Unload,Tank Car
+Ferrel Gas,3,Storage,Tank Car
+A Stucki Co,1,Crane Track,Flat Car; Gondola; Boxcar
+A Stucki Co,2,Team Track,Boxcar; Flat Car; Gondola
+A Stucki Co,3,Off Spot,Boxcar; Flat Car; Gondola; Coil Car
+Aristech Plastics,1,Pellet Unload,Covered Hopper
+Aristech Plastics,2,Pellet Unload,Covered Hopper
+Aristech Plastics,3,Pellet Unload,Covered Hopper
+Aristech Plastics,4,Chemical Unload,Tank Car
+Aristech Plastics,5,Chemical Unload,Tank Car
+Aristech Plastics,6,Shipping Door,Boxcar
+Aristech Plastics,7,Off Spot,Covered Hopper; Tank Car; Boxcar

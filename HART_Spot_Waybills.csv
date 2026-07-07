@@ -1,0 +1,88 @@
+card_id,industry,card_kind,usage,spots,flow,commodity,load_summary,car_type,route_from,route_to,via
+1,Aristech Plastics,loaded,Pellet Unload,1-3,IN,Plastic Pellets,,Covered Hopper,"Dow Chemical (Midland, MI)",,CSX
+2,Aristech Plastics,loaded,Pellet Unload,1-3,IN,Plastic Pellets,,Covered Hopper,"BASF (Wyandotte, MI)",,CSX
+3,Aristech Plastics,loaded,Pellet Unload,1-3,IN,Plastic Pellets,,Covered Hopper,"Novacor (Indian Orchard, MA)",,POHC
+4,Aristech Plastics,loaded,Chemical Unload,4-5,IN,Ethyl Acrylate,Process Chemicals,Tank Car,"Dow Chemical (Midland, MI)",,CSX
+5,Aristech Plastics,loaded,Chemical Unload,4-5,IN,Methyl Methacrylate,Process Chemicals,Tank Car,"Exxon Chemical (Bayonne, NJ)",,POHC
+6,Aristech Plastics,loaded,Chemical Unload,4-5,IN,Styrene Monomer,Process Chemicals,Tank Car,"Dow Chemical (Midland, MI)",,CSX
+7,Aristech Plastics,loaded,Shipping Door,6,OUT,Plastic Resins,,Boxcar,,"Bemis Company (Flemington, NJ)",POHC
+8,Aristech Plastics,loaded,Shipping Door,6,OUT,Plastic Resins,,Boxcar,,"Owens-Illinois (Toledo, OH)",POHC
+9,Aristech Plastics,loaded,Shipping Door,6,OUT,Plastic Resins,,Boxcar,,"Owens-Illinois (Ottawa, IL)",CSX
+10,Aristech Plastics,inbound_empty,Shipping Door,6,IN,EMPTY,,Boxcar,,,POHC
+11,Aristech Plastics,inbound_empty,Shipping Door,6,IN,EMPTY,,Boxcar,,,CSX
+12,Aristech Plastics,inbound_empty,Shipping Door,6,IN,EMPTY,,Boxcar,,,POHC
+13,A Stucki Co,loaded,Crane Track,1,IN,Steel,,Boxcar,"Metal Service Co. (Apollo, PA)",,CSX
+14,A Stucki Co,loaded,Crane Track,1,IN,Steel,,Flat Car,"Allegheny Ludlum (Brackenridge, PA)",,POHC
+15,A Stucki Co,loaded,Crane Track,1,IN,Steel,,Gondola,"Republic Steel (Cleveland, OH)",,POHC
+16,A Stucki Co,loaded,Team Track,2,IN,Steel Coils,General Freight,Boxcar,Ryerson Steel Service,,CSX
+17,A Stucki Co,loaded,Team Track,2,IN,Steel Plate,General Freight,Flat Car,"Washington Steel (Washington, PA)",,CSX
+18,A Stucki Co,loaded,Team Track,2,IN,Steel Billets,General Freight,Gondola,"McConway & Torley (Pittsburgh, PA)",,POHC
+19,A Stucki Co,loaded,Team Track,2,OUT,Machined Parts,General Freight,Boxcar,,"Metal Service Co. (Apollo, PA)",CSX
+20,A Stucki Co,loaded,Team Track,2,OUT,Railway Springs,General Freight,Flat Car,,"Pittsburgh Forge (McKees Rocks, PA)",POHC
+21,A Stucki Co,loaded,Team Track,2,OUT,Steel Coils,General Freight,Gondola,,Ryerson Steel Service,CSX
+22,Calgon Carbon,loaded,Coal Unload,1-2,IN,Coal,,Hopper,"Consol Energy (Pittsburgh, PA)",,CSX
+23,Calgon Carbon,loaded,Coal Unload,1-2,IN,Coal,,Hopper,"R&P Coal (Brady Twp, PA)",,CSX
+24,Calgon Carbon,loaded,Coal Unload,1-2,IN,Coal,,Hopper,"Hillman Coal (Canton Twp, PA)",,POHC
+25,Calgon Carbon,loaded,Carbon Load,3,OUT,Activated Carbon,,Covered Hopper,,"Univar (Salem, MA)",POHC
+26,Calgon Carbon,loaded,Carbon Load,3,OUT,Activated Carbon,,Covered Hopper,,"Calgon Corp (Columbus, OH)",CSX
+27,Calgon Carbon,loaded,Carbon Load,3,OUT,Activated Carbon,,Covered Hopper,,"Houghton Chemical (Allston, MA)",CSX
+28,Calgon Carbon,loaded,Chemical Unload,4,IN,Caustic Soda,Process Chemicals,Tank Car,"Houghton Chemical (Allston, MA)",,POHC
+29,Calgon Carbon,loaded,Chemical Unload,4,IN,Hydrochloric Acid,Process Chemicals,Tank Car,"General Chemical (Parsippany, NJ)",,POHC
+30,Calgon Carbon,loaded,Chemical Unload,4,IN,Phosphoric Acid,Process Chemicals,Tank Car,"Dow Chemical (Midland, MI)",,CSX
+31,Calgon Carbon,inbound_empty,Carbon Load,3,IN,EMPTY,,Covered Hopper,,,CSX
+32,Calgon Carbon,inbound_empty,Carbon Load,3,IN,EMPTY,,Covered Hopper,,,POHC
+33,Calgon Carbon,inbound_empty,Carbon Load,3,IN,EMPTY,,Covered Hopper,,,CSX
+34,Ferrel Gas,loaded,LPG Unload,1-2,IN,LPG,,Tank Car,"Ferrellgas Co (Taneytown, MD)",,POHC
+35,Ferrel Gas,loaded,LPG Unload,1-2,IN,LPG,,Tank Car,Ferrellgas pipeline terminal,,CSX
+37,Kosmos Cement,loaded,Cement Unload,1-3,IN,Cement,,Covered Hopper,"Kosmos Cement (Canton, OH)",,POHC
+38,Kosmos Cement,loaded,Cement Unload,1-3,IN,Cement,,Covered Hopper,"Medusa Cement (Charlevoix, MI)",,CSX
+39,Kosmos Cement,loaded,Cement Unload,1-3,IN,Cement,,Covered Hopper,"Lehigh Cement (Mitchell, IN)",,POHC
+40,Kosmos Cement,loaded,Aggregate Unload,4,IN,Aggregate,,Gondola,"Michigan Limestone (Rogers City, MI)",,POHC
+41,Kosmos Cement,loaded,Aggregate Unload,4,IN,Aggregate,,Gondola,"US Aggregates (Indianapolis, IN)",,CSX
+42,Kosmos Cement,loaded,Aggregate Unload,4,IN,Aggregate,,Hopper,"Martin Marietta (Clairton, PA)",,CSX
+43,INTERCHANGE,interchange,,—,,Fluorescent Lamps,,Boxcar,"GE (Bridgeville, PA)","Penelec (Erie, PA)",POHC
+44,INTERCHANGE,interchange,,—,,Fluorescent Tubes,,Boxcar,"GE (Bridgeville, PA)","Graybar Electric (St. Louis, MO)",POHC
+45,INTERCHANGE,interchange,,—,,Plastic Resins,,Boxcar,"Dow Chemical (Midland, MI)","Owens-Illinois (Ottawa, IL)",CSX
+46,INTERCHANGE,interchange,,—,,Steel Coils,,Coil Car,"Republic Steel (Cleveland, OH)","John Deere (Moline, IL)",POHC
+47,INTERCHANGE,interchange,,—,,Steel Coils,General Freight,Coil Car,"Weirton Steel (Weirton, WV)","Ryerson Steel Service (Pittsburgh, PA)",CSX
+48,INTERCHANGE,interchange,,—,,Tin Plate,General Freight,Coil Car,"Wheeling-Pittsburgh Steel (Wheeling, WV)","Heinz (Pittsburgh, PA)",POHC
+49,INTERCHANGE,interchange,,—,,Activated Carbon,,Covered Hopper,"Calgon Corp (Columbus, OH)","Houghton Chemical (Allston, MA)",CSX
+50,INTERCHANGE,interchange,,—,,Cement,,Covered Hopper,"Lehigh Cement (Mitchell, IN)","Holcim (Buffalo, NY)",POHC
+51,INTERCHANGE,interchange,,—,,Cement,,Covered Hopper,"Medusa Cement (Charlevoix, MI)","Knouse Foods (Orrtanna, PA)",POHC
+52,INTERCHANGE,interchange,,—,,Phosphor Compounds,Process Chemicals,Covered Hopper,"General Chemical (Parsippany, NJ)","GE (Bridgeville, PA)",CSX
+53,INTERCHANGE,interchange,,—,,Phosphor Compounds,Process Chemicals,Covered Hopper,"General Chemical (Parsippany, NJ)","Heinz (Pittsburgh, PA)",POHC
+54,INTERCHANGE,interchange,,—,,Plastic Pellets,,Covered Hopper,"BASF (Wyandotte, MI)","Owens-Illinois (Toledo, OH)",POHC
+55,INTERCHANGE,interchange,,—,,Plastic Pellets,,Covered Hopper,"BASF (Wyandotte, MI)","Owens-Illinois (Toledo, OH)",CSX
+56,INTERCHANGE,interchange,,—,,Forged Components,,Flat Car,"Standard Forged Products (McKees Rocks, PA)","Caterpillar (Peoria, IL)",POHC
+57,INTERCHANGE,interchange,,—,,Forged Components,,Flat Car,"Standard Forged Products (McKees Rocks, PA)","Sharon Steel (Farrell, PA)",CSX
+58,INTERCHANGE,interchange,,—,,Stainless Bar,,Flat Car,"Universal Stainless & Alloy (Bridgeville, PA)","Ryerson Steel (Chicago, IL)",POHC
+59,INTERCHANGE,interchange,,—,,Stainless Bar,,Flat Car,"Universal Stainless & Alloy (Bridgeville, PA)","Carpenter Steel (Reading, PA)",CSX
+60,INTERCHANGE,interchange,,—,,Stainless Slab,,Flat Car,"Allegheny Ludlum (Brackenridge, PA)","Universal Stainless & Alloy (Bridgeville, PA)",CSX
+61,INTERCHANGE,interchange,,—,,Stainless Slab,,Flat Car,"Weirton Steel (Weirton, WV)","Armco Steel (Middletown, OH)",POHC
+62,INTERCHANGE,interchange,,—,,Steel Billets,,Flat Car,"Republic Steel (Cleveland, OH)","Standard Forged Products (McKees Rocks, PA)",CSX
+63,INTERCHANGE,interchange,,—,,Steel Billets,,Flat Car,"Republic Steel (Cleveland, OH)","McConway & Torley (Pittsburgh, PA)",CSX
+64,INTERCHANGE,interchange,,—,,Steel Plate,,Flat Car,"Bethlehem Steel (Bethlehem, PA)","Ryerson Steel Service (Pittsburgh, PA)",CSX
+65,INTERCHANGE,interchange,,—,,Scrap Steel,,Gondola,"Allegheny Ludlum (Brackenridge, PA)","McConway & Torley (Pittsburgh, PA)",POHC
+66,INTERCHANGE,interchange,,—,,Coal,,Hopper,"Consol Energy (Pittsburgh, PA)","American Electric Power (Columbus, OH)",CSX
+67,INTERCHANGE,interchange,,—,,Frozen Foods,,Reefer,"Heinz (Pittsburgh, PA)","Sysco Foods (Harrisburg, PA)",POHC
+68,INTERCHANGE,interchange,,—,,Packaged Meats,,Reefer,"Dubuque Packing Co (Dubuque, IA)","Giant Eagle (Pittsburgh, PA)",CSX
+69,INTERCHANGE,interchange,,—,,Argon,Process Chemicals,Tank Car,"Air Products (Allentown, PA)","GE (Bridgeville, PA)",POHC
+70,INTERCHANGE,interchange,,—,,Industrial Gases,Process Chemicals,Tank Car,"Dow Chemical (Midland, MI)","Knouse Foods (Orrtanna, PA)",CSX
+71,INTERCHANGE,interchange,,—,,LPG,,Tank Car,"Mapco LP (Memphis, TN)","Suburban Propane (Buffalo, NY)",POHC
+72,INTERCHANGE,interchange,,—,,Methyl Methacrylate,Process Chemicals,Tank Car,"Exxon Chemical (Bayonne, NJ)","DuPont (Wilmington, DE)",POHC
+73,Aristech Plastics,outbound_empty,,,OUT,EMPTY,,,,Scully Yard,POHC
+74,Aristech Plastics,outbound_empty,,,OUT,EMPTY,,,,Scully Yard,POHC
+75,Aristech Plastics,outbound_empty,,,OUT,EMPTY,,,,Scully Yard,POHC
+76,Aristech Plastics,outbound_empty,,,OUT,EMPTY,,,,Scully Yard,POHC
+77,Aristech Plastics,outbound_empty,,,OUT,EMPTY,,,,Scully Yard,POHC
+78,A Stucki Co,outbound_empty,,,OUT,EMPTY,,,,Demmler Yard,CSX
+79,A Stucki Co,outbound_empty,,,OUT,EMPTY,,,,Demmler Yard,CSX
+80,Calgon Carbon,outbound_empty,,,OUT,EMPTY,,,,Scully Yard,POHC
+81,Calgon Carbon,outbound_empty,,,OUT,EMPTY,,,,Scully Yard,POHC
+82,Calgon Carbon,outbound_empty,,,OUT,EMPTY,,,,Scully Yard,POHC
+83,Ferrel Gas,outbound_empty,,,OUT,EMPTY,,,,Demmler Yard,CSX
+84,Ferrel Gas,outbound_empty,,,OUT,EMPTY,,,,Demmler Yard,CSX
+85,Kosmos Cement,outbound_empty,,,OUT,EMPTY,,,,Demmler Yard,CSX
+86,Kosmos Cement,outbound_empty,,,OUT,EMPTY,,,,Demmler Yard,CSX
+87,Kosmos Cement,outbound_empty,,,OUT,EMPTY,,,,Demmler Yard,CSX
+88,Kosmos Cement,outbound_empty,,,OUT,EMPTY,,,,Demmler Yard,CSX

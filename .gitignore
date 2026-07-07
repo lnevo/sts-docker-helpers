@@ -2,3 +2,18 @@ __pycache__/
 *.pyc
 .DS_Store
 *.backup-*.json
+
+# Runtime / local Docker state (not part of repo backup)
+backups/hart_warm_start
+backups/*_photos/
+backups/track_scale/seed.json
+backups/track_scale/session.log
+backups/track_scale/settings.json
+sts-backups/
+
+# Optional large car photo tree (sync with sync_hart_car_images.py)
+CarImagesFinal/
+
+# Local symlinks (create manually)
+sts-docker
+sts-backups

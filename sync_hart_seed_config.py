@@ -36,13 +36,13 @@ def resolve_sts_docker_dir() -> Path:
 
 
 def resolve_default_config() -> Path:
-    for candidate in (
-        SCRIPT_DIR / "hart_seed_config.json",
-        SCRIPT_DIR.parent / "hart_seed_config.json",
-    ):
-        if candidate.is_file():
-            return candidate
-    return SCRIPT_DIR.parent / "hart_seed_config.json"
+    local = SCRIPT_DIR / "hart_seed_config.json"
+    if local.is_file():
+        return local
+    parent = SCRIPT_DIR.parent / "hart_seed_config.json"
+    if parent.is_file():
+        return parent
+    return local
 
 
 DEFAULT_CONFIG = resolve_default_config()

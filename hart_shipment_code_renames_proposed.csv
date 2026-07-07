@@ -1,0 +1,73 @@
+section,legacy_code,proposed_code,industry,flow,via,spot_or_commodity,party_name,notes
+design_pattern,,,,,,,,Pattern: {INDUSTRY}-{PRODUCT|SPOT}-{IN|OUT}[-{PARTY}]. Drop LOA- and card_id suffix. Party suffix when same product/direction has multiple suppliers or customers. Coke and IX use existing or IX-{COMMODITY}-{ORIGIN}-{DEST} mnemonics.
+shipment_rename,ARIS-LOA-IN-001,ARIS-PELLETS-IN-DOW,Aristech Plastics,IN,CSX,Pellet Unload,"Dow Chemical (Midland, MI)",
+shipment_rename,ARIS-LOA-IN-002,ARIS-PELLETS-IN-BASF,Aristech Plastics,IN,CSX,Pellet Unload,"BASF (Wyandotte, MI)",
+shipment_rename,ARIS-LOA-IN-003,ARIS-PELLETS-IN-NOVACOR,Aristech Plastics,IN,POHC,Pellet Unload,"Novacor (Indian Orchard, MA)",
+shipment_rename,ARIS-LOA-IN-004,ARIS-CHEM-IN-DOW-EA,Aristech Plastics,IN,CSX,Chemical Unload,"Dow Chemical (Midland, MI)",Ethyl Acrylate
+shipment_rename,ARIS-LOA-IN-005,ARIS-CHEM-IN-EXXON,Aristech Plastics,IN,POHC,Chemical Unload,"Exxon Chemical (Bayonne, NJ)",Methyl Methacrylate
+shipment_rename,ARIS-LOA-IN-006,ARIS-CHEM-IN-DOW-STY,Aristech Plastics,IN,CSX,Chemical Unload,"Dow Chemical (Midland, MI)",Styrene Monomer
+shipment_rename,ARIS-LOA-OUT-007,ARIS-RESIN-OUT-BEMIS,Aristech Plastics,OUT,POHC,Shipping Door,"Bemis Company (Flemington, NJ)",
+shipment_rename,ARIS-LOA-OUT-008,ARIS-RESIN-OUT-OI-TOLEDO,Aristech Plastics,OUT,POHC,Shipping Door,"Owens-Illinois (Toledo, OH)",
+shipment_rename,ARIS-LOA-OUT-009,ARIS-RESIN-OUT-OI-OTTAWA,Aristech Plastics,OUT,CSX,Shipping Door,"Owens-Illinois (Ottawa, IL)",
+shipment_rename,STUK-LOA-IN-013,STUK-STEEL-IN-METAL-SVC,A Stucki Co,IN,CSX,Crane Track,"Metal Service Co. (Apollo, PA)",
+shipment_rename,STUK-LOA-IN-014,STUK-STEEL-IN-ALLEGHENY,A Stucki Co,IN,POHC,Crane Track,"Allegheny Ludlum (Brackenridge, PA)",
+shipment_rename,STUK-LOA-IN-015,STUK-STEEL-IN-REP-STEEL,A Stucki Co,IN,POHC,Crane Track,"Republic Steel (Cleveland, OH)",
+shipment_rename,STUK-LOA-IN-016,STUK-COILS-IN-RYERSON,A Stucki Co,IN,CSX,Team Track,Ryerson Steel Service,
+shipment_rename,STUK-LOA-IN-017,STUK-PLATE-IN-WASH-STL,A Stucki Co,IN,CSX,Team Track,"Washington Steel (Washington, PA)",
+shipment_rename,STUK-LOA-IN-018,STUK-BILLETS-IN-MCCONWAY,A Stucki Co,IN,POHC,Team Track,"McConway & Torley (Pittsburgh, PA)",
+shipment_rename,STUK-LOA-OUT-019,STUK-PARTS-OUT-METAL-SVC,A Stucki Co,OUT,CSX,Team Track,"Metal Service Co. (Apollo, PA)",
+shipment_rename,STUK-LOA-OUT-020,STUK-SPRINGS-OUT-PITTS-FORGE,A Stucki Co,OUT,POHC,Team Track,"Pittsburgh Forge (McKees Rocks, PA)",
+shipment_rename,STUK-LOA-OUT-021,STUK-COILS-OUT-RYERSON,A Stucki Co,OUT,CSX,Team Track,Ryerson Steel Service,
+shipment_rename,CALG-LOA-IN-022,CALG-COAL-IN-CONSOL,Calgon Carbon,IN,CSX,Coal Unload,"Consol Energy (Pittsburgh, PA)",
+shipment_rename,CALG-LOA-IN-023,CALG-COAL-IN-RP,Calgon Carbon,IN,CSX,Coal Unload,"R&P Coal (Brady Twp, PA)",
+shipment_rename,CALG-LOA-IN-024,CALG-COAL-IN-HILLMAN,Calgon Carbon,IN,POHC,Coal Unload,"Hillman Coal (Canton Twp, PA)",
+shipment_rename,CALG-LOA-OUT-025,CALG-CARBON-OUT-UNIVAR,Calgon Carbon,OUT,POHC,Carbon Load,"Univar (Salem, MA)",
+shipment_rename,CALG-LOA-OUT-026,CALG-CARBON-OUT-CORP,Calgon Carbon,OUT,CSX,Carbon Load,"Calgon Corp (Columbus, OH)",
+shipment_rename,CALG-LOA-OUT-027,CALG-CARBON-OUT-HOUGHTON,Calgon Carbon,OUT,CSX,Carbon Load,"Houghton Chemical (Allston, MA)",
+shipment_rename,CALG-LOA-IN-028,CALG-CHEM-IN-HOUGHTON,Calgon Carbon,IN,POHC,Chemical Unload,"Houghton Chemical (Allston, MA)",Caustic Soda
+shipment_rename,CALG-LOA-IN-029,CALG-CHEM-IN-GEN-CHEM,Calgon Carbon,IN,POHC,Chemical Unload,"General Chemical (Parsippany, NJ)",Hydrochloric Acid
+shipment_rename,CALG-LOA-IN-030,CALG-CHEM-IN-DOW,Calgon Carbon,IN,CSX,Chemical Unload,"Dow Chemical (Midland, MI)",Phosphoric Acid
+shipment_rename,FERR-LOA-IN-034,FERR-LPG-IN-TANEYTOWN,Ferrel Gas,IN,POHC,LPG Unload,"Ferrellgas Co (Taneytown, MD)",
+shipment_rename,FERR-LOA-IN-035,FERR-LPG-IN-PIPE,Ferrel Gas,IN,CSX,LPG Unload,Ferrellgas pipeline terminal,
+shipment_removed,FERR-LOA-IN-036,,Ferrel Gas,IN,CSX,LPG Unload,Ferrellgas pipeline terminal,Removed — duplicate of FERR-LOA-IN-035 (same pipeline terminal route)
+shipment_rename,KOSM-LOA-IN-037,KOSM-CEMENT-IN-KOSMOS,Kosmos Cement,IN,POHC,Cement Unload,"Kosmos Cement (Canton, OH)",
+shipment_rename,KOSM-LOA-IN-038,KOSM-CEMENT-IN-MEDUSA,Kosmos Cement,IN,CSX,Cement Unload,"Medusa Cement (Charlevoix, MI)",
+shipment_rename,KOSM-LOA-IN-039,KOSM-CEMENT-IN-LEHIGH,Kosmos Cement,IN,POHC,Cement Unload,"Lehigh Cement (Mitchell, IN)",
+shipment_rename,KOSM-LOA-IN-040,KOSM-AGG-IN-MI-LIME,Kosmos Cement,IN,POHC,Aggregate Unload,"Michigan Limestone (Rogers City, MI)",
+shipment_rename,KOSM-LOA-IN-041,KOSM-AGG-IN-US-AGG,Kosmos Cement,IN,CSX,Aggregate Unload,"US Aggregates (Indianapolis, IN)",
+shipment_rename,KOSM-LOA-IN-042,KOSM-AGG-IN-MARTIN,Kosmos Cement,IN,CSX,Aggregate Unload,"Martin Marietta (Clairton, PA)",
+shipment_rename,IX-INT-XX-043,IX-LAMPS-GE-PENELEC,INTERCHANGE,IX,POHC->CSX,Fluorescent Lamps,"GE (Bridgeville, PA)","Penelec (Erie, PA)",Phase 3 through traffic
+shipment_rename,IX-INT-XX-044,IX-TUBES-GE-GRAYBAR,INTERCHANGE,IX,POHC->CSX,Fluorescent Tubes,"GE (Bridgeville, PA)","Graybar Electric (St. Louis, MO)",Phase 3
+shipment_rename,IX-INT-XX-045,IX-RESIN-DOW-OI-OTT,INTERCHANGE,IX,CSX->POHC,Plastic Resins,"Dow Chemical (Midland, MI)","Owens-Illinois (Ottawa, IL)",Phase 3
+shipment_rename,IX-INT-XX-046,IX-COILS-REP-DEERE,INTERCHANGE,IX,POHC->CSX,Steel Coils,"Republic Steel (Cleveland, OH)","John Deere (Moline, IL)",Phase 3
+shipment_rename,IX-INT-XX-047,IX-COILS-WEIRTON-RYERSON,INTERCHANGE,IX,CSX->POHC,Steel Coils,"Weirton Steel (Weirton, WV)","Ryerson Steel Service (Pittsburgh, PA)",Phase 3
+shipment_rename,IX-INT-XX-048,IX-TINPLATE-WHEELING-HEINZ,INTERCHANGE,IX,POHC->CSX,Tin Plate,"Wheeling-Pittsburgh Steel (Wheeling, WV)","Heinz (Pittsburgh, PA)",Phase 3
+shipment_rename,IX-INT-XX-049,IX-CARBON-CORP-HOUGHTON,INTERCHANGE,IX,CSX->POHC,Activated Carbon,"Calgon Corp (Columbus, OH)","Houghton Chemical (Allston, MA)",Phase 3
+shipment_rename,IX-INT-XX-050,IX-CEMENT-LEHIGH-HOLCIM,INTERCHANGE,IX,POHC->CSX,Cement,"Lehigh Cement (Mitchell, IN)","Holcim (Buffalo, NY)",Phase 3
+shipment_rename,IX-INT-XX-051,IX-CEMENT-MEDUSA-KNOUSE,INTERCHANGE,IX,POHC->CSX,Cement,"Medusa Cement (Charlevoix, MI)","Knouse Foods (Orrtanna, PA)",Phase 3
+shipment_rename,IX-INT-XX-052,IX-PHOSPHOR-GEN-GE,INTERCHANGE,IX,CSX->POHC,Phosphor Compounds,"General Chemical (Parsippany, NJ)","GE (Bridgeville, PA)",Phase 3
+shipment_rename,IX-INT-XX-053,IX-PHOSPHOR-GEN-HEINZ,INTERCHANGE,IX,POHC->CSX,Phosphor Compounds,"General Chemical (Parsippany, NJ)","Heinz (Pittsburgh, PA)",Phase 3
+shipment_rename,IX-INT-XX-054,IX-PELLETS-BASF-OI-TOL,INTERCHANGE,IX,POHC->CSX,Plastic Pellets,"BASF (Wyandotte, MI)","Owens-Illinois (Toledo, OH)",Phase 3
+shipment_rename,IX-INT-XX-055,IX-PELLETS-BASF-OI-TOL-CSX,INTERCHANGE,IX,CSX->POHC,Plastic Pellets,"BASF (Wyandotte, MI)","Owens-Illinois (Toledo, OH)",Phase 3 CSX→POHC direction
+shipment_rename,IX-INT-XX-056,IX-FORGINGS-SFP-CAT,INTERCHANGE,IX,POHC->CSX,Forged Components,"Standard Forged Products (McKees Rocks, PA)","Caterpillar (Peoria, IL)",Phase 3
+shipment_rename,IX-INT-XX-057,IX-FORGINGS-SFP-SHARON,INTERCHANGE,IX,CSX->POHC,Forged Components,"Standard Forged Products (McKees Rocks, PA)","Sharon Steel (Farrell, PA)",Phase 3
+shipment_rename,IX-INT-XX-058,IX-STAINLESS-USA-RYERSON,INTERCHANGE,IX,POHC->CSX,Stainless Bar,"Universal Stainless & Alloy (Bridgeville, PA)","Ryerson Steel (Chicago, IL)",Phase 3
+shipment_rename,IX-INT-XX-059,IX-STAINLESS-USA-CARPENTER,INTERCHANGE,IX,CSX->POHC,Stainless Bar,"Universal Stainless & Alloy (Bridgeville, PA)","Carpenter Steel (Reading, PA)",Phase 3
+shipment_rename,IX-INT-XX-060,IX-SLAB-ALLEGHENY-USA,INTERCHANGE,IX,CSX->POHC,Stainless Slab,"Allegheny Ludlum (Brackenridge, PA)","Universal Stainless & Alloy (Bridgeville, PA)",Phase 3
+shipment_rename,IX-INT-XX-061,IX-SLAB-WEIRTON-ARMCO,INTERCHANGE,IX,POHC->CSX,Stainless Slab,"Weirton Steel (Weirton, WV)","Armco Steel (Middletown, OH)",Phase 3
+shipment_rename,IX-INT-XX-062,IX-BILLETS-REP-SFP,INTERCHANGE,IX,CSX->POHC,Steel Billets,"Republic Steel (Cleveland, OH)","Standard Forged Products (McKees Rocks, PA)",Phase 3
+shipment_rename,IX-INT-XX-063,IX-BILLETS-REP-MCCONWAY,INTERCHANGE,IX,CSX->POHC,Steel Billets,"Republic Steel (Cleveland, OH)","McConway & Torley (Pittsburgh, PA)",Phase 3
+shipment_rename,IX-INT-XX-064,IX-PLATE-BETHLEHEM-RYERSON,INTERCHANGE,IX,CSX->POHC,Steel Plate,"Bethlehem Steel (Bethlehem, PA)","Ryerson Steel Service (Pittsburgh, PA)",Phase 3
+shipment_rename,IX-INT-XX-065,IX-SCRAP-ALLEGHENY-MCCONWAY,INTERCHANGE,IX,POHC->CSX,Scrap Steel,"Allegheny Ludlum (Brackenridge, PA)","McConway & Torley (Pittsburgh, PA)",Phase 3
+shipment_rename,IX-INT-XX-066,IX-COAL-CONSOL-AEP,INTERCHANGE,IX,CSX->POHC,Coal,"Consol Energy (Pittsburgh, PA)","American Electric Power (Columbus, OH)",Phase 3
+shipment_rename,IX-INT-XX-067,IX-REEFER-HEINZ-SYSCO,INTERCHANGE,IX,POHC->CSX,Frozen Foods,"Heinz (Pittsburgh, PA)","Sysco Foods (Harrisburg, PA)",Phase 3
+shipment_rename,IX-INT-XX-068,IX-REEFER-DUBUQUE-GIANT,INTERCHANGE,IX,CSX->POHC,Packaged Meats,"Dubuque Packing Co (Dubuque, IA)","Giant Eagle (Pittsburgh, PA)",Phase 3
+shipment_rename,IX-INT-XX-069,IX-ARGON-AIRPROD-GE,INTERCHANGE,IX,POHC->CSX,Argon,"Air Products (Allentown, PA)","GE (Bridgeville, PA)",Phase 3
+shipment_rename,IX-INT-XX-070,IX-CHEM-DOW-KNOUSE,INTERCHANGE,IX,CSX->POHC,Industrial Gases,"Dow Chemical (Midland, MI)","Knouse Foods (Orrtanna, PA)",Phase 3
+shipment_rename,IX-INT-XX-071,IX-LPG-MAPCO-SUBURBAN,INTERCHANGE,IX,POHC->CSX,LPG,"Mapco LP (Memphis, TN)","Suburban Propane (Buffalo, NY)",Phase 3
+shipment_rename,IX-INT-XX-072,IX-CHEM-EXXON-DUPONT,INTERCHANGE,IX,POHC->CSX,Methyl Methacrylate,"Exxon Chemical (Bayonne, NJ)","DuPont (Wilmington, DE)",Phase 3
+shipment_unchanged,COKE-USS,COKE-USS,,,,,Coke outbound — mnemonic already descriptive,
+shipment_unchanged,COKE-CLEV,COKE-CLEV,,,,,,
+shipment_unchanged,COKE-USS-BULK,COKE-USS-BULK,,,,,,
+shipment_unchanged,COKE-CLEV-BULK,COKE-CLEV-BULK,,,,,,
+shipment_rename,COKE-RELOAD-001,COKE-RELOAD-EAST,,,,,Scale to East Yard reload — optional rename,

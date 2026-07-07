@@ -1,0 +1,1125 @@
+{
+  "railroad_name": "HART Railroad, Pittsburgh & Chartiers Valley Division",
+  "railroad_initials": "HART",
+  "club_ops": {
+    "owners": [
+      {
+        "id": 1,
+        "name": "Lee Nevo",
+        "remarks": ""
+      }
+    ],
+    "default_owner_id": 1,
+    "default_on_off_rr": "on"
+  },
+  "skip_usages": [
+    "Off Spot",
+    "Storage"
+  ],
+  "stations": [
+    {
+      "id": 11,
+      "name": "North Yard",
+      "sort_seq": 150
+    },
+    {
+      "id": 2,
+      "name": "West Yard",
+      "sort_seq": 200
+    },
+    {
+      "id": 13,
+      "name": "East Yard",
+      "sort_seq": 275
+    },
+    {
+      "id": 15,
+      "name": "Scully Offline",
+      "sort_seq": 255
+    },
+    {
+      "id": 9,
+      "name": "Scully Yard",
+      "sort_seq": 250
+    },
+    {
+      "id": 12,
+      "name": "Shenango Coke Works",
+      "sort_seq": 290
+    },
+    {
+      "id": 3,
+      "name": "Neville Island",
+      "sort_seq": 300
+    },
+    {
+      "id": 8,
+      "name": "South Yard",
+      "sort_seq": 800
+    },
+    {
+      "id": 10,
+      "name": "Demmler Yard",
+      "sort_seq": 850
+    },
+    {
+      "id": 14,
+      "name": "Demmler Offline",
+      "sort_seq": 855
+    }
+  ],
+  "offline_stations": {
+    "csx_offline_station_id": 14,
+    "csx_offline_station_name": "Demmler Offline",
+    "pohc_offline_station_id": 15,
+    "pohc_offline_station_name": "Scully Offline",
+    "csx_interchange_station_id": 10,
+    "pohc_interchange_station_id": 9
+  },
+  "island_local_station": 3,
+  "outbound_empty_return": {
+    "Aristech Plastics": {
+      "yard_code": "SCL",
+      "via": "POHC"
+    },
+    "Calgon Carbon": {
+      "yard_code": "SCL",
+      "via": "POHC"
+    },
+    "A Stucki Co": {
+      "yard_code": "DEM",
+      "via": "CSX"
+    },
+    "Ferrel Gas": {
+      "yard_code": "DEM",
+      "via": "CSX"
+    },
+    "Kosmos Cement": {
+      "yard_code": "DEM",
+      "via": "CSX"
+    }
+  },
+  "car_home_yard": {
+    "start_yard_code": "SOUTH",
+    "pohc_yard_code": "SCL",
+    "csx_yard_code": "DEM",
+    "coke_plant_yard_code": "NIL-SHEN-COKE",
+    "unit_train_hopper_max_length_ft": 40
+  },
+  "default_setout_locations": {
+    "North Yard": "NORTH",
+    "West Yard": "WEST",
+    "East Yard": "EAST",
+    "Scully Yard": "SCL",
+    "Scully Offline": "SCL",
+    "Shenango Coke Works": "NIL-SHEN-COKE",
+    "South Yard": "SOUTH",
+    "Demmler Yard": "DEM",
+    "Demmler Offline": "DEM"
+  },
+  "routing_instructions": {
+    "North Yard": "Outbound coke staging — CK1 to South Yard scale when authorized.",
+    "West Yard": "D749 terminates here at end of session after return from Demmler.",
+    "East Yard": "Reserved for future staging.",
+    "Scully Yard": "POHC interchange — NVL picks up its block here at session start; STG-SCULLY runs end-of-session offline shuffle.",
+    "Scully Offline": "POHC offline party tracks — STG-SCULLY stages blocks after the operating session.",
+    "Shenango Coke Works": "Coke plant on Neville Island — CK1 picks coke blocks for weighing and resort at South Yard scale.",
+    "Neville Island": "Island industries — NVL delivers and pulls; cars remain spotted here between sessions.",
+    "South Yard": "Classification hub and session start point.\nD749 sets out inbound Demmler block here to begin ops.\nNVL exchanges blocks with D749 (Demmler-bound off, Island-bound on).",
+    "Demmler Yard": "CSX interchange — D749 picks up inbound block at session start; STG-DEMMLER runs end-of-session offline shuffle.",
+    "Demmler Offline": "CSX offline party tracks — STG-DEMMLER stages blocks after the operating session."
+  },
+  "session_operations": {
+    "session_start": [
+      "Evaluate empty repositioning and generate new car orders if unfilled backlog is 30 or fewer.",
+      "D749 picks up all cars with orders at Demmler Yard and runs to South Yard.",
+      "D749 sets out the inbound block at South Yard — the operating session begins here.",
+      "Yardmaster and engineer swap blocks; D749 departs South Yard westbound.",
+      "NVL simultaneously assigns its block at Scully Yard and waits for D749 to cross the bridge with its load."
+    ],
+    "during_session": [
+      "NVL comes to South Yard, sets out Demmler-bound blocks, picks up D749 blocks for Neville Island, and works the island industries and Shenango Coke Works.",
+      "CK1 picks up the coke block from Shenango Coke Works, runs to South Yard scale for weighing, and resorts cars for outgoing trains.",
+      "When NVL finishes island work, it returns to South Yard, sets out remaining Demmler-bound traffic, picks up Scully-bound cars, and returns to Scully Yard.",
+      "D749 returns from Demmler with a fresh block and terminates in West Yard for the night."
+    ],
+    "session_end": [
+      "After D749 secures in West Yard, STG-SCULLY and STG-DEMMLER shuffle cars between interchange yards and offline party tracks.",
+      "Loads and unloads complete at offline facilities as cars are staged."
+    ]
+  },
+  "shipment_tank_code": "TA",
+  "tank_lined_commodities": [
+    "Caustic Soda",
+    "Hydrochloric Acid",
+    "Phosphoric Acid",
+    "Ethyl Acrylate",
+    "Methyl Methacrylate",
+    "Styrene Monomer"
+  ],
+  "open_hopper_outside_keywords": [
+    "coke hopper",
+    "coke"
+  ],
+  "open_hopper_outside_roster_ids": [],
+  "covered_hopper_roster_ids": [
+    "BO600401",
+    "BO600409",
+    "BO600421",
+    "BO628038",
+    "BO631140",
+    "KSMX101",
+    "KSMX105",
+    "KSMX110"
+  ],
+  "pneumatic_covered_hopper_roster_ids": [
+    "CO2052",
+    "CO2063"
+  ],
+  "covered_hopper_note_keywords": [
+    "covered hopper",
+    "cement hopper",
+    "portland cement",
+    "kosmos"
+  ],
+  "mow_equipment": [
+    {
+      "roster_id": "COST1",
+      "car_id": 78,
+      "aar_code": "WF",
+      "description": "Scale test car"
+    },
+    {
+      "roster_id": "COW86",
+      "car_id": 79,
+      "aar_code": "WF",
+      "description": "MOW camp car"
+    },
+    {
+      "roster_id": "CO377700",
+      "car_id": 80,
+      "aar_code": "WC",
+      "description": "MOW crane car"
+    }
+  ],
+  "extra_commodities": [
+    {
+      "code": "GENFREIGHT",
+      "description": "General Freight"
+    },
+    {
+      "code": "PROCCHEM",
+      "description": "Process Chemicals"
+    },
+    {
+      "code": "COKE",
+      "description": "Coke"
+    }
+  ],
+  "process_chemical_hazmat": {
+    "Argon": "HAZMAT: Class 2.2 Non-flammable gas; UN1006; Placard Non-Flammable Gas; 1 spacer from loco/caboose/passenger",
+    "Caustic Soda": "HAZMAT: Class 8 Corrosive; UN1824; Placard Corrosive; Do not place adjacent to food or reefers",
+    "Ethyl Acrylate": "HAZMAT: Class 3 Flammable liquid; UN1919; Placard Flammable; Do not hump; 1 spacer from loco/caboose/passenger",
+    "Hydrochloric Acid": "HAZMAT: Class 8 Corrosive; UN1789; Placard Corrosive; Do not place adjacent to food or reefers",
+    "Industrial Gases": "HAZMAT: Class 2.2 Non-flammable gas; UN2187; Placard Non-Flammable Gas; 1 spacer from loco/caboose/passenger",
+    "Methyl Methacrylate": "HAZMAT: Class 3 Flammable liquid; UN1247; Placard Flammable; Do not hump; 1 spacer from loco/caboose/passenger",
+    "Phosphor Compounds": "HAZMAT: Class 4.1 Flammable solid; UN1381; Placard Flammable Solid; Do not hump; 2 spacers from occupied equipment",
+    "Phosphoric Acid": "HAZMAT: Class 8 Corrosive; UN1805; Placard Corrosive; Do not place adjacent to food or reefers",
+    "Process Chemicals": "HAZMAT: See specific chemical commodity code for UN/placard and handling restrictions",
+    "Styrene Monomer": "HAZMAT: Class 3 Flammable liquid; UN2054; Placard Flammable; Do not hump; 1 spacer from loco/caboose/passenger"
+  },
+  "track_scale_demo": {
+    "cars_at_scale": [
+      "COST1"
+    ]
+  },
+  "warm_start": {
+    "completed_sessions": 3,
+    "min_sessions": 3,
+    "max_sessions": 12,
+    "stop_when_staging_ready": true,
+    "run_ck1_test": false,
+    "seed": 42,
+    "max_unfilled_before_generate": 30,
+    "staging_jobs": [
+      "STG-SCULLY",
+      "STG-DEMMLER"
+    ],
+    "reposition_fraction": 0.65,
+    "scale_calibrate_every_sessions": 3,
+    "ck1_test": {
+      "weigh_required": true,
+      "min_outbound_on_train": 1,
+      "reference_manual_state": "Session 7: BO31000+WLE621 Loaded COKE-CLEV-BULK on CK1; scale weigh outbound/reload without re-assigning existing outbound orders"
+    },
+    "partial": {
+      "fill_orders": 0.88,
+      "reposition": 0.65,
+      "auto_assign": 0.75,
+      "pickup": 0.55,
+      "setout": 0.65,
+      "load_unload": 0.8
+    }
+  },
+  "unavailable_reporting_marks": [
+    "URR15022",
+    "BO625082",
+    "BO132315",
+    "MSTL52673",
+    "URTX63627",
+    "RDG107333",
+    "MOW0017",
+    "COST1",
+    "COW86",
+    "CO377700"
+  ],
+  "open_hopper_hk_marks": [
+    "BO132392",
+    "BO133007",
+    "BO132315"
+  ],
+  "coke_fleet_marks": [
+    "BO73133",
+    "URR15003",
+    "URR15044",
+    "BO625238",
+    "BO625509",
+    "BO625943",
+    "BO10389",
+    "BO11027",
+    "BO11137",
+    "WLE621",
+    "NW12986",
+    "NW12988",
+    "BO30222",
+    "BO30963",
+    "BO31000"
+  ],
+  "shenango_coke": {
+    "station_id": 12,
+    "location_code": "NIL-SHEN-COKE",
+    "track": "OUTBOUND",
+    "spot": "OUT",
+    "rpt_station": "Neville Island",
+    "remarks": "Shenango Coke Works"
+  },
+  "coke_shipments": [
+    {
+      "code": "COKE-USS",
+      "description": "Shenango Coke Works to U.S. Steel Edgar Thomson Works",
+      "commodity": "COKE",
+      "car_code": "HM",
+      "loading_location": "NIL-SHEN-COKE",
+      "unloading_location": "DEM-OUT-USS",
+      "special_instructions": "CSX | URR",
+      "min_interval": 99,
+      "max_interval": 99,
+      "min_amount": 1,
+      "max_amount": 1
+    },
+    {
+      "code": "COKE-CLEV",
+      "description": "Shenango Coke Works to Cleveland Works, Cleveland, OH",
+      "commodity": "COKE",
+      "car_code": "HM",
+      "loading_location": "NIL-SHEN-COKE",
+      "unloading_location": "SCL-OUT-CLEV",
+      "special_instructions": "POHC | NS via McKees Rocks",
+      "min_interval": 99,
+      "max_interval": 99,
+      "min_amount": 1,
+      "max_amount": 1
+    },
+    {
+      "code": "COKE-USS-BULK",
+      "description": "Shenango Coke Works to U.S. Steel Edgar Thomson Works",
+      "commodity": "COKE",
+      "car_code": "HM",
+      "loading_location": "NIL-SHEN-COKE",
+      "unloading_location": "DEM-OUT-USS",
+      "special_instructions": "CSX | URR",
+      "min_interval": 1.1,
+      "max_interval": 1.1,
+      "min_amount": 4,
+      "max_amount": 4
+    },
+    {
+      "code": "COKE-CLEV-BULK",
+      "description": "Shenango Coke Works to Cleveland Works, Cleveland, OH",
+      "commodity": "COKE",
+      "car_code": "HM",
+      "loading_location": "NIL-SHEN-COKE",
+      "unloading_location": "SCL-OUT-CLEV",
+      "special_instructions": "POHC | NS via McKees Rocks",
+      "min_interval": 1.1,
+      "max_interval": 1.1,
+      "min_amount": 4,
+      "max_amount": 4
+    },
+    {
+      "code": "COKE-RELOAD-SHEN",
+      "description": "South Yard Scale to Shenango Coke Works",
+      "commodity": "COKE",
+      "car_code": "HM",
+      "loading_location": "SOUTH-SCALE",
+      "unloading_location": "NIL-SHEN-COKE",
+      "min_interval": 99,
+      "max_interval": 99,
+      "min_amount": 1,
+      "max_amount": 1
+    }
+  ],
+  "shipment_yard_balance": {
+    "_comment": "Auto-balance Demmler vs Scully shipment intervals after cars are placed. Uses available home-yard fleet only (unavailable cars excluded).",
+    "enabled": true,
+    "interchange_stations": [
+      "Demmler Yard",
+      "Scully Yard"
+    ],
+    "min_supply_per_code": 0.5,
+    "throttle_ratio": 1.15,
+    "boost_ratio": 0.85,
+    "heavy_throttle_ratio": 1.35,
+    "heavy_boost_ratio": 0.7
+  },
+  "layout_party_names": [
+    "Aristech Plastics",
+    "A Stucki Co",
+    "Calgon Carbon",
+    "Ferrel Gas",
+    "Kosmos Cement",
+    "Ferrellgas Co (Taneytown, MD)",
+    "Ferrellgas pipeline terminal"
+  ],
+  "jobs": [
+    {
+      "id": 1,
+      "name": "D749",
+      "description": "CSX Neville Island Switcher.\n\nSESSION START (inbound from Demmler):\n1. Pick up all cars with orders at Demmler Yard.\n2. Run to South Yard and set out the inbound block — the operating session begins here.\n3. Yardmaster and engineer swap blocks; D749 departs South Yard westbound.\n\nDURING SESSION:\n- South Yard: pick up outbound for Demmler Yard and Demmler Offline; set out inbound.\n- Demmler Yard: pick up inbound and offline traffic for Scully, Scully Offline, Shenango, Neville Island, and Demmler; set out outbound.\n\nSESSION END:\n- STG-DEMMLER stages Demmler Yard offline traffic (load/unload).\n- Return from Demmler with a fresh block; cars remain on D749 for the night.\n- NVL secures at Scully Yard; STG-SCULLY runs after.",
+      "steps": [
+        {
+          "step_number": 10,
+          "station": 8,
+          "pickup": true,
+          "setout": false,
+          "remarks": "South Yard — Pick up for Demmler Yard"
+        },
+        {
+          "step_number": 15,
+          "station": 8,
+          "pickup": true,
+          "setout": false,
+          "remarks": "South Yard — Pick up for Demmler Offline"
+        },
+        {
+          "step_number": 20,
+          "station": 8,
+          "pickup": false,
+          "setout": true,
+          "remarks": "South Yard — Set out at South Yard"
+        },
+        {
+          "step_number": 30,
+          "station": 10,
+          "pickup": true,
+          "setout": false,
+          "remarks": "Demmler Yard — Pick up for Scully Yard"
+        },
+        {
+          "step_number": 35,
+          "station": 10,
+          "pickup": true,
+          "setout": false,
+          "remarks": "Demmler Yard — Pick up for Scully Offline"
+        },
+        {
+          "step_number": 40,
+          "station": 10,
+          "pickup": true,
+          "setout": false,
+          "remarks": "Demmler Yard — Pick up for Shenango Coke Works"
+        },
+        {
+          "step_number": 50,
+          "station": 10,
+          "pickup": true,
+          "setout": false,
+          "remarks": "Demmler Yard — Pick up for Neville Island"
+        },
+        {
+          "step_number": 60,
+          "station": 10,
+          "pickup": true,
+          "setout": true,
+          "remarks": "Demmler Yard — Pick up for Demmler Yard; Set out at Demmler Yard"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "NVL",
+      "description": "POHC Neville Local.\n\nSESSION START:\n- At Scully Yard, pick up the POHC block and hold for D749 to cross the bridge with its inbound load.\n\nDURING SESSION:\n1. After D749 clears the bridge, run to South Yard.\n2. Set out blocks bound for Demmler; pick up D749 blocks for Neville Island.\n3. Work Neville Island industries and Shenango Coke Works — leave cars spotted on the island.\n4. Return to South Yard; set out remaining Demmler-bound traffic.\n5. Pick up cars pending for Scully Yard and return to Scully.\n\nScully Yard: interchange pick up and set out.\nSouth Yard: block exchange with D749.\nNeville Island: industry spotting and pulls.",
+      "steps": [
+        {
+          "step_number": 10,
+          "station": 9,
+          "pickup": true,
+          "setout": true,
+          "remarks": "Scully Yard — Pick up for Scully Yard; Set out at Scully Yard"
+        },
+        {
+          "step_number": 20,
+          "station": 9,
+          "pickup": true,
+          "setout": false,
+          "remarks": "Scully Yard — Pick up for Shenango Coke Works"
+        },
+        {
+          "step_number": 30,
+          "station": 9,
+          "pickup": true,
+          "setout": false,
+          "remarks": "Scully Yard — Pick up for Neville Island"
+        },
+        {
+          "step_number": 35,
+          "station": 9,
+          "pickup": true,
+          "setout": false,
+          "remarks": "Scully Yard — Pick up for Demmler Offline"
+        },
+        {
+          "step_number": 40,
+          "station": 9,
+          "pickup": true,
+          "setout": false,
+          "remarks": "Scully Yard — Pick up for Demmler Yard"
+        },
+        {
+          "step_number": 50,
+          "station": 3,
+          "pickup": true,
+          "setout": false,
+          "remarks": "Neville Island — Pick up for Scully Yard"
+        },
+        {
+          "step_number": 60,
+          "station": 3,
+          "pickup": true,
+          "setout": false,
+          "remarks": "Neville Island — Pick up for Shenango Coke Works"
+        },
+        {
+          "step_number": 65,
+          "station": 12,
+          "pickup": false,
+          "setout": true,
+          "remarks": "Shenango Coke Works — Set out at Shenango Coke Works"
+        },
+        {
+          "step_number": 70,
+          "station": 3,
+          "pickup": true,
+          "setout": true,
+          "remarks": "Neville Island — Pick up for Neville Island; Set out at Neville Island"
+        },
+        {
+          "step_number": 75,
+          "station": 3,
+          "pickup": true,
+          "setout": false,
+          "remarks": "Neville Island — Pick up for Demmler Offline"
+        },
+        {
+          "step_number": 80,
+          "station": 3,
+          "pickup": true,
+          "setout": false,
+          "remarks": "Neville Island — Pick up for Demmler Yard"
+        },
+        {
+          "step_number": 85,
+          "station": 3,
+          "pickup": true,
+          "setout": false,
+          "remarks": "Neville Island — Pick up for Scully Offline"
+        },
+        {
+          "step_number": 90,
+          "station": 8,
+          "pickup": true,
+          "setout": false,
+          "remarks": "South Yard — Pick up for Scully Yard"
+        },
+        {
+          "step_number": 95,
+          "station": 8,
+          "pickup": true,
+          "setout": false,
+          "remarks": "South Yard — Pick up for Scully Offline"
+        },
+        {
+          "step_number": 100,
+          "station": 8,
+          "pickup": true,
+          "setout": false,
+          "remarks": "South Yard — Pick up for Neville Island"
+        },
+        {
+          "step_number": 110,
+          "station": 8,
+          "pickup": false,
+          "setout": true,
+          "remarks": "South Yard — Set out at South Yard"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "name": "CK1",
+      "description": "Coke transfer train.\n\nDURING SESSION (parallel with NVL):\n1. Pick up loaded coke cars from Shenango Coke Works.\n2. Run to South Yard track scale and weigh each car.\n3. In-tolerance loads get outbound orders; off-tolerance loads get reload orders back to Shenango.\n4. After weighing, pick up reload cars at South Yard and return them to Shenango Coke Works.\n5. Set out outbound coke at South Yard for outgoing trains.\n\nSouth Yard scale is the weigh point; reloads cycle Shenango ↔ scale ↔ Shenango.",
+      "steps": [
+        {
+          "step_number": 10,
+          "station": 11,
+          "pickup": true,
+          "setout": true,
+          "remarks": "North Yard — Pick up for North Yard; Set out at North Yard"
+        },
+        {
+          "step_number": 20,
+          "station": 11,
+          "pickup": true,
+          "setout": false,
+          "remarks": "North Yard — Pick up for Scully Offline"
+        },
+        {
+          "step_number": 30,
+          "station": 11,
+          "pickup": true,
+          "setout": false,
+          "remarks": "North Yard — Pick up for Shenango Coke Works"
+        },
+        {
+          "step_number": 40,
+          "station": 11,
+          "pickup": true,
+          "setout": false,
+          "remarks": "North Yard — Pick up for South Yard"
+        },
+        {
+          "step_number": 50,
+          "station": 11,
+          "pickup": true,
+          "setout": false,
+          "remarks": "North Yard — Pick up for Demmler Offline"
+        },
+        {
+          "step_number": 60,
+          "station": 12,
+          "pickup": true,
+          "setout": false,
+          "remarks": "Shenango Coke Works — Pick up for North Yard"
+        },
+        {
+          "step_number": 70,
+          "station": 12,
+          "pickup": true,
+          "setout": false,
+          "remarks": "Shenango Coke Works — Pick up for Scully Offline"
+        },
+        {
+          "step_number": 80,
+          "station": 12,
+          "pickup": true,
+          "setout": true,
+          "remarks": "Shenango Coke Works — Pick up for Shenango Coke Works; Set out at Shenango Coke Works"
+        },
+        {
+          "step_number": 90,
+          "station": 12,
+          "pickup": true,
+          "setout": false,
+          "remarks": "Shenango Coke Works — Pick up for South Yard"
+        },
+        {
+          "step_number": 95,
+          "station": 8,
+          "pickup": false,
+          "setout": true,
+          "remarks": "South Yard Scale — Weigh coke cars; assign outbound or reload orders"
+        },
+        {
+          "step_number": 100,
+          "station": 12,
+          "pickup": true,
+          "setout": false,
+          "remarks": "Shenango Coke Works — Pick up for Demmler Offline"
+        },
+        {
+          "step_number": 110,
+          "station": 8,
+          "pickup": true,
+          "setout": false,
+          "remarks": "South Yard — Pick up reload coke for Shenango Coke Works (after scale weigh)"
+        },
+        {
+          "step_number": 130,
+          "station": 8,
+          "pickup": true,
+          "setout": false,
+          "remarks": "South Yard — Pick up for Shenango Coke Works"
+        },
+        {
+          "step_number": 150,
+          "station": 8,
+          "pickup": false,
+          "setout": true,
+          "remarks": "South Yard — Set out at South Yard"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "name": "STG-SCULLY",
+      "description": "Scully Yard staging — END OF SESSION ONLY (after D749 secures in West Yard).\n\nShuffle cars between Scully Yard and Scully Offline party tracks.\nStep 10 picks at Scully Yard; step 11 set out at Scully Offline; steps 12–50 work offline blocks; step 60 returns cars to Scully Yard.\nLoads and unloads complete at offline tracks as cars are staged.",
+      "steps": [
+        {
+          "step_number": 10,
+          "station": 9,
+          "pickup": true,
+          "setout": false,
+          "remarks": "Scully Yard — Pick up for Scully Offline"
+        },
+        {
+          "step_number": 11,
+          "station": 15,
+          "pickup": false,
+          "setout": true,
+          "remarks": "Scully Offline — Set out at Scully Offline"
+        },
+        {
+          "step_number": 12,
+          "station": 15,
+          "pickup": true,
+          "setout": true,
+          "remarks": "Scully Offline — Pick up for Scully Offline; Set out at Scully Offline"
+        },
+        {
+          "step_number": 20,
+          "station": 15,
+          "pickup": true,
+          "setout": true,
+          "remarks": "Scully Offline — Pick up for Scully Yard; Set out at Scully Offline"
+        },
+        {
+          "step_number": 30,
+          "station": 15,
+          "pickup": true,
+          "setout": true,
+          "remarks": "Scully Offline — Pick up for Shenango Coke Works; Set out at Scully Offline"
+        },
+        {
+          "step_number": 40,
+          "station": 15,
+          "pickup": true,
+          "setout": true,
+          "remarks": "Scully Offline — Pick up for Neville Island; Set out at Scully Offline"
+        },
+        {
+          "step_number": 45,
+          "station": 15,
+          "pickup": true,
+          "setout": true,
+          "remarks": "Scully Offline — Pick up for Demmler Offline; Set out at Scully Offline"
+        },
+        {
+          "step_number": 50,
+          "station": 15,
+          "pickup": true,
+          "setout": true,
+          "remarks": "Scully Offline — Pick up for Demmler Yard; Set out at Scully Offline"
+        },
+        {
+          "step_number": 60,
+          "station": 9,
+          "pickup": true,
+          "setout": true,
+          "remarks": "Scully Yard — Pick up for Scully Yard; Set out at Scully Yard"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "name": "STG-DEMMLER",
+      "description": "Demmler Yard staging — END OF SESSION ONLY (after D749 secures in West Yard).\n\nShuffle cars between Demmler Yard and Demmler Offline party tracks.\nStep 10 picks at Demmler Yard; step 11 set out at Demmler Offline; steps 12–50 work offline blocks; step 60 returns cars to Demmler Yard.\nLoads and unloads complete at offline tracks as cars are staged.",
+      "steps": [
+        {
+          "step_number": 10,
+          "station": 10,
+          "pickup": true,
+          "setout": false,
+          "remarks": "Demmler Yard — Pick up for Demmler Offline"
+        },
+        {
+          "step_number": 11,
+          "station": 14,
+          "pickup": false,
+          "setout": true,
+          "remarks": "Demmler Offline — Set out at Demmler Offline"
+        },
+        {
+          "step_number": 12,
+          "station": 14,
+          "pickup": true,
+          "setout": true,
+          "remarks": "Demmler Offline — Pick up for Demmler Offline; Set out at Demmler Offline"
+        },
+        {
+          "step_number": 20,
+          "station": 14,
+          "pickup": true,
+          "setout": true,
+          "remarks": "Demmler Offline — Pick up for Scully Yard; Set out at Demmler Offline"
+        },
+        {
+          "step_number": 30,
+          "station": 14,
+          "pickup": true,
+          "setout": true,
+          "remarks": "Demmler Offline — Pick up for Shenango Coke Works; Set out at Demmler Offline"
+        },
+        {
+          "step_number": 40,
+          "station": 14,
+          "pickup": true,
+          "setout": true,
+          "remarks": "Demmler Offline — Pick up for Neville Island; Set out at Demmler Offline"
+        },
+        {
+          "step_number": 45,
+          "station": 14,
+          "pickup": true,
+          "setout": true,
+          "remarks": "Demmler Offline — Pick up for Scully Offline; Set out at Demmler Offline"
+        },
+        {
+          "step_number": 50,
+          "station": 14,
+          "pickup": true,
+          "setout": true,
+          "remarks": "Demmler Offline — Pick up for Demmler Yard; Set out at Demmler Offline"
+        },
+        {
+          "step_number": 60,
+          "station": 10,
+          "pickup": true,
+          "setout": true,
+          "remarks": "Demmler Yard — Pick up for Demmler Yard; Set out at Demmler Yard"
+        }
+      ]
+    }
+  ],
+  "pickup_criteria": [
+    {
+      "job": "D749",
+      "step_nbr": 10,
+      "car_status": "",
+      "dest_station_id": 10
+    },
+    {
+      "job": "D749",
+      "step_nbr": 15,
+      "car_status": "",
+      "dest_station_id": 14
+    },
+    {
+      "job": "D749",
+      "step_nbr": 30,
+      "car_status": "",
+      "dest_station_id": 9
+    },
+    {
+      "job": "D749",
+      "step_nbr": 35,
+      "car_status": "",
+      "dest_station_id": 15
+    },
+    {
+      "job": "D749",
+      "step_nbr": 40,
+      "car_status": "",
+      "dest_station_id": 12
+    },
+    {
+      "job": "D749",
+      "step_nbr": 50,
+      "car_status": "",
+      "dest_station_id": 3
+    },
+    {
+      "job": "D749",
+      "step_nbr": 60,
+      "car_status": "",
+      "dest_station_id": 10
+    },
+    {
+      "job": "NVL",
+      "step_nbr": 10,
+      "car_status": "",
+      "dest_station_id": 9
+    },
+    {
+      "job": "NVL",
+      "step_nbr": 20,
+      "car_status": "",
+      "dest_station_id": 12
+    },
+    {
+      "job": "NVL",
+      "step_nbr": 30,
+      "car_status": "",
+      "dest_station_id": 3
+    },
+    {
+      "job": "NVL",
+      "step_nbr": 35,
+      "car_status": "",
+      "dest_station_id": 14
+    },
+    {
+      "job": "NVL",
+      "step_nbr": 40,
+      "car_status": "",
+      "dest_station_id": 10
+    },
+    {
+      "job": "NVL",
+      "step_nbr": 50,
+      "car_status": "",
+      "dest_station_id": 9
+    },
+    {
+      "job": "NVL",
+      "step_nbr": 60,
+      "car_status": "",
+      "dest_station_id": 12
+    },
+    {
+      "job": "NVL",
+      "step_nbr": 70,
+      "car_status": "",
+      "dest_station_id": 3
+    },
+    {
+      "job": "NVL",
+      "step_nbr": 75,
+      "car_status": "",
+      "dest_station_id": 14
+    },
+    {
+      "job": "NVL",
+      "step_nbr": 80,
+      "car_status": "",
+      "dest_station_id": 10
+    },
+    {
+      "job": "NVL",
+      "step_nbr": 85,
+      "car_status": "",
+      "dest_station_id": 15
+    },
+    {
+      "job": "NVL",
+      "step_nbr": 90,
+      "car_status": "",
+      "dest_station_id": 9
+    },
+    {
+      "job": "NVL",
+      "step_nbr": 95,
+      "car_status": "",
+      "dest_station_id": 15
+    },
+    {
+      "job": "NVL",
+      "step_nbr": 100,
+      "car_status": "",
+      "dest_station_id": 3
+    },
+    {
+      "job": "CK1",
+      "step_nbr": 10,
+      "car_status": "",
+      "dest_station_id": 11
+    },
+    {
+      "job": "CK1",
+      "step_nbr": 20,
+      "car_status": "",
+      "dest_station_id": 15
+    },
+    {
+      "job": "CK1",
+      "step_nbr": 30,
+      "car_status": "",
+      "dest_station_id": 12
+    },
+    {
+      "job": "CK1",
+      "step_nbr": 40,
+      "car_status": "",
+      "dest_station_id": 8
+    },
+    {
+      "job": "CK1",
+      "step_nbr": 50,
+      "car_status": "",
+      "dest_station_id": 14
+    },
+    {
+      "job": "CK1",
+      "step_nbr": 60,
+      "car_status": "",
+      "dest_station_id": 11
+    },
+    {
+      "job": "CK1",
+      "step_nbr": 70,
+      "car_status": "",
+      "dest_station_id": 9
+    },
+    {
+      "job": "CK1",
+      "step_nbr": 80,
+      "car_status": "",
+      "dest_station_id": 12
+    },
+    {
+      "job": "CK1",
+      "step_nbr": 90,
+      "car_status": "",
+      "dest_station_id": 8
+    },
+    {
+      "job": "CK1",
+      "step_nbr": 95,
+      "car_status": "",
+      "dest_station_id": 8
+    },
+    {
+      "job": "CK1",
+      "step_nbr": 100,
+      "car_status": "",
+      "dest_station_id": 10
+    },
+    {
+      "job": "CK1",
+      "step_nbr": 110,
+      "car_status": "",
+      "dest_station_id": 12
+    },
+    {
+      "job": "CK1",
+      "step_nbr": 130,
+      "car_status": "",
+      "dest_station_id": 12
+    },
+    {
+      "job": "STG-SCULLY",
+      "step_nbr": 10,
+      "car_status": "",
+      "dest_station_id": 15
+    },
+    {
+      "job": "STG-SCULLY",
+      "step_nbr": 12,
+      "car_status": "",
+      "dest_station_id": 15
+    },
+    {
+      "job": "STG-SCULLY",
+      "step_nbr": 20,
+      "car_status": "",
+      "dest_station_id": 9
+    },
+    {
+      "job": "STG-SCULLY",
+      "step_nbr": 30,
+      "car_status": "",
+      "dest_station_id": 12
+    },
+    {
+      "job": "STG-SCULLY",
+      "step_nbr": 40,
+      "car_status": "",
+      "dest_station_id": 3
+    },
+    {
+      "job": "STG-SCULLY",
+      "step_nbr": 45,
+      "car_status": "",
+      "dest_station_id": 14
+    },
+    {
+      "job": "STG-SCULLY",
+      "step_nbr": 50,
+      "car_status": "",
+      "dest_station_id": 10
+    },
+    {
+      "job": "STG-SCULLY",
+      "step_nbr": 60,
+      "car_status": "",
+      "dest_station_id": 9
+    },
+    {
+      "job": "STG-DEMMLER",
+      "step_nbr": 10,
+      "car_status": "",
+      "dest_station_id": 14
+    },
+    {
+      "job": "STG-DEMMLER",
+      "step_nbr": 12,
+      "car_status": "",
+      "dest_station_id": 14
+    },
+    {
+      "job": "STG-DEMMLER",
+      "step_nbr": 20,
+      "car_status": "",
+      "dest_station_id": 9
+    },
+    {
+      "job": "STG-DEMMLER",
+      "step_nbr": 30,
+      "car_status": "",
+      "dest_station_id": 12
+    },
+    {
+      "job": "STG-DEMMLER",
+      "step_nbr": 40,
+      "car_status": "",
+      "dest_station_id": 3
+    },
+    {
+      "job": "STG-DEMMLER",
+      "step_nbr": 45,
+      "car_status": "",
+      "dest_station_id": 15
+    },
+    {
+      "job": "STG-DEMMLER",
+      "step_nbr": 50,
+      "car_status": "",
+      "dest_station_id": 10
+    },
+    {
+      "job": "STG-DEMMLER",
+      "step_nbr": 60,
+      "car_status": "",
+      "dest_station_id": 10
+    }
+  ]
+}

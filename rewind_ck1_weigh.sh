@@ -8,6 +8,9 @@ source "${SCRIPT_DIR}/lib/paths.sh"
 sts_helpers_resolve_paths
 
 SCALE_DIR="${BACKUPS_DIR}/track_scale"
+if [[ ! -d "${SCALE_DIR}" && -d "${SCRIPT_DIR}/track_scale" ]]; then
+  SCALE_DIR="${SCRIPT_DIR}/track_scale"
+fi
 SEED_JSON="${SCALE_DIR}/seed.json"
 SESSION_LOG="${SCALE_DIR}/session.log"
 MARKS="BO31000,WLE621"
@@ -18,13 +21,19 @@ if [[ -z "${WEB_CID}" ]]; then
   exit 1
 fi
 
-if [[ ! -x "${APPLY_HART_SEED}" ]]; then
-  echo "apply_hart_seed.sh not found at ${APPLY_HART_SEED}. Set HART_CARDS_ROOT." >&2
+if [[ ! -f "${APPLY_HART_SEED}" ]]; then
+  echo "apply_hart_seed.sh not found at ${APPLY_HART_SEED}." >&2
+  exit 1
+fi
+
+warm_start="${BACKUPS_DIR}/hart_warm_start"
+if [[ ! -f "${warm_start}" ]]; then
+  echo "hart_warm_start not found at ${warm_start}" >&2
   exit 1
 fi
 
 echo "==> Restoring hart_warm_start database"
-"${APPLY_HART_SEED}" --sql-file "${BACKUPS_DIR}/hart_warm_start"
+"${APPLY_HART_SEED}" --sql-file "${warm_start}"
 
 echo "==> Clearing weigh cache for ${MARKS}"
 python3 - <<PY

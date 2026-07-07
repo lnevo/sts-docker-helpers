@@ -1,0 +1,5 @@
+-- Deprecated: yard balance is computed by balance_shipment_yards.py
+-- (available home-yard fleet only; unavailable cars excluded).
+--
+-- apply_shipment_tune.sh runs it automatically after tune_shipment_orders.sql.
+-- Seed builds apply the same logic in generate_hart_seed.py.
