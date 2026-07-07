@@ -16,8 +16,9 @@ import subprocess
 import sys
 from pathlib import Path
 
-SCRIPT_DIR = Path(__file__).resolve().parent
-DEFAULT_CONFIG = SCRIPT_DIR / "hart_seed_config.json"
+SEED_DIR = Path(__file__).resolve().parent
+REPO_ROOT = SEED_DIR.parent
+DEFAULT_CONFIG = SEED_DIR / "hart_seed_config.json"
 
 INTERCHANGE_STATIONS = ("Demmler Yard", "Scully Yard")
 
@@ -218,8 +219,8 @@ def _resolve_sts_docker_compose() -> Path:
     if os.environ.get("STS_DOCKER"):
         return Path(os.environ["STS_DOCKER"]).resolve() / "docker-compose.yml"
     for candidate in (
-        SCRIPT_DIR / "sts-docker" / "docker-compose.yml",
-        SCRIPT_DIR.parent / "sts-docker" / "docker-compose.yml",
+        REPO_ROOT / "sts-docker" / "docker-compose.yml",
+        REPO_ROOT.parent / "sts-docker" / "docker-compose.yml",
     ):
         if candidate.is_file():
             return candidate

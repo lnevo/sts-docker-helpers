@@ -10,9 +10,10 @@ from pathlib import Path
 
 from openpyxl import load_workbook
 
-SCRIPT_DIR = Path(__file__).resolve().parent
-DEFAULT_CONFIG = SCRIPT_DIR / "hart_seed_config.json"
-DEFAULT_MATRIX = SCRIPT_DIR / "hart_job_criteria_matrix.xlsx"
+SEED_DIR = Path(__file__).resolve().parent
+REPO_ROOT = SEED_DIR.parent
+DEFAULT_CONFIG = SEED_DIR / "hart_seed_config.json"
+DEFAULT_MATRIX = SEED_DIR / "hart_job_criteria_matrix.xlsx"
 
 JOB_DESCRIPTIONS: dict[str, str] = {
     "D749": (
@@ -272,7 +273,7 @@ def main(argv: list[str] | None = None) -> int:
     argv = argv or sys.argv[1:]
     config_path = Path(argv[0]) if argv else DEFAULT_CONFIG
     matrix_path = Path(argv[1]) if len(argv) > 1 else DEFAULT_MATRIX
-    migration_path = Path(argv[2]) if len(argv) > 2 else SCRIPT_DIR / "matrix_import_migration.sql"
+    migration_path = Path(argv[2]) if len(argv) > 2 else REPO_ROOT / "migrations" / "matrix_import_migration.sql"
 
     config = load_config(config_path)
     config, criteria = import_matrix_to_config(config, matrix_path)

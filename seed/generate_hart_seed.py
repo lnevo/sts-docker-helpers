@@ -15,14 +15,16 @@ import re
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
-SCRIPT_DIR = Path(__file__).resolve().parent
-DEFAULT_HART_DIR = SCRIPT_DIR
-DEFAULT_CONFIG = SCRIPT_DIR / "hart_seed_config.json"
-DEFAULT_OUTPUT = SCRIPT_DIR / "backups" / "hart_seed"
-DEFAULT_MRR_CSV = SCRIPT_DIR / "MRR-AAR_Class_Codes.csv"
-DEFAULT_SCULLY_MAP = SCRIPT_DIR / "hart_scully_nville_shipping_map_proposed.csv"
-DEFAULT_IX_MAP = SCRIPT_DIR / "hart_ix_shipping_map_proposed.csv"
-DEFAULT_SHIPMENT_RENAMES = SCRIPT_DIR / "hart_shipment_code_renames_proposed.csv"
+SEED_DIR = Path(__file__).resolve().parent
+REPO_ROOT = SEED_DIR.parent
+INPUTS_DIR = SEED_DIR / "inputs"
+DEFAULT_HART_DIR = INPUTS_DIR
+DEFAULT_CONFIG = SEED_DIR / "hart_seed_config.json"
+DEFAULT_OUTPUT = REPO_ROOT / "backups" / "hart_seed"
+DEFAULT_MRR_CSV = INPUTS_DIR / "MRR-AAR_Class_Codes.csv"
+DEFAULT_SCULLY_MAP = INPUTS_DIR / "hart_scully_nville_shipping_map_proposed.csv"
+DEFAULT_IX_MAP = INPUTS_DIR / "hart_ix_shipping_map_proposed.csv"
+DEFAULT_SHIPMENT_RENAMES = INPUTS_DIR / "hart_shipment_code_renames_proposed.csv"
 
 from balance_shipment_yards import (  # noqa: E402
     balance_shipment_rows,

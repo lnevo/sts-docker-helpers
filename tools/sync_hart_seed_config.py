@@ -1,11 +1,5 @@
 #!/usr/bin/env python3
-"""Pull jobs, pickup criteria, locations, and shipments from live STS DB into hart_seed_config.json.
-
-After manual edits in the STS UI, run this script so future database rebuilds
-(generate_hart_seed.py / hart_seed restore) keep your changes.
-
-Requires the STS database container (docker compose --profile build).
-"""
+"""Pull jobs, pickup criteria, locations, and shipments from live STS DB into hart_seed_config.json."""
 
 from __future__ import annotations
 
@@ -17,7 +11,9 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
-SCRIPT_DIR = Path(__file__).resolve().parent
+TOOLS_DIR = Path(__file__).resolve().parent
+REPO_ROOT = TOOLS_DIR.parent
+SEED_DIR = REPO_ROOT / "seed"
 ALL_SECTIONS = ("jobs", "pickup_criteria", "locations", "shipments")
 
 
@@ -25,28 +21,24 @@ def resolve_sts_docker_dir() -> Path:
     if os.environ.get("STS_DOCKER"):
         return Path(os.environ["STS_DOCKER"]).resolve()
     for candidate in (
-        SCRIPT_DIR / "sts-docker",
-        SCRIPT_DIR.parent / "sts-docker",
+        REPO_ROOT / "sts-docker",
+        REPO_ROOT.parent / "sts-docker",
     ):
         if (candidate / "docker-compose.yml").is_file():
             return candidate.resolve()
     raise SystemExit(
-        "sts-docker not found. Clone github.com/lnevo/sts-docker nearby or set STS_DOCKER."
+        "sts-docker not found. Clone github.com/lnevo/sts-docker to ./sts-docker or set STS_DOCKER."
     )
 
 
 def resolve_default_config() -> Path:
-    local = SCRIPT_DIR / "hart_seed_config.json"
+    local = SEED_DIR / "hart_seed_config.json"
     if local.is_file():
         return local
-    parent = SCRIPT_DIR.parent / "hart_seed_config.json"
-    if parent.is_file():
-        return parent
     return local
 
 
 DEFAULT_CONFIG = resolve_default_config()
-
 
 def docker_mysql_query(sql: str) -> str:
     compose = resolve_sts_docker_dir() / "docker-compose.yml"

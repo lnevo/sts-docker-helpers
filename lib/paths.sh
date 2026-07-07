@@ -1,10 +1,16 @@
 # Shared path resolution for sts-docker-helpers shell scripts.
-# Source from helpers scripts: source "${SCRIPT_DIR}/lib/paths.sh"
+# Source from bin/: source "${BIN_DIR}/../lib/paths.sh"
 
 sts_helpers_resolve_paths() {
   local caller="${BASH_SOURCE[1]:-${BASH_SOURCE[0]}}"
-  SCRIPT_DIR="$(cd "$(dirname "${caller}")" && pwd)"
-  HELPERS_ROOT="${SCRIPT_DIR}"
+  BIN_DIR="$(cd "$(dirname "${caller}")" && pwd)"
+  if [[ "$(basename "${BIN_DIR}")" == "bin" ]]; then
+    HELPERS_ROOT="$(cd "${BIN_DIR}/.." && pwd)"
+  else
+    HELPERS_ROOT="${BIN_DIR}"
+    BIN_DIR="${HELPERS_ROOT}/bin"
+  fi
+  SCRIPT_DIR="${BIN_DIR}"
 
   if [[ -n "${STS_DOCKER:-}" && -d "${STS_DOCKER}" ]]; then
     STS_DOCKER="$(cd "${STS_DOCKER}" && pwd)"
@@ -26,10 +32,10 @@ sts_helpers_resolve_paths() {
 
   COMPOSE=(docker compose -f "${STS_DOCKER}/docker-compose.yml" --profile build)
 
-  APPLY_HART_SEED="${HELPERS_ROOT}/apply_hart_seed.sh"
-  if [[ ! -f "${APPLY_HART_SEED}" && -n "${HART_CARDS_ROOT:-}" && -f "${HART_CARDS_ROOT}/apply_hart_seed.sh" ]]; then
-    APPLY_HART_SEED="${HART_CARDS_ROOT}/apply_hart_seed.sh"
-  fi
+  APPLY_HART_SEED="${BIN_DIR}/apply_hart_seed.sh"
+  SEED_DIR="${HELPERS_ROOT}/seed"
+  TOOLS_DIR="${HELPERS_ROOT}/tools"
+  MIGRATIONS_DIR="${HELPERS_ROOT}/migrations"
 
   for candidate in \
     "${HELPERS_ROOT}/backups" \

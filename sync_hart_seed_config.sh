@@ -1,4 +1,1 @@
-#!/usr/bin/env bash
-set -euo pipefail
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-exec python3 "${SCRIPT_DIR}/sync_hart_seed_config.py" "$@"
+bin/sync_hart_seed_config.sh

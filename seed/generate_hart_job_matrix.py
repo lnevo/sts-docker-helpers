@@ -17,11 +17,11 @@ from openpyxl import Workbook
 from openpyxl.styles import Alignment, Font, PatternFill
 from openpyxl.utils import get_column_letter
 
-SCRIPT_DIR = Path(__file__).resolve().parent
-DEFAULT_CONFIG = SCRIPT_DIR / "hart_seed_config.json"
-DEFAULT_OUTPUT = SCRIPT_DIR / "hart_job_criteria_matrix.xlsx"
+SEED_DIR = Path(__file__).resolve().parent
+DEFAULT_CONFIG = SEED_DIR / "hart_seed_config.json"
+DEFAULT_OUTPUT = SEED_DIR / "hart_job_criteria_matrix.xlsx"
 
-sys.path.insert(0, str(SCRIPT_DIR))
+sys.path.insert(0, str(SEED_DIR))
 from generate_hart_seed import SeedBuilder  # noqa: E402
 
 HEADER_FILL = PatternFill("solid", fgColor="D9E1F2")

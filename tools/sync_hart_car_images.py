@@ -1,10 +1,5 @@
 #!/usr/bin/env python3
-"""Copy CarImagesFinal PNGs into an STS backup photos folder as {car_id}.jpg files.
-
-STS restore expects rolling stock photos beside the SQL backup:
-  sts-backups/hart_seed
-  sts-backups/hart_seed_photos/{car_id}.jpg
-"""
+"""Copy CarImagesFinal PNGs into an STS backup photos folder as {car_id}.jpg files."""
 
 from __future__ import annotations
 
@@ -16,27 +11,32 @@ import subprocess
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
-SCRIPT_DIR = Path(__file__).resolve().parent
-DEFAULT_HART_DIR = SCRIPT_DIR
-DEFAULT_METADATA = DEFAULT_HART_DIR / "image_metadata.csv"
-DEFAULT_FINAL_DIR = DEFAULT_HART_DIR / "CarImagesFinal"
-DEFAULT_ROSTER = DEFAULT_HART_DIR / "HART_MergedCarRoster.xml"
+TOOLS_DIR = Path(__file__).resolve().parent
+REPO_ROOT = TOOLS_DIR.parent
+SEED_DIR = REPO_ROOT / "seed"
+INPUTS_DIR = SEED_DIR / "inputs"
+DEFAULT_METADATA = INPUTS_DIR / "image_metadata.csv"
+DEFAULT_FINAL_DIR = REPO_ROOT / "CarImagesFinal"
+DEFAULT_ROSTER = INPUTS_DIR / "HART_MergedCarRoster.xml"
+DEFAULT_CONFIG = SEED_DIR / "hart_seed_config.json"
+
+
 def _default_seed_sql() -> Path:
     for candidate in (
-        DEFAULT_HART_DIR / "backups/hart_seed",
-        DEFAULT_HART_DIR / "hart_seed",
-        DEFAULT_HART_DIR / "sts-backups/hart_seed",
+        REPO_ROOT / "backups/hart_seed",
+        REPO_ROOT / "sts-backups/hart_seed",
     ):
         if candidate.is_file():
             return candidate
-    return DEFAULT_HART_DIR / "backups/hart_seed"
+    return REPO_ROOT / "backups/hart_seed"
 
 
-def _default_photos_dir() -> Path:
-    if (DEFAULT_HART_DIR / "hart_seed").is_file():
-        return DEFAULT_HART_DIR / "backups/hart_seed_photos"
-    return DEFAULT_HART_DIR / "backups/hart_seed_photos"
+DEFAULT_SEED_SQL = _default_seed_sql()
+DEFAULT_OUTPUT = REPO_ROOT / "backups/hart_seed_photos"
 
+PASSENGER_TYPES = frozenset(
+    {"Baggage", "Coach", "Combine", "Dining", "Observation", "Caboose", "MOW"}
+)
 
 DEFAULT_SEED_SQL = _default_seed_sql()
 DEFAULT_OUTPUT = _default_photos_dir()
