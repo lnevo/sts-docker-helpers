@@ -545,7 +545,7 @@ def usage_location_code(industry: str, usage: str) -> str:
     }.get(usage.strip())
     if not suffix:
         suffix = re.sub(r"[^A-Za-z0-9]", "", usage.upper())[:24]
-    return f"NIL-{prefix}-{suffix}"
+    return f"{prefix}-{suffix}"
 
 
 ISLAND_UNLOAD_USAGES = frozenset(
@@ -560,17 +560,22 @@ ISLAND_UNLOAD_USAGES = frozenset(
 )
 ISLAND_LOAD_USAGES = frozenset({"Carbon Load", "Shipping Door"})
 ISLAND_BIDIRECTIONAL_TRACK = "IN/OUT"
-POHC_YARD_CODE = "SCL"
-CSX_YARD_CODE = "DEM"
+POHC_YARD_CODE = "SCULLY-YARD"
+CSX_YARD_CODE = "DEMMLER-YARD"
+STAGING_TRACK = "Staging"
 
 # Legacy proposal CSV codes mapped to home interchange yards.
 PHYSICAL_BLOCK_MAP = {
-    "SCL-YARD": "SCL",
-    "DEM-YARD": "DEM",
-    "SCL-IN": "SCL",
-    "DEM-IN": "DEM",
-    "SCL-RCV": "SCL",
-    "DEM-RCV": "DEM",
+    "SCL": "SCULLY-YARD",
+    "DEM": "DEMMLER-YARD",
+    "SCL-YARD": "SCULLY-YARD",
+    "DEM-YARD": "DEMMLER-YARD",
+    "SCULLY-YARD": "SCULLY-YARD",
+    "DEMMLER-YARD": "DEMMLER-YARD",
+    "SCL-IN": "SCULLY-YARD",
+    "DEM-IN": "DEMMLER-YARD",
+    "SCL-RCV": "SCULLY-YARD",
+    "DEM-RCV": "DEMMLER-YARD",
 }
 
 # Physical yard blocks are not modeled; home yards SCL/DEM handle setout and pickup.
@@ -607,6 +612,10 @@ SPUR_COLOR_TO_STS = {
 
 # Home interchange yard highlight colors (formerly on SCL-OUT / DEM-OUT blocks).
 YARD_LOCATION_COLORS = {
+    "SCULLY-YARD": "pink",
+    "DEMMLER-YARD": "purple",
+    "SCL-YARD": "pink",
+    "DEM-YARD": "purple",
     "SCL": "pink",
     "DEM": "purple",
 }
@@ -614,6 +623,18 @@ YARD_LOCATION_COLORS = {
 
 def fixed_location_color(code: str) -> str:
     return YARD_LOCATION_COLORS.get(code, "")
+
+
+def offline_station_color(station_id: int, config: dict) -> str:
+    """POHC offline (McKees Rocks) = pink; CSX offline (Mckeesport) = purple."""
+    offline = config.get("offline_stations", {})
+    pohc_offline = int(offline.get("pohc_offline_station_id", 15))
+    csx_offline = int(offline.get("csx_offline_station_id", 14))
+    if station_id == pohc_offline:
+        return "pink"
+    if station_id == csx_offline:
+        return "purple"
+    return ""
 
 
 def normalize_interchange_location_code(code: str) -> str:
@@ -641,11 +662,15 @@ def load_industry_location_colors(hart_dir: Path) -> dict[str, str]:
 
 
 def industry_for_location_code(code: str) -> str | None:
-    if code.startswith("NIL-"):
-        parts = code.split("-", 2)
+    if not code:
+        return None
+    text = code.strip()
+    if text.startswith("NIL-"):
+        parts = text.split("-", 2)
         if len(parts) >= 2:
             return NIL_INDUSTRY_PREFIX.get(parts[1])
-    return None
+    prefix = text.split("-", 1)[0]
+    return NIL_INDUSTRY_PREFIX.get(prefix)
 
 
 def format_spot_range(numbers: list[int]) -> str:
@@ -666,6 +691,38 @@ def normalize_rpt_station(label: str) -> str:
     text = text.replace(" — ", ", ").replace("—", ", ").replace("–", ", ")
     text = re.sub(r",\s*,", ",", text)
     return text.strip(" ,")
+
+
+GENERIC_OFFLINE_REMARKS = frozenset(
+    {
+        "POHC",
+        "CSX",
+        "POHC Offline load",
+        "POHC Offline unload",
+        "CSX Offline load",
+        "CSX Offline unload",
+        "POHC coke lane",
+        "CSX coke lane",
+    }
+)
+
+
+def customer_name_without_location(label: str) -> str:
+    """Party/customer name only — drop (city, state) or trailing ', City, ST'."""
+    text = normalize_rpt_station(label)
+    if not text:
+        return ""
+    text = re.sub(r"\s*\([^)]*\)\s*", "", text).strip()
+    text = re.sub(r",\s*[^,]+,\s*[A-Z]{2}\s*$", "", text).strip()
+    return text.strip(" ,")
+
+
+def offline_location_remarks(rpt_station: str, remarks: str) -> str:
+    if remarks.strip() in GENERIC_OFFLINE_REMARKS:
+        name = customer_name_without_location(rpt_station)
+        if name:
+            return name
+    return remarks
 
 
 def island_location_fields(
@@ -1027,9 +1084,7 @@ class SeedBuilder:
         )
 
     def location_color(self, *, code: str = "", industry: str = "") -> str:
-        """Industry highlight colors apply only to Neville Island (NIL-*) spots."""
-        if code and not code.startswith("NIL-"):
-            return ""
+        """Industry highlight colors apply only to Neville Island industry spots."""
         resolved = industry or industry_for_location_code(code)
         if not resolved:
             return ""
@@ -1159,6 +1214,8 @@ class SeedBuilder:
             return self.location_code_to_id[code]
         if not color:
             color = fixed_location_color(code)
+        if not color:
+            color = offline_station_color(station_id, self.config)
         loc_id = self._next_location_id
         self._next_location_id += 1
         self.location_code_to_id[code] = loc_id
@@ -1200,10 +1257,10 @@ class SeedBuilder:
 
     def add_yard_locations(self) -> None:
         # Staging yards (car home / fleet storage)
-        self.add_location("NORTH", 11)
-        self.add_location("WEST", 2)
-        self.add_location("EAST", 13)
-        self.add_location("SOUTH", 8)
+        self.add_location("NORTH-YARD", 11)
+        self.add_location("WEST-YARD", 2)
+        self.add_location("EAST-YARD", 13)
+        self.add_location("SOUTH-YARD", 8)
         self.add_location("SOUTH-SCALE", 8, track="West Lead", spot="Scale")
         shenango = self.config.get("shenango_coke", {})
         if shenango:
@@ -1236,23 +1293,25 @@ class SeedBuilder:
                 remarks=spec.get("remarks", ""),
             )
         # Coke outbound Offline lanes (if not already loaded from proposal CSV)
-        if "SCL-CLEV" not in self.location_code_to_id and "SCL-OUT-CLEV" not in self.location_code_to_id:
+        if "CLEVWORK-COKE" not in self.location_code_to_id:
+            rpt = "USS Cleveland Works, Cleveland, OH"
             self.add_location(
-                "SCL-OUT-CLEV",
-                9,
-                track="OFFLINE",
+                "CLEVWORK-COKE",
+                15,
+                track=STAGING_TRACK,
                 spot="OUT",
-                rpt_station="NS / POHC interchange",
-                remarks="POHC Offline unload",
+                rpt_station=rpt,
+                remarks=customer_name_without_location(rpt),
             )
-        if "DEM-USS" not in self.location_code_to_id and "DEM-OUT-USS" not in self.location_code_to_id:
+        if "USSTEELE-COKE" not in self.location_code_to_id:
+            rpt = "U.S. Steel Edgar Thomson Works"
             self.add_location(
-                "DEM-OUT-USS",
-                10,
-                track="OFFLINE",
+                "USSTEELE-COKE",
+                14,
+                track=STAGING_TRACK,
                 spot="OUT",
-                rpt_station="U.S. Steel Edgar Thomson Works",
-                remarks="CSX Offline unload",
+                rpt_station=rpt,
+                remarks=customer_name_without_location(rpt),
             )
 
     def add_coke_outbound_locations(self) -> None:
@@ -1405,8 +1464,10 @@ class SeedBuilder:
                 continue
             if code in SKIP_INTERCHANGE_LOCATION_CODES:
                 continue
-            if track not in {"INBOUND", "OUTBOUND", "OFFLINE"}:
+            if track not in {"INBOUND", "OUTBOUND", STAGING_TRACK, "OFFLINE"}:
                 continue
+            if track == "OFFLINE":
+                track = STAGING_TRACK
             self._staging_location_specs.append(
                 {
                     "code": code,
@@ -1416,7 +1477,10 @@ class SeedBuilder:
                     "rpt_station": normalize_rpt_station(
                         row.get("rpt_station", "").strip()
                     ),
-                    "remarks": row.get("remarks", "").strip(),
+                    "remarks": offline_location_remarks(
+                        row.get("rpt_station", "").strip(),
+                        row.get("remarks", "").strip(),
+                    ),
                 }
             )
 
@@ -1696,13 +1760,14 @@ class SeedBuilder:
                     "max_interval": intervals["max_interval"],
                     "min_amount": intervals["min_amount"],
                     "max_amount": intervals["max_amount"],
-                    "special_instructions": special,
+                    "special_instructions": "",
                     "remarks": "",
                 }
             )
             self._next_shipment_id += 1
 
     def add_coke_shipments(self) -> None:
+        coke_weigh_note = "All loads to be weighed in South Yard."
         for spec in self.config.get("coke_shipments", []):
             commodity_key = spec["commodity"]
             consignment_id = self.commodity_code_to_id.get(commodity_key)
@@ -1718,10 +1783,15 @@ class SeedBuilder:
                 continue
             car_code = spec.get("car_code", "HM")
             car_code_id = self.ensure_car_code(car_code)
+            code = spec["code"]
+            if code.startswith("COKE-USS") or code.startswith("COKE-CLEV"):
+                special = coke_weigh_note
+            else:
+                special = spec.get("special_instructions", "")
             self.shipment_rows.append(
                 {
                     "id": self._next_shipment_id,
-                    "code": spec["code"],
+                    "code": code,
                     "description": spec["description"],
                     "consignment": consignment_id,
                     "car_code": car_code_id,
@@ -1732,7 +1802,7 @@ class SeedBuilder:
                     "max_interval": float(spec.get("max_interval", 0)),
                     "min_amount": int(spec.get("min_amount", 1)),
                     "max_amount": int(spec.get("max_amount", 1)),
-                    "special_instructions": spec.get("special_instructions", ""),
+                    "special_instructions": special,
                     "remarks": "",
                 }
             )
@@ -1767,6 +1837,8 @@ class SeedBuilder:
                 self._next_location_id = loc_id + 1
             if not color:
                 color = fixed_location_color(code)
+            if not color:
+                color = offline_station_color(station, self.config)
             self.location_code_to_id[code] = loc_id
             self.location_rows.append(
                 {
@@ -1859,52 +1931,104 @@ class SeedBuilder:
             return True
         return False
 
-    def build_interchange_yard_demand_from_shipments(
-        self,
-    ) -> dict[str, dict[int, int]]:
+    def _location_row(self, location_id: int) -> dict | None:
+        for row in self.location_rows:
+            if row["id"] == location_id:
+                return row
+        return None
+
+    def shipment_endpoint_demand_role(self, location_id: int) -> str | None:
+        """Classify a shipment endpoint for home-yard fleet demand."""
+        loc = self._location_row(location_id)
+        if not loc:
+            return None
+        island_station = int(self.config.get("island_local_station", 3))
+        if loc.get("station") == island_station:
+            return "island"
+        if loc.get("code") == "SOUTH-SCALE":
+            return "weigh"
         pohc_yard = self.config["car_home_yard"]["pohc_yard_code"]
         csx_yard = self.config["car_home_yard"]["csx_yard_code"]
         scully_id = self.location_code_to_id[pohc_yard]
         demmler_id = self.location_code_to_id[csx_yard]
-        demand: dict[str, dict[int, int]] = {}
+        yard_id = self.interchange_yard_for_location_id(location_id)
+        if yard_id == scully_id:
+            return "scully"
+        if yard_id == demmler_id:
+            return "demmler"
+        return None
+
+    def build_home_yard_demand_from_shipments(
+        self,
+    ) -> dict[str, dict[str, float]]:
+        """Per car-code demand for South Yard (island + scale), Scully, and Demmler."""
+        weigh_weight = float(
+            self.config.get("car_home_yard", {}).get("scale_weigh_demand_weight", 0.5)
+        )
+        demand: dict[str, dict[str, float]] = {}
 
         for shipment in self.shipment_rows:
-            yard_id = self.interchange_yard_for_location_id(
-                shipment["loading_location"]
-            )
-            if yard_id not in (scully_id, demmler_id):
-                continue
             code = self.car_code_for_id(shipment["car_code"])
-            demand.setdefault(code, {})
-            demand[code][yard_id] = demand[code].get(yard_id, 0) + 1
+            bucket = demand.setdefault(
+                code,
+                {"island": 0.0, "weigh": 0.0, "scully": 0.0, "demmler": 0.0},
+            )
+            for loc_id in (
+                shipment["loading_location"],
+                shipment["unloading_location"],
+            ):
+                role = self.shipment_endpoint_demand_role(loc_id)
+                if role == "island":
+                    bucket["island"] += 1
+                elif role == "weigh":
+                    bucket["weigh"] += weigh_weight
+                elif role == "scully":
+                    bucket["scully"] += 1
+                elif role == "demmler":
+                    bucket["demmler"] += 1
         return demand
 
-    def interchange_yard_targets(
+    def home_yard_targets(
         self,
-        demand: dict[str, dict[int, int]],
+        demand: dict[str, dict[str, float]],
         interchange_counts: dict[str, int],
     ) -> dict[str, dict[int, int]]:
-        pohc_yard = self.config["car_home_yard"]["pohc_yard_code"]
-        csx_yard = self.config["car_home_yard"]["csx_yard_code"]
-        scully_id = self.location_code_to_id[pohc_yard]
-        demmler_id = self.location_code_to_id[csx_yard]
+        home = self.config["car_home_yard"]
+        scully_id = self.location_code_to_id[home["pohc_yard_code"]]
+        demmler_id = self.location_code_to_id[home["csx_yard_code"]]
+        south_id = self.location_code_to_id[
+            home.get("south_yard_code", "SOUTH-YARD")
+        ]
         targets: dict[str, dict[int, int]] = {}
 
         for code, count in interchange_counts.items():
             if count <= 0:
                 continue
             code_demand = demand.get(code, {})
-            scully_need = code_demand.get(scully_id, 0)
-            demmler_need = code_demand.get(demmler_id, 0)
-            total_need = scully_need + demmler_need
+            south_need = code_demand.get("island", 0) + code_demand.get("weigh", 0)
+            scully_need = code_demand.get("scully", 0)
+            demmler_need = code_demand.get("demmler", 0)
+            total_need = south_need + scully_need + demmler_need
             if total_need == 0:
-                scully_target = count // 2
+                south_target = count // 3
+                remainder = count - south_target
+                scully_target = remainder // 2
+                demmler_target = remainder - scully_target
             else:
-                scully_target = round(count * scully_need / total_need)
-            scully_target = min(max(scully_target, 0), count)
+                south_target = round(count * south_need / total_need)
+                south_target = min(max(south_target, 0), count)
+                remainder = count - south_target
+                interchange_need = scully_need + demmler_need
+                if interchange_need == 0:
+                    scully_target = remainder // 2
+                else:
+                    scully_target = round(remainder * scully_need / interchange_need)
+                scully_target = min(max(scully_target, 0), remainder)
+                demmler_target = remainder - scully_target
             targets[code] = {
+                south_id: south_target,
                 scully_id: scully_target,
-                demmler_id: count - scully_target,
+                demmler_id: demmler_target,
             }
         return targets
 
@@ -1913,27 +2037,20 @@ class SeedBuilder:
         code: str,
         targets: dict[str, dict[int, int]],
         assigned: dict[str, dict[int, int]],
-        scully_id: int,
-        demmler_id: int,
     ) -> int:
-        code_targets = targets.get(
-            code, {scully_id: 0, demmler_id: 0}
-        )
+        code_targets = targets.get(code, {})
         code_assigned = assigned.setdefault(code, {})
-        scully_have = code_assigned.get(scully_id, 0)
-        demmler_have = code_assigned.get(demmler_id, 0)
-        scully_room = code_targets.get(scully_id, 0) - scully_have
-        demmler_room = code_targets.get(demmler_id, 0) - demmler_have
-
-        if scully_room > demmler_room:
-            yard = scully_id
-        elif demmler_room > scully_room:
-            yard = demmler_id
-        else:
-            yard = scully_id if scully_have <= demmler_have else demmler_id
-
-        code_assigned[yard] = code_assigned.get(yard, 0) + 1
-        return yard
+        ranked: list[tuple[int, int, int]] = []
+        for yard_id, target in code_targets.items():
+            have = code_assigned.get(yard_id, 0)
+            ranked.append((target - have, -have, yard_id))
+        if not ranked:
+            pohc_yard = self.config["car_home_yard"]["pohc_yard_code"]
+            return self.location_code_to_id[pohc_yard]
+        ranked.sort(reverse=True)
+        yard_id = ranked[0][2]
+        code_assigned[yard_id] = code_assigned.get(yard_id, 0) + 1
+        return yard_id
 
     def assign_car_home_yards(self) -> None:
         pohc_yard = self.config["car_home_yard"]["pohc_yard_code"]
@@ -1941,10 +2058,10 @@ class SeedBuilder:
         scully_id = self.location_code_to_id[pohc_yard]
         demmler_id = self.location_code_to_id[csx_yard]
         coke_plant_code = self.config["car_home_yard"].get(
-            "coke_plant_yard_code", "NIL-SHEN-COKE"
+            "coke_plant_yard_code", "SHEN-COKE-SHIPPING"
         )
         coke_plant_id = self.location_code_to_id[coke_plant_code]
-        demand = self.build_interchange_yard_demand_from_shipments()
+        demand = self.build_home_yard_demand_from_shipments()
 
         interchange_cars: dict[str, list[dict]] = {}
         for car in self.car_rows:
@@ -1957,16 +2074,14 @@ class SeedBuilder:
                 continue
             interchange_cars.setdefault(code, []).append(car)
 
-        targets = self.interchange_yard_targets(
+        targets = self.home_yard_targets(
             demand, {code: len(cars) for code, cars in interchange_cars.items()}
         )
         assigned: dict[str, dict[int, int]] = {}
 
         for code, cars in interchange_cars.items():
             for car in cars:
-                yard_id = self.pick_home_yard_for_car_code(
-                    code, targets, assigned, scully_id, demmler_id
-                )
+                yard_id = self.pick_home_yard_for_car_code(code, targets, assigned)
                 car["current_location_id"] = yard_id
                 car["home_location"] = yard_id
 

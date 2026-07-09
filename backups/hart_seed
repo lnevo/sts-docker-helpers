@@ -18,17 +18,17 @@ rename table `CK1__sts_restore` to `CK1`;
 #
 insert into `CK1` values("10","11","T","T","North Yard — Pick up for North Yard; Set out at North Yard");
 #
-insert into `CK1` values("20","11","T","F","North Yard — Pick up for Scully Offline");
+insert into `CK1` values("20","11","T","F","North Yard — Pick up for McKees Rocks-PA");
 #
 insert into `CK1` values("30","11","T","F","North Yard — Pick up for Shenango Coke Works");
 #
 insert into `CK1` values("40","11","T","F","North Yard — Pick up for South Yard");
 #
-insert into `CK1` values("50","11","T","F","North Yard — Pick up for Demmler Offline");
+insert into `CK1` values("50","11","T","F","North Yard — Pick up for Mckeesport-PA");
 #
 insert into `CK1` values("60","12","T","F","Shenango Coke Works — Pick up for North Yard");
 #
-insert into `CK1` values("70","12","T","F","Shenango Coke Works — Pick up for Scully Offline");
+insert into `CK1` values("70","12","T","F","Shenango Coke Works — Pick up for McKees Rocks-PA");
 #
 insert into `CK1` values("80","12","T","T","Shenango Coke Works — Pick up for Shenango Coke Works; Set out at Shenango Coke Works");
 #
@@ -36,7 +36,7 @@ insert into `CK1` values("90","12","T","F","Shenango Coke Works — Pick up for 
 #
 insert into `CK1` values("95","8","F","T","South Yard Scale — Weigh coke cars; assign outbound or reload orders");
 #
-insert into `CK1` values("100","12","T","F","Shenango Coke Works — Pick up for Demmler Offline");
+insert into `CK1` values("100","12","T","F","Shenango Coke Works — Pick up for Mckeesport-PA");
 #
 insert into `CK1` values("110","8","T","F","South Yard — Pick up reload coke for Shenango Coke Works (after scale weigh)");
 #
@@ -64,13 +64,13 @@ rename table `D749__sts_restore` to `D749`;
 #
 insert into `D749` values("10","8","T","F","South Yard — Pick up for Demmler Yard");
 #
-insert into `D749` values("15","8","T","F","South Yard — Pick up for Demmler Offline");
+insert into `D749` values("15","8","T","F","South Yard — Pick up for Mckeesport-PA");
 #
 insert into `D749` values("20","8","F","T","South Yard — Set out at South Yard");
 #
 insert into `D749` values("30","10","T","F","Demmler Yard — Pick up for Scully Yard");
 #
-insert into `D749` values("35","10","T","F","Demmler Yard — Pick up for Scully Offline");
+insert into `D749` values("35","10","T","F","Demmler Yard — Pick up for McKees Rocks-PA");
 #
 insert into `D749` values("40","10","T","F","Demmler Yard — Pick up for Shenango Coke Works");
 #
@@ -102,7 +102,7 @@ insert into `NVL` values("20","9","T","F","Scully Yard — Pick up for Shenango 
 #
 insert into `NVL` values("30","9","T","F","Scully Yard — Pick up for Neville Island");
 #
-insert into `NVL` values("35","9","T","F","Scully Yard — Pick up for Demmler Offline");
+insert into `NVL` values("35","9","T","F","Scully Yard — Pick up for Mckeesport-PA");
 #
 insert into `NVL` values("40","9","T","F","Scully Yard — Pick up for Demmler Yard");
 #
@@ -114,15 +114,15 @@ insert into `NVL` values("65","12","F","T","Shenango Coke Works — Set out at S
 #
 insert into `NVL` values("70","3","T","T","Neville Island — Pick up for Neville Island; Set out at Neville Island");
 #
-insert into `NVL` values("75","3","T","F","Neville Island — Pick up for Demmler Offline");
+insert into `NVL` values("75","3","T","F","Neville Island — Pick up for Mckeesport-PA");
 #
 insert into `NVL` values("80","3","T","F","Neville Island — Pick up for Demmler Yard");
 #
-insert into `NVL` values("85","3","T","F","Neville Island — Pick up for Scully Offline");
+insert into `NVL` values("85","3","T","F","Neville Island — Pick up for McKees Rocks-PA");
 #
 insert into `NVL` values("90","8","T","F","South Yard — Pick up for Scully Yard");
 #
-insert into `NVL` values("95","8","T","F","South Yard — Pick up for Scully Offline");
+insert into `NVL` values("95","8","T","F","South Yard — Pick up for McKees Rocks-PA");
 #
 insert into `NVL` values("100","8","T","F","South Yard — Pick up for Neville Island");
 #
@@ -146,21 +146,21 @@ drop table if exists `STG-DEMMLER`;
 #
 rename table `STG-DEMMLER__sts_restore` to `STG-DEMMLER`;
 #
-insert into `STG-DEMMLER` values("10","10","T","F","Demmler Yard — Pick up for Demmler Offline");
+insert into `STG-DEMMLER` values("10","10","T","F","Demmler Yard — Pick up for Mckeesport-PA");
 #
-insert into `STG-DEMMLER` values("11","14","F","T","Demmler Offline — Set out at Demmler Offline");
+insert into `STG-DEMMLER` values("11","14","F","T","Mckeesport-PA — Set out at Mckeesport-PA");
 #
-insert into `STG-DEMMLER` values("12","14","T","T","Demmler Offline — Pick up for Demmler Offline; Set out at Demmler Offline");
+insert into `STG-DEMMLER` values("12","14","T","T","Mckeesport-PA — Pick up for Mckeesport-PA; Set out at Mckeesport-PA");
 #
-insert into `STG-DEMMLER` values("20","14","T","T","Demmler Offline — Pick up for Scully Yard; Set out at Demmler Offline");
+insert into `STG-DEMMLER` values("20","14","T","T","Mckeesport-PA — Pick up for Scully Yard; Set out at Mckeesport-PA");
 #
-insert into `STG-DEMMLER` values("30","14","T","T","Demmler Offline — Pick up for Shenango Coke Works; Set out at Demmler Offline");
+insert into `STG-DEMMLER` values("30","14","T","T","Mckeesport-PA — Pick up for Shenango Coke Works; Set out at Mckeesport-PA");
 #
-insert into `STG-DEMMLER` values("40","14","T","T","Demmler Offline — Pick up for Neville Island; Set out at Demmler Offline");
+insert into `STG-DEMMLER` values("40","14","T","T","Mckeesport-PA — Pick up for Neville Island; Set out at Mckeesport-PA");
 #
-insert into `STG-DEMMLER` values("45","14","T","T","Demmler Offline — Pick up for Scully Offline; Set out at Demmler Offline");
+insert into `STG-DEMMLER` values("45","14","T","T","Mckeesport-PA — Pick up for McKees Rocks-PA; Set out at Mckeesport-PA");
 #
-insert into `STG-DEMMLER` values("50","14","T","T","Demmler Offline — Pick up for Demmler Yard; Set out at Demmler Offline");
+insert into `STG-DEMMLER` values("50","14","T","T","Mckeesport-PA — Pick up for Demmler Yard; Set out at Mckeesport-PA");
 #
 insert into `STG-DEMMLER` values("60","10","T","T","Demmler Yard — Pick up for Demmler Yard; Set out at Demmler Yard");
 #
@@ -182,21 +182,21 @@ drop table if exists `STG-SCULLY`;
 #
 rename table `STG-SCULLY__sts_restore` to `STG-SCULLY`;
 #
-insert into `STG-SCULLY` values("10","9","T","F","Scully Yard — Pick up for Scully Offline");
+insert into `STG-SCULLY` values("10","9","T","F","Scully Yard — Pick up for McKees Rocks-PA");
 #
-insert into `STG-SCULLY` values("11","15","F","T","Scully Offline — Set out at Scully Offline");
+insert into `STG-SCULLY` values("11","15","F","T","McKees Rocks-PA — Set out at McKees Rocks-PA");
 #
-insert into `STG-SCULLY` values("12","15","T","T","Scully Offline — Pick up for Scully Offline; Set out at Scully Offline");
+insert into `STG-SCULLY` values("12","15","T","T","McKees Rocks-PA — Pick up for McKees Rocks-PA; Set out at McKees Rocks-PA");
 #
-insert into `STG-SCULLY` values("20","15","T","T","Scully Offline — Pick up for Scully Yard; Set out at Scully Offline");
+insert into `STG-SCULLY` values("20","15","T","T","McKees Rocks-PA — Pick up for Scully Yard; Set out at McKees Rocks-PA");
 #
-insert into `STG-SCULLY` values("30","15","T","T","Scully Offline — Pick up for Shenango Coke Works; Set out at Scully Offline");
+insert into `STG-SCULLY` values("30","15","T","T","McKees Rocks-PA — Pick up for Shenango Coke Works; Set out at McKees Rocks-PA");
 #
-insert into `STG-SCULLY` values("40","15","T","T","Scully Offline — Pick up for Neville Island; Set out at Scully Offline");
+insert into `STG-SCULLY` values("40","15","T","T","McKees Rocks-PA — Pick up for Neville Island; Set out at McKees Rocks-PA");
 #
-insert into `STG-SCULLY` values("45","15","T","T","Scully Offline — Pick up for Demmler Offline; Set out at Scully Offline");
+insert into `STG-SCULLY` values("45","15","T","T","McKees Rocks-PA — Pick up for Mckeesport-PA; Set out at McKees Rocks-PA");
 #
-insert into `STG-SCULLY` values("50","15","T","T","Scully Offline — Pick up for Demmler Yard; Set out at Scully Offline");
+insert into `STG-SCULLY` values("50","15","T","T","McKees Rocks-PA — Pick up for Demmler Yard; Set out at McKees Rocks-PA");
 #
 insert into `STG-SCULLY` values("60","9","T","T","Scully Yard — Pick up for Scully Yard; Set out at Scully Yard");
 #
@@ -230,29 +230,29 @@ insert into `car_codes` values("1","FC","flatcar, center beam","");
 #
 insert into `car_codes` values("2","FM","flatcar, general service","");
 #
-insert into `car_codes` values("3","HM","hopper, open top, twin hopper, gravity discharge inside rails","");
-#
-insert into `car_codes` values("4","HK","hopper, open top, triple hopper, gravity discharge outside rails","");
-#
-insert into `car_codes` values("5","XM","boxcar, general service","");
-#
 insert into `car_codes` values("6","GA","gondola, open top","");
+#
+insert into `car_codes` values("14","H*","hopper, open top (HM, HT, or HK)","");
 #
 insert into `car_codes` values("7","HC","hopper, covered, gravity discharge","");
 #
-insert into `car_codes` values("8","HT","hopper, open top, crosswise dump between rails","");
+insert into `car_codes` values("4","HK","hopper, open top, triple hopper, gravity discharge outside rails","");
+#
+insert into `car_codes` values("3","HM","hopper, open top, twin hopper, gravity discharge inside rails","");
 #
 insert into `car_codes` values("9","HP","hopper, covered, pneumatic discharge","");
 #
-insert into `car_codes` values("10","TA","tankcar, general service","");
+insert into `car_codes` values("8","HT","hopper, open top, crosswise dump between rails","");
 #
 insert into `car_codes` values("11","RM","refrigerator, mechanical","");
 #
-insert into `car_codes` values("12","WF","work flatcar, MOW service","");
+insert into `car_codes` values("10","TA","tankcar, general service","");
 #
 insert into `car_codes` values("13","WC","work crane car, MOW service","");
 #
-insert into `car_codes` values("14","H*","hopper, open top (HM, HT, or HK)","");
+insert into `car_codes` values("12","WF","work flatcar, MOW service","");
+#
+insert into `car_codes` values("5","XM","boxcar, general service","");
 #
 
 #
@@ -288,145 +288,145 @@ CREATE TABLE `cars` (
   PRIMARY KEY (`Id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=81 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 #
-insert into `cars` values("2","BO8300","1","7","" ,"Empty","0","Coil 55ft","0","7","","","0");
+insert into `cars` values("2","BO8300","1","8","","Empty","0","Coil 55ft","0","8","","","0");
 #
-insert into `cars` values("3","BO8405","2","8","" ,"Empty","0","Flatcar 53ft","0","8","","","0");
+insert into `cars` values("3","BO8405","2","8","","Empty","0","Flatcar 53ft","0","8","","","0");
 #
-insert into `cars` values("4","BO8417","2","7","" ,"Empty","0","Flatcar 53ft","0","7","","","0");
+insert into `cars` values("4","BO8417","2","7","","Empty","0","Flatcar 53ft","0","7","","","0");
 #
-insert into `cars` values("5","BO8451","2","8","" ,"Empty","0","Flatcar 53ft","0","8","","","0");
+insert into `cars` values("5","BO8451","2","8","","Empty","0","Flatcar 53ft","0","8","","","0");
 #
-insert into `cars` values("6","BO8476","2","7","" ,"Empty","0","Flatcar 53ft","0","7","","","0");
+insert into `cars` values("6","BO8476","2","7","","Empty","0","Flatcar 53ft","0","7","","","0");
 #
-insert into `cars` values("9","BO10389","3","6","" ,"Empty","0","Hopper 40ft","0","6","","","0");
+insert into `cars` values("9","BO10389","3","6","","Empty","0","Hopper 40ft","0","6","","","0");
 #
-insert into `cars` values("10","BO11027","3","6","" ,"Empty","0","Hopper 40ft","0","6","","","0");
+insert into `cars` values("10","BO11027","3","6","","Empty","0","Hopper 40ft","0","6","","","0");
 #
-insert into `cars` values("11","BO11137","3","6","" ,"Empty","0","Hopper 40ft","0","6","","","0");
+insert into `cars` values("11","BO11137","3","6","","Empty","0","Hopper 40ft","0","6","","","0");
 #
-insert into `cars` values("12","BO30222","3","6","" ,"Empty","0","Hopper 34ft","0","6","","","0");
+insert into `cars` values("12","BO30222","3","6","","Empty","0","Hopper 34ft","0","6","","","0");
 #
-insert into `cars` values("13","BO30963","3","6","" ,"Empty","0","Hopper 34ft","0","6","","","0");
+insert into `cars` values("13","BO30963","3","6","","Empty","0","Hopper 34ft","0","6","","","0");
 #
-insert into `cars` values("14","BO31000","3","6","" ,"Empty","0","Hopper 34ft","0","6","","","0");
+insert into `cars` values("14","BO31000","3","6","","Empty","0","Hopper 34ft","0","6","","","0");
 #
-insert into `cars` values("15","BO73133","3","6","" ,"Empty","0","Hopper 45ft","0","6","","","0");
+insert into `cars` values("15","BO73133","3","6","","Empty","0","Hopper 45ft","0","6","","","0");
 #
-insert into `cars` values("16","BO132315","4","8","0","Unavailable","0","Hopper 50ft","0","8","","0","0");
+insert into `cars` values("16","BO132315","4","8","","Unavailable","0","Hopper 50ft","0","8","","","0");
 #
-insert into `cars` values("17","BO132392","4","7","" ,"Empty","0","Hopper 50ft","0","7","","","0");
+insert into `cars` values("17","BO132392","4","7","","Empty","0","Hopper 50ft","0","7","","","0");
 #
-insert into `cars` values("18","BO133007","4","8","" ,"Empty","0","Hopper 50ft","0","8","","","0");
+insert into `cars` values("18","BO133007","4","4","","Empty","0","Hopper 50ft","0","4","","","0");
 #
-insert into `cars` values("19","BO283057","5","8","" ,"Empty","0","Boxcar 50ft","0","8","","","0");
+insert into `cars` values("19","BO283057","5","8","","Empty","0","Boxcar 50ft","0","8","","","0");
 #
-insert into `cars` values("20","BO283069","5","8","" ,"Empty","0","Boxcar 50ft","0","8","","","0");
+insert into `cars` values("20","BO283069","5","4","","Empty","0","Boxcar 50ft","0","4","","","0");
 #
-insert into `cars` values("21","BO371604","6","7","" ,"Empty","0","Gondola 50ft","0","7","","","0");
+insert into `cars` values("21","BO371604","6","7","","Empty","0","Gondola 50ft","0","7","","","0");
 #
-insert into `cars` values("22","BO466063","5","8","" ,"Empty","0","Boxcar 40ft","0","8","","","0");
+insert into `cars` values("22","BO466063","5","7","","Empty","0","Boxcar 40ft","0","7","","","0");
 #
-insert into `cars` values("23","BO467071","5","7","" ,"Empty","0","Boxcar 40ft","0","7","","","0");
+insert into `cars` values("23","BO467071","5","8","","Empty","0","Boxcar 40ft","0","8","","","0");
 #
-insert into `cars` values("24","BO467439","5","8","" ,"Empty","0","Boxcar 40ft","0","8","","","0");
+insert into `cars` values("24","BO467439","5","4","","Empty","0","Boxcar 40ft","0","4","","","0");
 #
-insert into `cars` values("25","BO551470","6","7","" ,"Empty","0","Gondola 50ft","0","7","","","0");
+insert into `cars` values("25","BO551470","6","4","","Empty","0","Gondola 50ft","0","4","","","0");
 #
-insert into `cars` values("26","BO600401","7","7","" ,"Empty","0","Hopper 40ft","0","7","","","0");
+insert into `cars` values("26","BO600401","7","8","","Empty","0","Hopper 40ft","0","8","","","0");
 #
-insert into `cars` values("27","BO600409","7","7","" ,"Empty","0","Hopper 40ft","0","7","","","0");
+insert into `cars` values("27","BO600409","7","7","","Empty","0","Hopper 40ft","0","7","","","0");
 #
-insert into `cars` values("28","BO600421","7","8","" ,"Empty","0","Hopper 40ft","0","8","","","0");
+insert into `cars` values("28","BO600421","7","4","","Empty","0","Hopper 40ft","0","4","","","0");
 #
-insert into `cars` values("29","BO625082","3","8","0","Unavailable","0","Hopper 40ft","0","8","","0","0");
+insert into `cars` values("29","BO625082","3","8","","Unavailable","0","Hopper 40ft","0","8","","","0");
 #
-insert into `cars` values("30","BO625238","3","6","" ,"Empty","0","Hopper 40ft","0","6","","","0");
+insert into `cars` values("30","BO625238","3","6","","Empty","0","Hopper 40ft","0","6","","","0");
 #
-insert into `cars` values("31","BO625509","3","6","" ,"Empty","0","Hopper 40ft","0","6","","","0");
+insert into `cars` values("31","BO625509","3","6","","Empty","0","Hopper 40ft","0","6","","","0");
 #
-insert into `cars` values("32","BO625943","3","6","" ,"Empty","0","Hopper 40ft","0","6","","","0");
+insert into `cars` values("32","BO625943","3","6","","Empty","0","Hopper 40ft","0","6","","","0");
 #
-insert into `cars` values("33","BO628038","7","7","" ,"Empty","0","Hopper 40ft","0","7","","","0");
+insert into `cars` values("33","BO628038","7","8","","Empty","0","Hopper 40ft","0","8","","","0");
 #
-insert into `cars` values("34","BO631140","7","8","" ,"Empty","0","Hopper 34ft","0","8","","","0");
+insert into `cars` values("34","BO631140","7","7","","Empty","0","Hopper 34ft","0","7","","","0");
 #
-insert into `cars` values("35","CBQ171856","8","8","" ,"Empty","0","Hopper 40ft","0","8","","","0");
+insert into `cars` values("35","CBQ171856","8","8","","Empty","0","Hopper 40ft","0","8","","","0");
 #
-insert into `cars` values("36","CO2052","9","7","" ,"Empty","0","Hopper 40ft","0","7","","","0");
+insert into `cars` values("36","CO2052","9","8","","Empty","0","Hopper 40ft","0","8","","","0");
 #
-insert into `cars` values("37","CO2063","9","8","" ,"Empty","0","Hopper 40ft","0","8","","","0");
+insert into `cars` values("37","CO2063","9","4","","Empty","0","Hopper 40ft","0","4","","","0");
 #
-insert into `cars` values("39","CO142374","3","7","" ,"Empty","0","Hopper 40ft","0","7","","","0");
+insert into `cars` values("39","CO142374","3","7","","Empty","0","Hopper 40ft","0","7","","","0");
 #
-insert into `cars` values("40","CO306607","1","8","" ,"Empty","0","Coil 52ft","0","8","","","0");
+insert into `cars` values("40","CO306607","1","7","","Empty","0","Coil 52ft","0","7","","","0");
 #
-insert into `cars` values("41","CR477935","8","8","" ,"Empty","0","Hopper 40ft","0","8","","","0");
+insert into `cars` values("41","CR477935","8","4","","Empty","0","Hopper 40ft","0","4","","","0");
 #
-insert into `cars` values("42","EL8063","2","8","" ,"Empty","0","Flatcar 52ft","0","8","","","0");
+insert into `cars` values("42","EL8063","2","4","","Empty","0","Flatcar 52ft","0","4","","","0");
 #
-insert into `cars` values("43","EL66410","5","7","" ,"Empty","0","Boxcar 50ft","0","7","","","0");
+insert into `cars` values("43","EL66410","5","7","","Empty","0","Boxcar 50ft","0","7","","","0");
 #
-insert into `cars` values("44","GATX31090","10","7","" ,"Empty","0","Tank 40ft","0","7","","","0");
+insert into `cars` values("44","GATX31090","10","8","","Empty","0","Tank 40ft","0","8","","","0");
 #
-insert into `cars` values("46","KSMX101","7","7","" ,"Empty","0","Hopper 34ft","0","7","","","0");
+insert into `cars` values("46","KSMX101","7","4","","Empty","0","Hopper 34ft","0","4","","","0");
 #
-insert into `cars` values("47","KSMX105","7","8","" ,"Empty","0","Hopper 34ft","0","8","","","0");
+insert into `cars` values("47","KSMX105","7","8","","Empty","0","Hopper 34ft","0","8","","","0");
 #
-insert into `cars` values("48","KSMX110","7","7","" ,"Empty","0","Hopper 34ft","0","7","","","0");
+insert into `cars` values("48","KSMX110","7","7","","Empty","0","Hopper 34ft","0","7","","","0");
 #
-insert into `cars` values("50","MOW0017","10","8","0","Unavailable","0","Tank 40ft","0","8","","0","0");
+insert into `cars` values("50","MOW0017","10","7","","Unavailable","0","Tank 40ft","0","7","","","0");
 #
-insert into `cars` values("51","MSTL52673","5","8","0","Unavailable","0","Boxcar 40ft","0","8","","0","0");
+insert into `cars` values("51","MSTL52673","5","8","","Unavailable","0","Boxcar 40ft","0","8","","","0");
 #
-insert into `cars` values("52","NW12986","7","6","" ,"Empty","0","Hopper 40ft","0","6","","","0");
+insert into `cars` values("52","NW12986","7","6","","Empty","0","Hopper 40ft","0","6","","","0");
 #
-insert into `cars` values("53","NW12988","3","6","" ,"Empty","0","Hopper 40ft","0","6","","","0");
+insert into `cars` values("53","NW12988","3","6","","Empty","0","Hopper 40ft","0","6","","","0");
 #
-insert into `cars` values("54","NW32800","2","7","" ,"Empty","0","Flatcar 52ft","0","7","","","0");
+insert into `cars` values("54","NW32800","2","8","","Empty","0","Flatcar 52ft","0","8","","","0");
 #
-insert into `cars` values("55","NYC47516","5","7","" ,"Empty","0","Boxcar 50ft","0","7","","","0");
+insert into `cars` values("55","NYC47516","5","4","","Empty","0","Boxcar 50ft","0","4","","","0");
 #
-insert into `cars` values("57","PRR474563","2","8","" ,"Empty","0","Flatcar 50ft","0","8","","","0");
+insert into `cars` values("57","PRR474563","2","7","","Empty","0","Flatcar 50ft","0","7","","","0");
 #
-insert into `cars` values("58","PRR498647","10","7","" ,"Empty","0","Tank 40ft","0","7","","","0");
+insert into `cars` values("58","PRR498647","10","4","","Empty","0","Tank 40ft","0","4","","","0");
 #
-insert into `cars` values("59","PRR702186","3","8","" ,"Empty","0","Hopper 40ft","0","8","","","0");
+insert into `cars` values("59","PRR702186","3","4","","Empty","0","Hopper 40ft","0","4","","","0");
 #
-insert into `cars` values("61","PRR728012","3","7","" ,"Empty","0","Hopper 40ft","0","7","","","0");
+insert into `cars` values("61","PRR728012","3","8","","Empty","0","Hopper 40ft","0","8","","","0");
 #
-insert into `cars` values("62","RDG99143","1","7","" ,"Empty","0","Coil 55ft","0","7","","","0");
+insert into `cars` values("62","RDG99143","1","8","","Empty","0","Coil 55ft","0","8","","","0");
 #
-insert into `cars` values("63","RDG107333","5","8","0","Unavailable","0","Boxcar 50ft","0","8","","0","0");
+insert into `cars` values("63","RDG107333","5","7","","Unavailable","0","Boxcar 50ft","0","7","","","0");
 #
-insert into `cars` values("64","REX350","11","7","" ,"Empty","0","Reefer 50ft","0","7","","","0");
+insert into `cars` values("64","REX350","11","8","","Empty","0","Reefer 50ft","0","8","","","0");
 #
-insert into `cars` values("65","RMLI2018","5","7","" ,"Empty","0","Boxcar 40ft","0","7","","","0");
+insert into `cars` values("65","RMLI2018","5","8","","Empty","0","Boxcar 40ft","0","8","","","0");
 #
-insert into `cars` values("66","RMP50","5","8","" ,"Empty","0","Boxcar 40ft","0","8","","","0");
+insert into `cars` values("66","RMP50","5","4","","Empty","0","Boxcar 40ft","0","4","","","0");
 #
-insert into `cars` values("67","SHPX22329","10","8","" ,"Empty","0","Tank 40ft","0","8","","","0");
+insert into `cars` values("67","SHPX22329","10","8","","Empty","0","Tank 40ft","0","8","","","0");
 #
-insert into `cars` values("68","URR15003","3","6","" ,"Empty","0","Hopper 50ft","0","6","","","0");
+insert into `cars` values("68","URR15003","3","6","","Empty","0","Hopper 50ft","0","6","","","0");
 #
-insert into `cars` values("69","URR15022","3","8","0","Unavailable","0","Hopper 50ft","0","8","","0","0");
+insert into `cars` values("69","URR15022","3","7","","Unavailable","0","Hopper 50ft","0","7","","","0");
 #
-insert into `cars` values("70","URR15044","3","6","" ,"Empty","0","Hopper 50ft","0","6","","","0");
+insert into `cars` values("70","URR15044","3","6","","Empty","0","Hopper 50ft","0","6","","","0");
 #
-insert into `cars` values("71","URTX63627","11","8","0","Unavailable","0","Reefer 40ft","0","8","","0","0");
+insert into `cars` values("71","URTX63627","11","7","","Unavailable","0","Reefer 40ft","0","7","","","0");
 #
-insert into `cars` values("72","UTLX32642","10","7","" ,"Empty","0","Tank 40ft","0","7","","","0");
+insert into `cars` values("72","UTLX32642","10","7","","Empty","0","Tank 40ft","0","7","","","0");
 #
-insert into `cars` values("74","UTLX36299","10","8","" ,"Empty","0","Tank 40ft","0","8","","","0");
+insert into `cars` values("74","UTLX36299","10","4","","Empty","0","Tank 40ft","0","4","","","0");
 #
-insert into `cars` values("75","UTLX39042","10","7","" ,"Empty","0","Tank 40ft","0","7","","","0");
+insert into `cars` values("75","UTLX39042","10","8","","Empty","0","Tank 40ft","0","8","","","0");
 #
-insert into `cars` values("76","WLE621","3","6","" ,"Empty","0","Hopper 40ft","0","6","","","0");
+insert into `cars` values("76","WLE621","3","6","","Empty","0","Hopper 40ft","0","6","","","0");
 #
-insert into `cars` values("78","COST1","12","5","0","Unavailable","0","Scale test car","0","5","","0","0");
+insert into `cars` values("78","COST1","12","5","","Unavailable","0","Scale test car","0","5","","","0");
 #
-insert into `cars` values("79","COW86","12","8","0","Unavailable","0","MOW camp car","0","8","","0","0");
+insert into `cars` values("79","COW86","12","8","","Unavailable","0","MOW camp car","0","8","","","0");
 #
-insert into `cars` values("80","CO377700","13","8","0","Unavailable","0","MOW crane car","0","8","","0","0");
+insert into `cars` values("80","CO377700","13","8","","Unavailable","0","MOW crane car","0","8","","","0");
 #
 
 #
@@ -561,15 +561,10 @@ Arrival Instructions:
 #
 insert into `jobs` values("2","NVL","POHC Neville Island Local
 
-Work the local Neville Island industries and interchange with CSX
+Deliver inbound cars and interchange with CSX
 
--- Shenango Coke Works
--- Aristech Plastics
--- Kosmos Cement
--- Calgon Carbon
--- Ferrel Gas
--- A Sucki Co.
 
+DURING SESSION:
 1. After D749 clears the bridge, run to South Yard with dispatcher clearance.
 2. Interchange cars at South Yard following yardmaster instructions.
 3. Work the local Neville Island industries and Shenango Coke Works.
@@ -586,7 +581,7 @@ insert into `jobs` values("4","CK1","Coke Transfer
 4. Record the actual weight and reassign imbalanced cars to RELOAD car orders.   
 4. Set out all cars in South Yard to be classified.
 
-Refer to HART Railroad Scale Operating Instructions for calibration and usage details. ");
+Refer to HART Railroad Scale Operating Instructions for calibration and usage details.");
 #
 insert into `jobs` values("5","STG-SCULLY","Scully Yard staging 
 
@@ -594,7 +589,7 @@ Swap cars between offline staging and online staging.");
 #
 insert into `jobs` values("6","STG-DEMMLER","Demmler Yard staging 
 
-Swap cars between offline staging and online staging. ");
+Swap cars between offline staging and online staging.");
 #
 
 #
@@ -611,209 +606,219 @@ CREATE TABLE `locations` (
   `remarks` text DEFAULT NULL,
   `color` tinytext DEFAULT NULL,
   PRIMARY KEY (`Id`)
-) ENGINE=InnoDB AUTO_INCREMENT=102 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=107 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 #
-insert into `locations` values("1","NORTH","11","","","","","");
+insert into `locations` values("1","NORTH-YARD","11","","","","","");
 #
-insert into `locations` values("2","WEST","2","","","","","");
+insert into `locations` values("2","WEST-YARD","2","","","","","");
 #
-insert into `locations` values("3","EAST","13","","","","","");
+insert into `locations` values("3","EAST-YARD","13","","","","","");
 #
-insert into `locations` values("4","SOUTH","8","","","","","");
+insert into `locations` values("4","SOUTH-YARD","8","","","","","");
 #
 insert into `locations` values("5","SOUTH-SCALE","8","West Lead","Scale","","","");
 #
-insert into `locations` values("6","NIL-SHEN-COKE","12","OUTBOUND","OUT","Neville Island","Shenango Coke Works","black");
+insert into `locations` values("6","SHEN-COKE-SHIPPING","12","OUTBOUND","OUT","Neville Island","Shenango Coke Works","black");
 #
-insert into `locations` values("7","SCL","9","","","","POHC","pink");
+insert into `locations` values("7","SCULLY-YARD","9","","","","POHC","pink");
 #
-insert into `locations` values("8","DEM","10","","","","CSX","purple");
+insert into `locations` values("8","DEMMLER-YARD","10","","","","CSX","purple");
 #
-insert into `locations` values("9","SCL-IN-NOVACOR","15","OFFLINE","IN","Novacor (Indian Orchard, MA)","POHC Offline load","");
+insert into `locations` values("9","BASF-PLST","14","Staging","IN","BASF (Wyandotte, MI)","BASF","purple");
 #
-insert into `locations` values("10","SCL-IN-EXXON-BAY","15","OFFLINE","IN","Exxon Chemical (Bayonne, NJ)","POHC Offline load","");
+insert into `locations` values("10","CONSOLEN-COAL","14","Staging","IN","Consol Energy (Pittsburgh, PA)","Consol Energy","purple");
 #
-insert into `locations` values("11","SCL-IN-ALLEGHENY","15","OFFLINE","IN","Allegheny Ludlum (Brackenridge, PA)","POHC Offline load","");
+insert into `locations` values("11","DOWCHEM-ETAC","14","Staging","IN","Dow Chemical (Midland, MI)","Dow Chemical","purple");
 #
-insert into `locations` values("12","SCL-IN-REP-STEEL","15","OFFLINE","IN","Republic Steel (Cleveland, OH)","POHC Offline load","");
+insert into `locations` values("12","DOWCHEM-IGAS","14","Staging","IN","Dow Chemical (Midland, MI)","Dow Chemical","purple");
 #
-insert into `locations` values("13","SCL-IN-MCCONWAY","15","OFFLINE","IN","McConway & Torley (Pittsburgh, PA)","POHC Offline load","");
+insert into `locations` values("13","DOWCHEM-PHOA","14","Staging","IN","Dow Chemical (Midland, MI)","Dow Chemical","purple");
 #
-insert into `locations` values("14","SCL-IN-HILLMAN","15","OFFLINE","IN","Hillman Coal (Canton Twp, PA)","POHC Offline load","");
+insert into `locations` values("14","DOWCHEM-PLST","14","Staging","IN","Dow Chemical (Midland, MI)","Dow Chemical","purple");
 #
-insert into `locations` values("15","SCL-IN-HOUGHTON","15","OFFLINE","IN","Houghton Chemical (Allston, MA)","POHC Offline load","");
+insert into `locations` values("15","DOWCHEM-PRES","14","Staging","IN","Dow Chemical (Midland, MI)","Dow Chemical","purple");
 #
-insert into `locations` values("16","SCL-IN-GEN-CHEM","15","OFFLINE","IN","General Chemical (Parsippany, NJ)","POHC Offline load","");
+insert into `locations` values("16","DOWCHEM-STYR","14","Staging","IN","Dow Chemical (Midland, MI)","Dow Chemical","purple");
 #
-insert into `locations` values("17","SCL-IN-FERRELLGAS","15","OFFLINE","IN","Ferrellgas Co (Taneytown, MD)","POHC Offline load","");
+insert into `locations` values("17","FERRELLPI-LPG","14","Staging","IN","Ferrellgas pipeline terminal","Ferrellgas pipeline terminal","purple");
 #
-insert into `locations` values("18","SCL-IN-KOSMOS","15","OFFLINE","IN","Kosmos Cement (Canton, OH)","POHC Offline load","");
+insert into `locations` values("18","MARTINMR-AGGR","14","Staging","IN","Martin Marietta (Clairton, PA)","Martin Marietta","purple");
 #
-insert into `locations` values("19","SCL-IN-LEHIGH","15","OFFLINE","IN","Lehigh Cement (Mitchell, IN)","POHC Offline load","");
+insert into `locations` values("19","MEDUSACE-CEMT","14","Staging","IN","Medusa Cement (Charlevoix, MI)","Medusa Cement","purple");
 #
-insert into `locations` values("20","SCL-IN-MI-LIME","15","OFFLINE","IN","Michigan Limestone (Rogers City, MI)","POHC Offline load","");
+insert into `locations` values("20","METALSVC-STEL","14","Staging","IN","Metal Service Co. (Apollo, PA)","Metal Service Co.","purple");
 #
-insert into `locations` values("21","SCL-OUT-NS","15","OFFLINE","OUT","NS / POHC interchange","POHC coke lane","");
+insert into `locations` values("21","RPCOAL-COAL","14","Staging","IN","R&P Coal (Brady Twp, PA)","R&P Coal","purple");
 #
-insert into `locations` values("22","SCL-OUT-BEMIS","15","OFFLINE","OUT","Bemis Company (Flemington, NJ)","POHC Offline unload","");
+insert into `locations` values("22","RYERSON-COIL","14","Staging","IN","Ryerson Steel Service","Ryerson Steel Service","purple");
 #
-insert into `locations` values("23","SCL-OUT-OI-TOLEDO","15","OFFLINE","OUT","Owens-Illinois (Toledo, OH)","POHC Offline unload","");
+insert into `locations` values("23","USAGG-AGGR","14","Staging","IN","US Aggregates (Indianapolis, IN)","US Aggregates","purple");
 #
-insert into `locations` values("24","SCL-OUT-PITTS-FORGE","15","OFFLINE","OUT","Pittsburgh Forge (McKees Rocks, PA)","POHC Offline unload","");
+insert into `locations` values("24","WASHSTL-PLAT","14","Staging","IN","Washington Steel (Washington, PA)","Washington Steel","purple");
 #
-insert into `locations` values("25","SCL-OUT-UNIVAR","15","OFFLINE","OUT","Univar (Salem, MA)","POHC Offline unload","");
+insert into `locations` values("25","CALGON-ACAR","14","Staging","OUT","Calgon Corp (Columbus, OH)","Calgon Corp","purple");
 #
-insert into `locations` values("26","DEM-IN-DOW","14","OFFLINE","IN","Dow Chemical (Midland, MI)","CSX Offline load","");
+insert into `locations` values("26","HOUGHTON-ACAR","14","Staging","OUT","Houghton Chemical (Allston, MA)","Houghton Chemical","purple");
 #
-insert into `locations` values("27","DEM-IN-BASF","14","OFFLINE","IN","BASF (Wyandotte, MI)","CSX Offline load","");
+insert into `locations` values("27","METALSVC-MACH","14","Staging","OUT","Metal Service Co. (Apollo, PA)","Metal Service Co.","purple");
 #
-insert into `locations` values("28","DEM-IN-METAL-SVC","14","OFFLINE","IN","Metal Service Co. (Apollo, PA)","CSX Offline load","");
+insert into `locations` values("28","OWENSOTT-PRES","14","Staging","OUT","Owens-Illinois (Ottawa, IL)","Owens-Illinois","purple");
 #
-insert into `locations` values("29","DEM-IN-RYERSON","14","OFFLINE","IN","Ryerson Steel Service","CSX Offline load","");
+insert into `locations` values("29","USSTEELE-COKE","14","Staging","OUT","U.S. Steel Edgar Thomson Works","U.S. Steel Edgar Thomson Works","purple");
 #
-insert into `locations` values("30","DEM-IN-WASH-STL","14","OFFLINE","IN","Washington Steel (Washington, PA)","CSX Offline load","");
+insert into `locations` values("30","ALLEGHEN-SCRP","15","Staging","IN","Allegheny Ludlum (Brackenridge, PA)","Allegheny Ludlum","pink");
 #
-insert into `locations` values("31","DEM-IN-CONSOL","14","OFFLINE","IN","Consol Energy (Pittsburgh, PA)","CSX Offline load","");
+insert into `locations` values("31","ALLEGHEN-SLAB","15","Staging","IN","Allegheny Ludlum (Brackenridge, PA)","Allegheny Ludlum","pink");
 #
-insert into `locations` values("32","DEM-IN-RP-COAL","14","OFFLINE","IN","R&P Coal (Brady Twp, PA)","CSX Offline load","");
+insert into `locations` values("32","ALLEGHEN-STEL","15","Staging","IN","Allegheny Ludlum (Brackenridge, PA)","Allegheny Ludlum","pink");
 #
-insert into `locations` values("33","DEM-IN-FERRELLGAS-PIPE","14","OFFLINE","IN","Ferrellgas pipeline terminal","CSX Offline load","");
+insert into `locations` values("33","EXXONCH-MMA","15","Staging","IN","Exxon Chemical (Bayonne, NJ)","Exxon Chemical","pink");
 #
-insert into `locations` values("34","DEM-IN-MEDUSA","14","OFFLINE","IN","Medusa Cement (Charlevoix, MI)","CSX Offline load","");
+insert into `locations` values("34","FERRELLGA-LPG","15","Staging","IN","Ferrellgas Co (Taneytown, MD)","Ferrellgas Co","pink");
 #
-insert into `locations` values("35","DEM-IN-US-AGG","14","OFFLINE","IN","US Aggregates (Indianapolis, IN)","CSX Offline load","");
+insert into `locations` values("35","GENLCHEM-HCLA","15","Staging","IN","General Chemical (Parsippany, NJ)","General Chemical","pink");
 #
-insert into `locations` values("36","DEM-IN-MARTIN-MARIETTA","14","OFFLINE","IN","Martin Marietta (Clairton, PA)","CSX Offline load","");
+insert into `locations` values("36","GENLC-PHOS-MR","15","Staging","IN","General Chemical (Parsippany, NJ)","General Chemical","pink");
 #
-insert into `locations` values("37","DEM-OUT-URR","14","OFFLINE","OUT","U.S. Steel Edgar Thomson Works","CSX coke lane","");
+insert into `locations` values("37","HILLMAN-COAL","15","Staging","IN","Hillman Coal (Canton Twp, PA)","Hillman Coal","pink");
 #
-insert into `locations` values("38","DEM-OUT-OI-OTTAWA","14","OFFLINE","OUT","Owens-Illinois (Ottawa, IL)","CSX Offline unload","");
+insert into `locations` values("38","HOUGHTON-CAUS","15","Staging","IN","Houghton Chemical (Allston, MA)","Houghton Chemical","pink");
 #
-insert into `locations` values("39","DEM-OUT-METAL-SVC","14","OFFLINE","OUT","Metal Service Co. (Apollo, PA)","CSX Offline unload","");
+insert into `locations` values("39","KOSMOSCE-CEMT","15","Staging","IN","Kosmos Cement (Canton, OH)","Kosmos Cement","pink");
 #
-insert into `locations` values("40","DEM-OUT-RYERSON","14","OFFLINE","OUT","Ryerson Steel Service","CSX Offline unload","");
+insert into `locations` values("40","LEHIGHCE-CEMT","15","Staging","IN","Lehigh Cement (Mitchell, IN)","Lehigh Cement","pink");
 #
-insert into `locations` values("41","DEM-OUT-CALGON-CORP","14","OFFLINE","OUT","Calgon Corp (Columbus, OH)","CSX Offline unload","");
+insert into `locations` values("41","MCCONWAY-BILL","15","Staging","IN","McConway & Torley (Pittsburgh, PA)","McConway & Torley","pink");
 #
-insert into `locations` values("42","DEM-OUT-HOUGHTON","14","OFFLINE","OUT","Houghton Chemical (Allston, MA)","CSX Offline unload","");
+insert into `locations` values("42","MICHIGAN-AGGR","15","Staging","IN","Michigan Limestone (Rogers City, MI)","Michigan Limestone","pink");
 #
-insert into `locations` values("43","SCL-IN-GE","15","OFFLINE","IN","GE (Bridgeville, PA)","POHC Offline load","");
+insert into `locations` values("43","NOVACOR-PLST","15","Staging","IN","Novacor (Indian Orchard, MA)","Novacor","pink");
 #
-insert into `locations` values("44","SCL-IN-BASF","15","OFFLINE","IN","BASF (Wyandotte, MI)","POHC Offline load","");
+insert into `locations` values("44","REPUBLIC-STEL","15","Staging","IN","Republic Steel (Cleveland, OH)","Republic Steel","pink");
 #
-insert into `locations` values("45","SCL-IN-MEDUSA","15","OFFLINE","IN","Medusa Cement (Charlevoix, MI)","POHC Offline load","");
+insert into `locations` values("45","REPUBLIC-BILL","15","Staging","IN","Republic Steel (Cleveland, OH)","Republic Steel","pink");
 #
-insert into `locations` values("46","SCL-IN-SFP","15","OFFLINE","IN","Standard Forged Products (McKees Rocks, PA)","POHC Offline load","");
+insert into `locations` values("46","REPUBLIC-COIL","15","Staging","IN","Republic Steel (Cleveland, OH)","Republic Steel","pink");
 #
-insert into `locations` values("47","SCL-IN-USA-STAINLESS","15","OFFLINE","IN","Universal Stainless & Alloy (Bridgeville, PA)","POHC Offline load","");
+insert into `locations` values("47","BEMIS-PRES","15","Staging","OUT","Bemis Company (Flemington, NJ)","Bemis Company","pink");
 #
-insert into `locations` values("48","SCL-IN-WEIRTON","15","OFFLINE","IN","Weirton Steel (Weirton, WV)","POHC Offline load","");
+insert into `locations` values("48","CLEVWORK-COKE","15","Staging","OUT","USS Cleveland Works, Cleveland, OH","USS Cleveland Works","pink");
 #
-insert into `locations` values("49","SCL-IN-WHEELING-PGH","15","OFFLINE","IN","Wheeling-Pittsburgh Steel (Wheeling, WV)","POHC Offline load","");
+insert into `locations` values("49","OWENS-PLST-MR","15","Staging","OUT","Owens-Illinois (Toledo, OH)","Owens-Illinois","pink");
 #
-insert into `locations` values("50","SCL-IN-HEINZ","15","OFFLINE","IN","Heinz (Pittsburgh, PA)","POHC Offline load","");
+insert into `locations` values("50","OWENSTOL-PRES","15","Staging","OUT","Owens-Illinois (Toledo, OH)","Owens-Illinois","pink");
 #
-insert into `locations` values("51","SCL-IN-AIR-PRODUCTS","15","OFFLINE","IN","Air Products (Allentown, PA)","POHC Offline load","");
+insert into `locations` values("51","PITTSFOR-SPRG","15","Staging","OUT","Pittsburgh Forge (McKees Rocks-PA)","Pittsburgh Forge","pink");
 #
-insert into `locations` values("52","SCL-IN-MAPCO","15","OFFLINE","IN","Mapco LP (Memphis, TN)","POHC Offline load","");
+insert into `locations` values("52","UNIVAR-ACAR","15","Staging","OUT","Univar (Salem, MA)","Univar","pink");
 #
-insert into `locations` values("53","SCL-OUT-OI-OTTAWA","15","OFFLINE","OUT","Owens-Illinois (Ottawa, IL)","POHC Offline unload","");
+insert into `locations` values("53","BETHLEHM-PLAT","14","Staging","IN","Bethlehem Steel (Bethlehem, PA)","Bethlehem Steel","purple");
 #
-insert into `locations` values("54","SCL-OUT-RYERSON","15","OFFLINE","OUT","Ryerson Steel Service","POHC Offline unload","");
+insert into `locations` values("54","DUBUQUE-MEAT","14","Staging","IN","Dubuque Packing Co (Dubuque, IA)","Dubuque Packing Co","purple");
 #
-insert into `locations` values("55","SCL-OUT-HOUGHTON","15","OFFLINE","OUT","Houghton Chemical (Allston, MA)","POHC Offline unload","");
+insert into `locations` values("55","GENLCHEM-PHOS","14","Staging","IN","General Chemical (Parsippany, NJ)","General Chemical","purple");
 #
-insert into `locations` values("56","SCL-OUT-GE","15","OFFLINE","OUT","GE (Bridgeville, PA)","POHC Offline unload","");
+insert into `locations` values("56","STDFORGE-FORG","14","Staging","IN","Standard Forged Products (McKees Rocks-PA)","Standard Forged Products","purple");
 #
-insert into `locations` values("57","SCL-OUT-SHARON","15","OFFLINE","OUT","Sharon Steel (Farrell, PA)","POHC Offline unload","");
+insert into `locations` values("57","UNIVSS-SBAR","14","Staging","IN","Universal Stainless & Alloy (Bridgeville, PA)","Universal Stainless & Alloy","purple");
 #
-insert into `locations` values("58","SCL-OUT-USA-STAINLESS","15","OFFLINE","OUT","Universal Stainless & Alloy (Bridgeville, PA)","POHC Offline unload","");
+insert into `locations` values("58","WEIRTON-SLAB","14","Staging","IN","Weirton Steel (Weirton, WV)","Weirton Steel","purple");
 #
-insert into `locations` values("59","SCL-OUT-SFP","15","OFFLINE","OUT","Standard Forged Products (McKees Rocks, PA)","POHC Offline unload","");
+insert into `locations` values("59","WEIRTON-COIL","14","Staging","IN","Weirton Steel (Weirton, WV)","Weirton Steel","purple");
 #
-insert into `locations` values("60","SCL-OUT-MCCONWAY","15","OFFLINE","OUT","McConway & Torley (Pittsburgh, PA)","POHC Offline unload","");
+insert into `locations` values("60","ARMCO-SLAB","14","Staging","OUT","Armco Steel (Middletown, OH)","Armco Steel","purple");
 #
-insert into `locations` values("61","SCL-OUT-CARPENTER","15","OFFLINE","OUT","Carpenter Steel (Reading, PA)","POHC Offline unload","");
+insert into `locations` values("61","CATERPIL-FORG","14","Staging","OUT","Caterpillar (Peoria, IL)","Caterpillar","purple");
 #
-insert into `locations` values("62","SCL-OUT-AEP","15","OFFLINE","OUT","American Electric Power (Columbus, OH)","POHC Offline unload","");
+insert into `locations` values("62","JOHNDEER-COIL","14","Staging","OUT","John Deere (Moline, IL)","John Deere","purple");
 #
-insert into `locations` values("63","SCL-OUT-GIANT-EAGLE","15","OFFLINE","OUT","Giant Eagle (Pittsburgh, PA)","POHC Offline unload","");
+insert into `locations` values("63","DUPONT-MMA","14","Staging","OUT","DuPont (Wilmington, DE)","DuPont","purple");
 #
-insert into `locations` values("64","SCL-OUT-KNOUSE","15","OFFLINE","OUT","Knouse Foods (Orrtanna, PA)","POHC Offline unload","");
+insert into `locations` values("64","GE-ARGN","14","Staging","OUT","GE (Bridgeville, PA)","GE","purple");
 #
-insert into `locations` values("65","DEM-IN-WEIRTON","14","OFFLINE","IN","Weirton Steel (Weirton, WV)","CSX Offline load","");
+insert into `locations` values("65","GRAYBAR-TUBE","14","Staging","OUT","Graybar Electric (St. Louis, MO)","Graybar Electric","purple");
 #
-insert into `locations` values("66","DEM-IN-GEN-CHEM","14","OFFLINE","IN","General Chemical (Parsippany, NJ)","CSX Offline load","");
+insert into `locations` values("66","HEINZ-PHOS","14","Staging","OUT","Heinz (Pittsburgh, PA)","Heinz","purple");
 #
-insert into `locations` values("67","DEM-IN-CALGON-CORP","14","OFFLINE","IN","Calgon Corp (Columbus, OH)","CSX Offline load","");
+insert into `locations` values("67","HEINZ-TINP","14","Staging","OUT","Heinz (Pittsburgh, PA)","Heinz","purple");
 #
-insert into `locations` values("68","DEM-IN-REP-STEEL","14","OFFLINE","IN","Republic Steel (Cleveland, OH)","CSX Offline load","");
+insert into `locations` values("68","HOLCIM-CEMT","14","Staging","OUT","Holcim (Buffalo, NY)","Holcim","purple");
 #
-insert into `locations` values("69","DEM-IN-SFP","14","OFFLINE","IN","Standard Forged Products (McKees Rocks, PA)","CSX Offline load","");
+insert into `locations` values("69","KNOUSE-CEMT","14","Staging","OUT","Knouse Foods (Orrtanna, PA)","Knouse Foods","purple");
 #
-insert into `locations` values("70","DEM-IN-USA-STAINLESS","14","OFFLINE","IN","Universal Stainless & Alloy (Bridgeville, PA)","CSX Offline load","");
+insert into `locations` values("70","KNOUSE-IGAS","14","Staging","OUT","Knouse Foods (Orrtanna, PA)","Knouse Foods","purple");
 #
-insert into `locations` values("71","DEM-IN-ALLEGHENY","14","OFFLINE","IN","Allegheny Ludlum (Brackenridge, PA)","CSX Offline load","");
+insert into `locations` values("71","MCCONWAY-SCRP","14","Staging","OUT","McConway & Torley (Pittsburgh, PA)","McConway & Torley","purple");
 #
-insert into `locations` values("72","DEM-IN-BETHLEHEM","14","OFFLINE","IN","Bethlehem Steel (Bethlehem, PA)","CSX Offline load","");
+insert into `locations` values("72","OWENSTOL-PLST","14","Staging","OUT","Owens-Illinois (Toledo, OH)","Owens-Illinois","purple");
 #
-insert into `locations` values("73","DEM-IN-DUBUQUE","14","OFFLINE","IN","Dubuque Packing Co (Dubuque, IA)","CSX Offline load","");
+insert into `locations` values("73","PENELEC-LAMP","14","Staging","OUT","Penelec (Erie, PA)","Penelec","purple");
 #
-insert into `locations` values("74","DEM-OUT-PENELEC","14","OFFLINE","OUT","Penelec (Erie, PA)","CSX Offline unload","");
+insert into `locations` values("74","RYERSON-SBAR","14","Staging","OUT","Ryerson Steel (Chicago, IL)","Ryerson Steel","purple");
 #
-insert into `locations` values("75","DEM-OUT-GRAYBAR","14","OFFLINE","OUT","Graybar Electric (St. Louis, MO)","CSX Offline unload","");
+insert into `locations` values("75","SUBURBAN-LPG","14","Staging","OUT","Suburban Propane (Buffalo, NY)","Suburban Propane","purple");
 #
-insert into `locations` values("76","DEM-OUT-DEERE","14","OFFLINE","OUT","John Deere (Moline, IL)","CSX Offline unload","");
+insert into `locations` values("76","SYSCO-FRZN","14","Staging","OUT","Sysco Foods (Harrisburg, PA)","Sysco Foods","purple");
 #
-insert into `locations` values("77","DEM-OUT-HEINZ","14","OFFLINE","OUT","Heinz (Pittsburgh, PA)","CSX Offline unload","");
+insert into `locations` values("77","AIRPROD-ARGN","15","Staging","IN","Air Products (Allentown, PA)","Air Products","pink");
 #
-insert into `locations` values("78","DEM-OUT-HOLCIM","14","OFFLINE","OUT","Holcim (Buffalo, NY)","CSX Offline unload","");
+insert into `locations` values("78","BASF-PLST-MR","15","Staging","IN","BASF (Wyandotte, MI)","BASF","pink");
 #
-insert into `locations` values("79","DEM-OUT-KNOUSE","14","OFFLINE","OUT","Knouse Foods (Orrtanna, PA)","CSX Offline unload","");
+insert into `locations` values("79","GE-LAMP","15","Staging","IN","GE (Bridgeville, PA)","GE","pink");
 #
-insert into `locations` values("80","DEM-OUT-OI-TOLEDO","14","OFFLINE","OUT","Owens-Illinois (Toledo, OH)","CSX Offline unload","");
+insert into `locations` values("80","GE-TUBE","15","Staging","IN","GE (Bridgeville, PA)","GE","pink");
 #
-insert into `locations` values("81","DEM-OUT-CATERPILLAR","14","OFFLINE","OUT","Caterpillar (Peoria, IL)","CSX Offline unload","");
+insert into `locations` values("81","HEINZ-FRZN","15","Staging","IN","Heinz (Pittsburgh, PA)","Heinz","pink");
 #
-insert into `locations` values("82","DEM-OUT-RYERSON-CHI","14","OFFLINE","OUT","Ryerson Steel (Chicago, IL)","CSX Offline unload","");
+insert into `locations` values("82","MAPCO-LPG","15","Staging","IN","Mapco LP (Memphis, TN)","Mapco LP","pink");
 #
-insert into `locations` values("83","DEM-OUT-ARMCO","14","OFFLINE","OUT","Armco Steel (Middletown, OH)","CSX Offline unload","");
+insert into `locations` values("83","MEDUS-CEMT-MR","15","Staging","IN","Medusa Cement (Charlevoix, MI)","Medusa Cement","pink");
 #
-insert into `locations` values("84","DEM-OUT-MCCONWAY","14","OFFLINE","OUT","McConway & Torley (Pittsburgh, PA)","CSX Offline unload","");
+insert into `locations` values("84","STDFO-FORG-MR","15","Staging","IN","Standard Forged Products (McKees Rocks-PA)","Standard Forged Products","pink");
 #
-insert into `locations` values("85","DEM-OUT-SYSCO","14","OFFLINE","OUT","Sysco Foods (Harrisburg, PA)","CSX Offline unload","");
+insert into `locations` values("85","UNIVS-SBAR-MR","15","Staging","IN","Universal Stainless & Alloy (Bridgeville, PA)","Universal Stainless & Alloy","pink");
 #
-insert into `locations` values("86","DEM-OUT-GE","14","OFFLINE","OUT","GE (Bridgeville, PA)","CSX Offline unload","");
+insert into `locations` values("86","WHEELING-TINP","15","Staging","IN","Wheeling-Pittsburgh Steel (Wheeling, WV)","Wheeling-Pittsburgh Steel","pink");
 #
-insert into `locations` values("87","DEM-OUT-DUPONT","14","OFFLINE","OUT","DuPont (Wilmington, DE)","CSX Offline unload","");
+insert into `locations` values("87","AMERICAN-COAL","15","Staging","OUT","American Electric Power (Columbus, OH)","American Electric Power","pink");
 #
-insert into `locations` values("88","DEM-OUT-SUBURBAN-PROPANE","14","OFFLINE","OUT","Suburban Propane (Buffalo, NY)","CSX Offline unload","");
+insert into `locations` values("88","CARPENTR-SBAR","15","Staging","OUT","Carpenter Steel (Reading, PA)","Carpenter Steel","pink");
 #
-insert into `locations` values("89","SCL-OUT-CLEV","9","OFFLINE","OUT","NS / POHC interchange","POHC Offline unload","");
+insert into `locations` values("89","GE-PHOS","15","Staging","OUT","GE (Bridgeville, PA)","GE","pink");
 #
-insert into `locations` values("90","DEM-OUT-USS","10","OFFLINE","OUT","U.S. Steel Edgar Thomson Works","CSX Offline unload","");
+insert into `locations` values("90","GIANTEAG-MEAT","15","Staging","OUT","Giant Eagle (Pittsburgh, PA)","Giant Eagle","pink");
 #
-insert into `locations` values("91","NIL-STUK-CRANE","3","IN/OUT","1","A Stucki Co, Crane Track","A Stucki Co","green");
+insert into `locations` values("91","HOUGH-ACAR-MR","15","Staging","OUT","Houghton Chemical (Allston, MA)","Houghton Chemical","pink");
 #
-insert into `locations` values("92","NIL-STUK-TEAM","3","IN/OUT","2","A Stucki Co, Team Track","A Stucki Co","green");
+insert into `locations` values("92","OWENS-PRES-MR","15","Staging","OUT","Owens-Illinois (Ottawa, IL)","Owens-Illinois","pink");
 #
-insert into `locations` values("93","NIL-ARIS-CHEMICAL","3","INBOUND","4-5","Aristech Plastics, Chemical Unload","Aristech Plastics","yellow");
+insert into `locations` values("93","STDFORGE-BILL","15","Staging","OUT","Standard Forged Products (McKees Rocks-PA)","Standard Forged Products","pink");
 #
-insert into `locations` values("94","NIL-ARIS-PELLETS","3","INBOUND","1-3","Aristech Plastics, Pellet Unload","Aristech Plastics","yellow");
+insert into `locations` values("94","SHARON-FORG","15","Staging","OUT","Sharon Steel (Farrell, PA)","Sharon Steel","pink");
 #
-insert into `locations` values("95","NIL-ARIS-SHIPPING","3","OUTBOUND","6","Aristech Plastics, Shipping Door","Aristech Plastics","yellow");
+insert into `locations` values("95","UNIVSS-SLAB","15","Staging","OUT","Universal Stainless & Alloy (Bridgeville, PA)","Universal Stainless & Alloy","pink");
 #
-insert into `locations` values("96","NIL-CALG-CARBON","3","OUTBOUND","3","Calgon Carbon, Carbon Load","Calgon Carbon","mediumblue");
+insert into `locations` values("96","STUK-CRANE","3","IN/OUT","1","A Stucki Co, Crane Track","A Stucki Co","green");
 #
-insert into `locations` values("97","NIL-CALG-CHEMICAL","3","INBOUND","4","Calgon Carbon, Chemical Unload","Calgon Carbon","mediumblue");
+insert into `locations` values("97","STUK-TEAM","3","IN/OUT","2","A Stucki Co, Team Track","A Stucki Co","green");
 #
-insert into `locations` values("98","NIL-CALG-COAL","3","INBOUND","1-2","Calgon Carbon, Coal Unload","Calgon Carbon","mediumblue");
+insert into `locations` values("98","ARIS-CHEMICAL","3","INBOUND","4-5","Aristech Plastics, Chemical Unload","Aristech Plastics","yellow");
 #
-insert into `locations` values("99","NIL-FERR-LPG","3","INBOUND","1-2","Ferrel Gas, LPG Unload","Ferrel Gas","red");
+insert into `locations` values("99","ARIS-PELLETS","3","INBOUND","1-3","Aristech Plastics, Pellet Unload","Aristech Plastics","yellow");
 #
-insert into `locations` values("100","NIL-KOSM-AGGREGATE","3","INBOUND","4","Kosmos Cement, Aggregate Unload","Kosmos Cement","orange");
+insert into `locations` values("100","ARIS-SHIPPING","3","OUTBOUND","6","Aristech Plastics, Shipping Door","Aristech Plastics","yellow");
 #
-insert into `locations` values("101","NIL-KOSM-CEMENT","3","INBOUND","1-3","Kosmos Cement, Cement Unload","Kosmos Cement","orange");
+insert into `locations` values("101","CALG-CARBON","3","OUTBOUND","3","Calgon Carbon, Carbon Load","Calgon Carbon","mediumblue");
+#
+insert into `locations` values("102","CALG-CHEMICAL","3","INBOUND","4","Calgon Carbon, Chemical Unload","Calgon Carbon","mediumblue");
+#
+insert into `locations` values("103","CALG-COAL","3","INBOUND","1-2","Calgon Carbon, Coal Unload","Calgon Carbon","mediumblue");
+#
+insert into `locations` values("104","FERR-LPG","3","INBOUND","1-2","Ferrel Gas, LPG Unload","Ferrel Gas","red");
+#
+insert into `locations` values("105","KOSM-AGGREGATE","3","INBOUND","4","Kosmos Cement, Aggregate Unload","Kosmos Cement","orange");
+#
+insert into `locations` values("106","KOSM-CEMENT","3","INBOUND","1-3","Kosmos Cement, Cement Unload","Kosmos Cement","orange");
 #
 
 #
@@ -825,7 +830,7 @@ CREATE TABLE `owners` (
   `name` varchar(256) DEFAULT NULL,
   `remarks` varchar(256) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 #
 insert into `owners` values("1","Lee Nevo","");
 #
@@ -1210,7 +1215,7 @@ insert into `pu_criteria` values("26","CK1","50","","","","14");
 #
 insert into `pu_criteria` values("27","CK1","60","","","","11");
 #
-insert into `pu_criteria` values("28","CK1","70","","","","9");
+insert into `pu_criteria` values("28","CK1","70","","","","15");
 #
 insert into `pu_criteria` values("29","CK1","80","","","","12");
 #
@@ -1218,7 +1223,7 @@ insert into `pu_criteria` values("30","CK1","90","","","","8");
 #
 insert into `pu_criteria` values("31","CK1","95","","","","8");
 #
-insert into `pu_criteria` values("32","CK1","100","","","","10");
+insert into `pu_criteria` values("32","CK1","100","","","","14");
 #
 insert into `pu_criteria` values("33","CK1","110","","","","12");
 #
@@ -1278,7 +1283,7 @@ insert into `routing` values("2","West Yard","2","D749 terminates here at end of
 #
 insert into `routing` values("13","East Yard","3","Reserved for future staging.","275","0","0");
 #
-insert into `routing` values("15","Scully Offline","7","POHC offline party tracks — STG-SCULLY stages blocks after the operating session.","255","0","0");
+insert into `routing` values("15","McKees Rocks-PA","7","POHC offline party tracks — STG-SCULLY stages blocks after the operating session.","255","0","0");
 #
 insert into `routing` values("9","Scully Yard","7","POHC interchange — NVL picks up its block here at session start; STG-SCULLY runs end-of-session offline shuffle.","250","0","0");
 #
@@ -1292,7 +1297,7 @@ NVL exchanges blocks with D749 (Demmler-bound off, Island-bound on).","800","0",
 #
 insert into `routing` values("10","Demmler Yard","8","CSX interchange — D749 picks up inbound block at session start; STG-DEMMLER runs end-of-session offline shuffle.","850","0","0");
 #
-insert into `routing` values("14","Demmler Offline","8","CSX offline party tracks — STG-DEMMLER stages blocks after the operating session.","855","0","0");
+insert into `routing` values("14","Mckeesport-PA","8","CSX offline party tracks — STG-DEMMLER stages blocks after the operating session.","855","0","0");
 #
 
 #
@@ -1343,143 +1348,143 @@ CREATE TABLE `shipments` (
   PRIMARY KEY (`Id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=71 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 #
-insert into `shipments` values("1","ARIS-PELLETS-IN-DOW","Dow Chemical (Midland, MI) to Aristech Plastics","22","9","26","94","0","2","4","0","1","CSX","","","","","");
+insert into `shipments` values("1","ARIS-PELLETS-IN-DOW","Dow Chemical (Midland, MI) to Aristech Plastics","22","9","13","99","0","2","4","0","1","","","","","","");
 #
-insert into `shipments` values("2","ARIS-PELLETS-IN-BASF","BASF (Wyandotte, MI) to Aristech Plastics","22","9","27","94","0","2","4","0","1","CSX","","","","","");
+insert into `shipments` values("2","ARIS-PELLETS-IN-BASF","BASF (Wyandotte, MI) to Aristech Plastics","22","9","9","99","0","2","4","0","1","","","","","","");
 #
-insert into `shipments` values("3","ARIS-PELLETS-IN-NOVACOR","Novacor (Indian Orchard, MA) to Aristech Plastics","22","9","9","94","0","2","4","0","1","POHC","","","","","");
+insert into `shipments` values("3","ARIS-PELLETS-IN-NOVACOR","Novacor (Indian Orchard, MA) to Aristech Plastics","22","9","43","99","0","2","4","0","1","","","","","","");
 #
-insert into `shipments` values("4","ARIS-CHEM-IN-DOW-EA","Dow Chemical (Midland, MI) to Aristech Plastics","8","10","26","93","0","1","2","0","1","CSX","","","","","");
+insert into `shipments` values("4","ARIS-CHEM-IN-DOW-EA","Dow Chemical (Midland, MI) to Aristech Plastics","8","10","13","98","0","1","2","0","1","","","","","","");
 #
-insert into `shipments` values("5","ARIS-CHEM-IN-EXXON","Exxon Chemical (Bayonne, NJ) to Aristech Plastics","18","10","10","93","0","1","2","0","1","POHC","","","","","");
+insert into `shipments` values("5","ARIS-CHEM-IN-EXXON","Exxon Chemical (Bayonne, NJ) to Aristech Plastics","18","10","33","98","0","1","2","0","1","","","","","","");
 #
-insert into `shipments` values("6","ARIS-CHEM-IN-DOW-STY","Dow Chemical (Midland, MI) to Aristech Plastics","33","10","26","93","0","1","2","0","1","CSX","","","","","");
+insert into `shipments` values("6","ARIS-CHEM-IN-DOW-STY","Dow Chemical (Midland, MI) to Aristech Plastics","33","10","13","98","0","1","2","0","1","","","","","","");
 #
-insert into `shipments` values("7","ARIS-RESIN-OUT-BEMIS","Aristech Plastics to Bemis Company (Flemington, NJ)","23","5","95","22","0","0","2","1","1","POHC","","","","","");
+insert into `shipments` values("7","ARIS-RESIN-OUT-BEMIS","Aristech Plastics to Bemis Company (Flemington, NJ)","23","5","100","47","0","0","2","1","1","","","","","","");
 #
-insert into `shipments` values("8","ARIS-RESIN-OUT-OI-TOLEDO","Aristech Plastics to Owens-Illinois (Toledo, OH)","23","5","95","23","0","0","2","1","1","POHC","","","","","");
+insert into `shipments` values("8","ARIS-RESIN-OUT-OI-TOLEDO","Aristech Plastics to Owens-Illinois (Toledo, OH)","23","5","100","50","0","0","2","1","1","","","","","","");
 #
-insert into `shipments` values("9","ARIS-RESIN-OUT-OI-OTTAWA","Aristech Plastics to Owens-Illinois (Ottawa, IL)","23","5","95","38","0","0","2","1","1","CSX","","","","","");
+insert into `shipments` values("9","ARIS-RESIN-OUT-OI-OTTAWA","Aristech Plastics to Owens-Illinois (Ottawa, IL)","23","5","100","28","0","0","2","1","1","","","","","","");
 #
-insert into `shipments` values("10","STUK-STEEL-IN-METAL-SVC","Metal Service Co. (Apollo, PA) to A Stucki Co","29","5","28","91","0","0","2","1","1","CSX","","","","","");
+insert into `shipments` values("10","STUK-STEEL-IN-METAL-SVC","Metal Service Co. (Apollo, PA) to A Stucki Co","29","5","20","96","0","0","2","1","1","","","","","","");
 #
-insert into `shipments` values("11","STUK-STEEL-IN-ALLEGHENY","Allegheny Ludlum (Brackenridge, PA) to A Stucki Co","29","2","11","91","0","0","2","1","1","POHC","","","","","");
+insert into `shipments` values("11","STUK-STEEL-IN-ALLEGHENY","Allegheny Ludlum (Brackenridge, PA) to A Stucki Co","29","2","32","96","0","0","2","1","1","","","","","","");
 #
-insert into `shipments` values("12","STUK-STEEL-IN-REP-STEEL","Republic Steel (Cleveland, OH) to A Stucki Co","29","6","12","91","0","3","5","0","1","POHC","","","","","");
+insert into `shipments` values("12","STUK-STEEL-IN-REP-STEEL","Republic Steel (Cleveland, OH) to A Stucki Co","29","6","44","96","0","3","5","0","1","","","","","","");
 #
-insert into `shipments` values("13","STUK-COILS-IN-RYERSON","Ryerson Steel Service to A Stucki Co","31","5","29","92","0","0","2","1","1","CSX","","","","","");
+insert into `shipments` values("13","STUK-COILS-IN-RYERSON","Ryerson Steel Service to A Stucki Co","31","5","22","97","0","0","2","1","1","","","","","","");
 #
-insert into `shipments` values("14","STUK-PLATE-IN-WASH-STL","Washington Steel (Washington, PA) to A Stucki Co","32","2","30","92","0","0","2","1","1","CSX","","","","","");
+insert into `shipments` values("14","STUK-PLATE-IN-WASH-STL","Washington Steel (Washington, PA) to A Stucki Co","32","2","24","97","0","0","2","1","1","","","","","","");
 #
-insert into `shipments` values("15","STUK-BILLETS-IN-MCCONWAY","McConway & Torley (Pittsburgh, PA) to A Stucki Co","30","6","13","92","0","3","5","0","1","POHC","","","","","");
+insert into `shipments` values("15","STUK-BILLETS-IN-MCCONWAY","McConway & Torley (Pittsburgh, PA) to A Stucki Co","30","6","41","97","0","3","5","0","1","","","","","","");
 #
-insert into `shipments` values("16","STUK-PARTS-OUT-METAL-SVC","A Stucki Co to Metal Service Co. (Apollo, PA)","17","5","92","39","0","0","2","1","1","CSX","","","","","");
+insert into `shipments` values("16","STUK-PARTS-OUT-METAL-SVC","A Stucki Co to Metal Service Co. (Apollo, PA)","17","5","97","27","0","0","2","1","1","","","","","","");
 #
-insert into `shipments` values("17","STUK-SPRINGS-OUT-PITTS-FORGE","A Stucki Co to Pittsburgh Forge (McKees Rocks, PA)","25","2","92","24","0","0","2","1","1","POHC","","","","","");
+insert into `shipments` values("17","STUK-SPRINGS-OUT-PITTS-FORGE","A Stucki Co to Pittsburgh Forge (McKees Rocks, PA)","25","2","97","7","0","0","2","1","1","","","","","","");
 #
-insert into `shipments` values("18","STUK-COILS-OUT-RYERSON","A Stucki Co to Ryerson Steel Service","31","6","92","40","0","3","5","0","1","CSX","","","","","");
+insert into `shipments` values("18","STUK-COILS-OUT-RYERSON","A Stucki Co to Ryerson Steel Service","31","6","97","22","0","3","5","0","1","","","","","","");
 #
-insert into `shipments` values("19","CALG-COAL-IN-CONSOL","Consol Energy (Pittsburgh, PA) to Calgon Carbon","6","14","31","98","0","0","2","1","1","CSX","","","","","");
+insert into `shipments` values("19","CALG-COAL-IN-CONSOL","Consol Energy (Pittsburgh, PA) to Calgon Carbon","6","14","10","103","0","0","2","1","1","","","","","","");
 #
-insert into `shipments` values("20","CALG-COAL-IN-RP","R&P Coal (Brady Twp, PA) to Calgon Carbon","6","14","32","98","0","0","2","1","1","CSX","","","","","");
+insert into `shipments` values("20","CALG-COAL-IN-RP","R&P Coal (Brady Twp, PA) to Calgon Carbon","6","14","21","103","0","0","2","1","1","","","","","","");
 #
-insert into `shipments` values("21","CALG-COAL-IN-HILLMAN","Hillman Coal (Canton Twp, PA) to Calgon Carbon","6","14","14","98","0","0","2","1","1","POHC","","","","","");
+insert into `shipments` values("21","CALG-COAL-IN-HILLMAN","Hillman Coal (Canton Twp, PA) to Calgon Carbon","6","14","37","103","0","0","2","1","1","","","","","","");
 #
-insert into `shipments` values("22","CALG-CARBON-OUT-UNIVAR","Calgon Carbon to Univar (Salem, MA)","1","7","96","25","0","2","5","0","1","POHC","","","","","");
+insert into `shipments` values("22","CALG-CARBON-OUT-UNIVAR","Calgon Carbon to Univar (Salem, MA)","1","7","101","52","0","2","5","0","1","","","","","","");
 #
-insert into `shipments` values("23","CALG-CARBON-OUT-CORP","Calgon Carbon to Calgon Corp (Columbus, OH)","1","7","96","41","0","2","5","0","1","CSX","","","","","");
+insert into `shipments` values("23","CALG-CARBON-OUT-CORP","Calgon Carbon to Calgon Corp (Columbus, OH)","1","7","101","25","0","2","5","0","1","","","","","","");
 #
-insert into `shipments` values("24","CALG-CARBON-OUT-HOUGHTON","Calgon Carbon to Houghton Chemical (Allston, MA)","1","7","96","42","0","2","5","0","1","CSX","","","","","");
+insert into `shipments` values("24","CALG-CARBON-OUT-HOUGHTON","Calgon Carbon to Houghton Chemical (Allston, MA)","1","7","101","26","0","2","5","0","1","","","","","","");
 #
-insert into `shipments` values("25","CALG-CHEM-IN-HOUGHTON","Houghton Chemical (Allston, MA) to Calgon Carbon","4","10","15","97","0","1","2","0","1","POHC","","","","","");
+insert into `shipments` values("25","CALG-CHEM-IN-HOUGHTON","Houghton Chemical (Allston, MA) to Calgon Carbon","4","10","38","102","0","1","2","0","1","","","","","","");
 #
-insert into `shipments` values("26","CALG-CHEM-IN-GEN-CHEM","General Chemical (Parsippany, NJ) to Calgon Carbon","14","10","16","97","0","1","2","0","1","POHC","","","","","");
+insert into `shipments` values("26","CALG-CHEM-IN-GEN-CHEM","General Chemical (Parsippany, NJ) to Calgon Carbon","14","10","35","102","0","1","2","0","1","","","","","","");
 #
-insert into `shipments` values("27","CALG-CHEM-IN-DOW","Dow Chemical (Midland, MI) to Calgon Carbon","21","10","26","97","0","1","2","0","1","CSX","","","","","");
+insert into `shipments` values("27","CALG-CHEM-IN-DOW","Dow Chemical (Midland, MI) to Calgon Carbon","21","10","13","102","0","1","2","0","1","","","","","","");
 #
-insert into `shipments` values("28","FERR-LPG-IN-TANEYTOWN","Ferrellgas Co (Taneytown, MD) to Ferrel Gas","16","10","17","99","0","1","2","0","1","POHC","","","","","");
+insert into `shipments` values("28","FERR-LPG-IN-TANEYTOWN","Ferrellgas Co (Taneytown, MD) to Ferrel Gas","16","10","34","104","0","1","2","0","1","","","","","","");
 #
-insert into `shipments` values("29","FERR-LPG-IN-PIPE","Ferrellgas pipeline terminal to Ferrel Gas","16","10","33","99","0","1","2","0","1","CSX","","","","","");
+insert into `shipments` values("29","FERR-LPG-IN-PIPE","Ferrellgas pipeline terminal to Ferrel Gas","16","10","17","104","0","1","2","0","1","","","","","","");
 #
-insert into `shipments` values("30","KOSM-CEMENT-IN-KOSMOS","Kosmos Cement (Canton, OH) to Kosmos Cement","5","7","18","101","0","2","5","0","1","POHC","","","","","");
+insert into `shipments` values("30","KOSM-CEMENT-IN-KOSMOS","Kosmos Cement (Canton, OH) to Kosmos Cement","5","7","39","106","0","2","5","0","1","","","","","","");
 #
-insert into `shipments` values("31","KOSM-CEMENT-IN-MEDUSA","Medusa Cement (Charlevoix, MI) to Kosmos Cement","5","7","34","101","0","2","5","0","1","CSX","","","","","");
+insert into `shipments` values("31","KOSM-CEMENT-IN-MEDUSA","Medusa Cement (Charlevoix, MI) to Kosmos Cement","5","7","19","106","0","2","5","0","1","","","","","","");
 #
-insert into `shipments` values("32","KOSM-CEMENT-IN-LEHIGH","Lehigh Cement (Mitchell, IN) to Kosmos Cement","5","7","19","101","0","2","5","0","1","POHC","","","","","");
+insert into `shipments` values("32","KOSM-CEMENT-IN-LEHIGH","Lehigh Cement (Mitchell, IN) to Kosmos Cement","5","7","40","106","0","2","5","0","1","","","","","","");
 #
-insert into `shipments` values("33","KOSM-AGG-IN-MI-LIME","Michigan Limestone (Rogers City, MI) to Kosmos Cement","2","6","20","100","0","3","5","0","1","POHC","","","","","");
+insert into `shipments` values("33","KOSM-AGG-IN-MI-LIME","Michigan Limestone (Rogers City, MI) to Kosmos Cement","2","6","42","105","0","3","5","0","1","","","","","","");
 #
-insert into `shipments` values("34","KOSM-AGG-IN-US-AGG","US Aggregates (Indianapolis, IN) to Kosmos Cement","2","6","35","100","0","3","5","0","1","CSX","","","","","");
+insert into `shipments` values("34","KOSM-AGG-IN-US-AGG","US Aggregates (Indianapolis, IN) to Kosmos Cement","2","6","23","105","0","3","5","0","1","","","","","","");
 #
-insert into `shipments` values("35","KOSM-AGG-IN-MARTIN","Martin Marietta (Clairton, PA) to Kosmos Cement","2","8","36","100","0","0","2","1","1","CSX","","","","","");
+insert into `shipments` values("35","KOSM-AGG-IN-MARTIN","Martin Marietta (Clairton, PA) to Kosmos Cement","2","8","18","105","0","0","2","1","1","","","","","","");
 #
-insert into `shipments` values("36","IX-LAMPS-GE-PENELEC","GE (Bridgeville, PA) to Penelec (Erie, PA)","9","5","43","74","0","0","2","1","1","POHC->CSX","","","","","");
+insert into `shipments` values("36","IX-LAMPS-GE-PENELEC","GE (Bridgeville, PA) to Penelec (Erie, PA)","9","5","79","73","0","0","2","1","1","","","","","","");
 #
-insert into `shipments` values("37","IX-TUBES-GE-GRAYBAR","GE (Bridgeville, PA) to Graybar Electric (St. Louis, MO)","10","5","43","75","0","0","2","1","1","POHC->CSX","","","","","");
+insert into `shipments` values("37","IX-TUBES-GE-GRAYBAR","GE (Bridgeville, PA) to Graybar Electric (St. Louis, MO)","10","5","80","65","0","0","2","1","1","","","","","","");
 #
-insert into `shipments` values("38","IX-RESIN-DOW-OI-OTT","Dow Chemical (Midland, MI) to Owens-Illinois (Ottawa, IL)","23","5","26","53","0","0","2","1","1","CSX->POHC","","","","","");
+insert into `shipments` values("38","IX-RESIN-DOW-OI-OTT","Dow Chemical (Midland, MI) to Owens-Illinois (Ottawa, IL)","23","5","15","92","0","0","2","1","1","","","","","","");
 #
-insert into `shipments` values("39","IX-COILS-REP-DEERE","Republic Steel (Cleveland, OH) to John Deere (Moline, IL)","31","1","12","76","0","0","2","1","1","POHC->CSX","","","","","");
+insert into `shipments` values("39","IX-COILS-REP-DEERE","Republic Steel (Cleveland, OH) to John Deere (Moline, IL)","31","1","46","62","0","0","2","1","1","","","","","","");
 #
-insert into `shipments` values("40","IX-COILS-WEIRTON-RYERSON","Weirton Steel (Weirton, WV) to Ryerson Steel Service (Pittsburgh, PA)","31","1","65","54","0","0","2","1","1","CSX->POHC","","","","","");
+insert into `shipments` values("40","IX-COILS-WEIRTON-RYERSON","Weirton Steel (Weirton, WV) to Ryerson Steel Service (Pittsburgh, PA)","31","1","59","59","0","0","2","1","1","","","","","","");
 #
-insert into `shipments` values("41","IX-TINPLATE-WHEELING-HEINZ","Wheeling-Pittsburgh Steel (Wheeling, WV) to Heinz (Pittsburgh, PA)","34","1","49","77","0","0","2","1","1","POHC->CSX","","","","","");
+insert into `shipments` values("41","IX-TINPLATE-WHEELING-HEINZ","Wheeling-Pittsburgh Steel (Wheeling, WV) to Heinz (Pittsburgh, PA)","34","1","86","67","0","0","2","1","1","","","","","","");
 #
-insert into `shipments` values("42","IX-CARBON-CORP-HOUGHTON","Calgon Corp (Columbus, OH) to Houghton Chemical (Allston, MA)","1","7","67","55","0","3","6","0","1","CSX->POHC","","","","","");
+insert into `shipments` values("42","IX-CARBON-CORP-HOUGHTON","Calgon Corp (Columbus, OH) to Houghton Chemical (Allston, MA)","1","7","25","91","0","3","6","0","1","","","","","","");
 #
-insert into `shipments` values("43","IX-CEMENT-LEHIGH-HOLCIM","Lehigh Cement (Mitchell, IN) to Holcim (Buffalo, NY)","5","7","19","78","0","3","6","0","1","POHC->CSX","","","","","");
+insert into `shipments` values("43","IX-CEMENT-LEHIGH-HOLCIM","Lehigh Cement (Mitchell, IN) to Holcim (Buffalo, NY)","5","7","40","68","0","3","6","0","1","","","","","","");
 #
-insert into `shipments` values("44","IX-CEMENT-MEDUSA-KNOUSE","Medusa Cement (Charlevoix, MI) to Knouse Foods (Orrtanna, PA)","5","7","45","79","0","3","6","0","1","POHC->CSX","","","","","");
+insert into `shipments` values("44","IX-CEMENT-MEDUSA-KNOUSE","Medusa Cement (Charlevoix, MI) to Knouse Foods (Orrtanna, PA)","5","7","83","69","0","3","6","0","1","","","","","","");
 #
-insert into `shipments` values("45","IX-PHOSPHOR-GEN-GE","General Chemical (Parsippany, NJ) to GE (Bridgeville, PA)","20","7","66","56","0","3","6","0","1","CSX->POHC","","","","","");
+insert into `shipments` values("45","IX-PHOSPHOR-GEN-GE","General Chemical (Parsippany, NJ) to GE (Bridgeville, PA)","20","7","55","89","0","3","6","0","1","","","","","","");
 #
-insert into `shipments` values("46","IX-PHOSPHOR-GEN-HEINZ","General Chemical (Parsippany, NJ) to Heinz (Pittsburgh, PA)","20","7","16","77","0","3","6","0","1","POHC->CSX","","","","","");
+insert into `shipments` values("46","IX-PHOSPHOR-GEN-HEINZ","General Chemical (Parsippany, NJ) to Heinz (Pittsburgh, PA)","20","7","36","66","0","3","6","0","1","","","","","","");
 #
-insert into `shipments` values("47","IX-PELLETS-BASF-OI-TOL","BASF (Wyandotte, MI) to Owens-Illinois (Toledo, OH)","22","9","44","80","0","4","7","0","1","POHC->CSX","","","","","");
+insert into `shipments` values("47","IX-PELLETS-BASF-OI-TOL","BASF (Wyandotte, MI) to Owens-Illinois (Toledo, OH)","22","9","78","72","0","4","7","0","1","","","","","","");
 #
-insert into `shipments` values("48","IX-PELLETS-BASF-OI-TOL-CSX","BASF (Wyandotte, MI) to Owens-Illinois (Toledo, OH)","22","9","27","23","0","4","7","0","1","CSX->POHC","","","","","");
+insert into `shipments` values("48","IX-PELLETS-BASF-OI-TOL-CSX","BASF (Wyandotte, MI) to Owens-Illinois (Toledo, OH)","22","9","9","49","0","4","7","0","1","","","","","","");
 #
-insert into `shipments` values("49","IX-FORGINGS-SFP-CAT","Standard Forged Products (McKees Rocks, PA) to Caterpillar (Peoria, IL)","11","2","46","81","0","0","2","0","1","POHC->CSX","","","","","");
+insert into `shipments` values("49","IX-FORGINGS-SFP-CAT","Standard Forged Products (McKees Rocks, PA) to Caterpillar (Peoria, IL)","11","2","84","61","0","0","2","0","1","","","","","","");
 #
-insert into `shipments` values("50","IX-FORGINGS-SFP-SHARON","Standard Forged Products (McKees Rocks, PA) to Sharon Steel (Farrell, PA)","11","2","69","57","0","0","2","0","1","CSX->POHC","","","","","");
+insert into `shipments` values("50","IX-FORGINGS-SFP-SHARON","Standard Forged Products (McKees Rocks, PA) to Sharon Steel (Farrell, PA)","11","2","56","94","0","0","2","0","1","","","","","","");
 #
-insert into `shipments` values("51","IX-STAINLESS-USA-RYERSON","Universal Stainless & Alloy (Bridgeville, PA) to Ryerson Steel (Chicago, IL)","27","2","47","82","0","0","2","0","1","POHC->CSX","","","","","");
+insert into `shipments` values("51","IX-STAINLESS-USA-RYERSON","Universal Stainless & Alloy (Bridgeville, PA) to Ryerson Steel (Chicago, IL)","27","2","85","74","0","0","2","0","1","","","","","","");
 #
-insert into `shipments` values("52","IX-STAINLESS-USA-CARPENTER","Universal Stainless & Alloy (Bridgeville, PA) to Carpenter Steel (Reading, PA)","27","2","70","61","0","0","2","0","1","CSX->POHC","","","","","");
+insert into `shipments` values("52","IX-STAINLESS-USA-CARPENTER","Universal Stainless & Alloy (Bridgeville, PA) to Carpenter Steel (Reading, PA)","27","2","57","88","0","0","2","0","1","","","","","","");
 #
-insert into `shipments` values("53","IX-SLAB-ALLEGHENY-USA","Allegheny Ludlum (Brackenridge, PA) to Universal Stainless & Alloy (Bridgeville, PA)","28","2","71","58","0","0","2","0","1","CSX->POHC","","","","","");
+insert into `shipments` values("53","IX-SLAB-ALLEGHENY-USA","Allegheny Ludlum (Brackenridge, PA) to Universal Stainless & Alloy (Bridgeville, PA)","28","2","31","95","0","0","2","0","1","","","","","","");
 #
-insert into `shipments` values("54","IX-SLAB-WEIRTON-ARMCO","Weirton Steel (Weirton, WV) to Armco Steel (Middletown, OH)","28","2","48","83","0","0","2","0","1","POHC->CSX","","","","","");
+insert into `shipments` values("54","IX-SLAB-WEIRTON-ARMCO","Weirton Steel (Weirton, WV) to Armco Steel (Middletown, OH)","28","2","58","60","0","0","2","0","1","","","","","","");
 #
-insert into `shipments` values("55","IX-BILLETS-REP-SFP","Republic Steel (Cleveland, OH) to Standard Forged Products (McKees Rocks, PA)","30","2","68","59","0","0","2","0","1","CSX->POHC","","","","","");
+insert into `shipments` values("55","IX-BILLETS-REP-SFP","Republic Steel (Cleveland, OH) to Standard Forged Products (McKees Rocks, PA)","30","2","45","93","0","0","2","0","1","","","","","","");
 #
-insert into `shipments` values("56","IX-BILLETS-REP-MCCONWAY","Republic Steel (Cleveland, OH) to McConway & Torley (Pittsburgh, PA)","30","2","68","60","0","0","2","0","1","CSX->POHC","","","","","");
+insert into `shipments` values("56","IX-BILLETS-REP-MCCONWAY","Republic Steel (Cleveland, OH) to McConway & Torley (Pittsburgh, PA)","30","2","45","41","0","0","2","0","1","","","","","","");
 #
-insert into `shipments` values("57","IX-PLATE-BETHLEHEM-RYERSON","Bethlehem Steel (Bethlehem, PA) to Ryerson Steel Service (Pittsburgh, PA)","32","2","72","54","0","0","2","0","1","CSX->POHC","","","","","");
+insert into `shipments` values("57","IX-PLATE-BETHLEHEM-RYERSON","Bethlehem Steel (Bethlehem, PA) to Ryerson Steel Service (Pittsburgh, PA)","32","2","53","53","0","0","2","0","1","","","","","","");
 #
-insert into `shipments` values("58","IX-SCRAP-ALLEGHENY-MCCONWAY","Allegheny Ludlum (Brackenridge, PA) to McConway & Torley (Pittsburgh, PA)","26","6","11","84","0","5","8","0","1","POHC->CSX","","","","","");
+insert into `shipments` values("58","IX-SCRAP-ALLEGHENY-MCCONWAY","Allegheny Ludlum (Brackenridge, PA) to McConway & Torley (Pittsburgh, PA)","26","6","30","71","0","5","8","0","1","","","","","","");
 #
-insert into `shipments` values("59","IX-COAL-CONSOL-AEP","Consol Energy (Pittsburgh, PA) to American Electric Power (Columbus, OH)","6","14","31","62","0","0","2","1","1","CSX->POHC","","","","","");
+insert into `shipments` values("59","IX-COAL-CONSOL-AEP","Consol Energy (Pittsburgh, PA) to American Electric Power (Columbus, OH)","6","14","10","87","0","0","2","1","1","","","","","","");
 #
-insert into `shipments` values("60","IX-REEFER-HEINZ-SYSCO","Heinz (Pittsburgh, PA) to Sysco Foods (Harrisburg, PA)","12","11","50","85","0","0","2","1","1","POHC->CSX","","","","","");
+insert into `shipments` values("60","IX-REEFER-HEINZ-SYSCO","Heinz (Pittsburgh, PA) to Sysco Foods (Harrisburg, PA)","12","11","81","76","0","0","2","1","1","","","","","","");
 #
-insert into `shipments` values("61","IX-REEFER-DUBUQUE-GIANT","Dubuque Packing Co (Dubuque, IA) to Giant Eagle (Pittsburgh, PA)","19","11","73","63","0","0","2","1","1","CSX->POHC","","","","","");
+insert into `shipments` values("61","IX-REEFER-DUBUQUE-GIANT","Dubuque Packing Co (Dubuque, IA) to Giant Eagle (Pittsburgh, PA)","19","11","54","90","0","0","2","1","1","","","","","","");
 #
-insert into `shipments` values("62","IX-ARGON-AIRPROD-GE","Air Products (Allentown, PA) to GE (Bridgeville, PA)","3","10","51","86","0","2","4","0","1","POHC->CSX","","","","","");
+insert into `shipments` values("62","IX-ARGON-AIRPROD-GE","Air Products (Allentown, PA) to GE (Bridgeville, PA)","3","10","77","64","0","2","4","0","1","","","","","","");
 #
-insert into `shipments` values("63","IX-CHEM-DOW-KNOUSE","Dow Chemical (Midland, MI) to Knouse Foods (Orrtanna, PA)","15","10","26","64","0","2","4","0","1","CSX->POHC","","","","","");
+insert into `shipments` values("63","IX-CHEM-DOW-KNOUSE","Dow Chemical (Midland, MI) to Knouse Foods (Orrtanna, PA)","15","10","12","70","0","2","4","0","1","","","","","","");
 #
-insert into `shipments` values("64","IX-LPG-MAPCO-SUBURBAN","Mapco LP (Memphis, TN) to Suburban Propane (Buffalo, NY)","16","10","52","88","0","2","4","0","1","POHC->CSX","","","","","");
+insert into `shipments` values("64","IX-LPG-MAPCO-SUBURBAN","Mapco LP (Memphis, TN) to Suburban Propane (Buffalo, NY)","16","10","82","75","0","2","4","0","1","","","","","","");
 #
-insert into `shipments` values("65","IX-CHEM-EXXON-DUPONT","Exxon Chemical (Bayonne, NJ) to DuPont (Wilmington, DE)","18","10","10","87","0","2","4","0","1","POHC->CSX","","","","","");
+insert into `shipments` values("65","IX-CHEM-EXXON-DUPONT","Exxon Chemical (Bayonne, NJ) to DuPont (Wilmington, DE)","18","10","33","63","0","2","4","0","1","","","","","","");
 #
-insert into `shipments` values("66","COKE-USS","Shenango Coke Works to U.S. Steel Edgar Thomson Works","7","3","6","90","0","99.0","99.0","1","1","CSX | URR","","","","","");
+insert into `shipments` values("66","COKE-USS","Shenango Coke Works to U.S. Steel Edgar Thomson Works","7","3","6","29","0","99.0","99.0","1","1","All loads to be weighed in South Yard.","","","","","");
 #
-insert into `shipments` values("67","COKE-CLEV","Shenango Coke Works to Cleveland Works, Cleveland, OH","7","3","6","89","0","99.0","99.0","1","1","POHC | NS via McKees Rocks","","","","","");
+insert into `shipments` values("67","COKE-CLEV","Shenango Coke Works to Cleveland Works, Cleveland, OH","7","3","6","48","0","99.0","99.0","1","1","All loads to be weighed in South Yard.","","","","","");
 #
-insert into `shipments` values("68","COKE-USS-BULK","Shenango Coke Works to U.S. Steel Edgar Thomson Works","7","3","6","90","0","1.1","1.1","4","4","CSX | URR","","","","","");
+insert into `shipments` values("68","COKE-USS-BULK","Shenango Coke Works to U.S. Steel Edgar Thomson Works","7","3","6","29","0","1.1","1.1","4","4","All loads to be weighed in South Yard.","","","","","");
 #
-insert into `shipments` values("69","COKE-CLEV-BULK","Shenango Coke Works to Cleveland Works, Cleveland, OH","7","3","6","89","0","1.1","1.1","4","4","POHC | NS via McKees Rocks","","","","","");
+insert into `shipments` values("69","COKE-CLEV-BULK","Shenango Coke Works to Cleveland Works, Cleveland, OH","7","3","6","48","0","1.1","1.1","4","4","All loads to be weighed in South Yard.","","","","","");
 #
 insert into `shipments` values("70","COKE-RELOAD-SHEN","South Yard Scale to Shenango Coke Works","7","3","5","6","0","99.0","99.0","1","1","","","","","","");
 #
@@ -1487,7 +1492,7 @@ insert into `shipments` values("70","COKE-RELOAD-SHEN","South Yard Scale to Shen
 #
 
 -- routing: 10
--- locations: 101
+-- locations: 106
 -- commodities: 34
 -- car_codes: 14
 -- shipments: 70

@@ -9,30 +9,30 @@ station,active,South Yard,,8,South Yard,,,,Classification hub; track scale; CK1 
 station,active,Demmler Yard,,10,Demmler Yard,,,,CSX interchange yard; STG-DEMMLER shuffles to Mckeesport PA,,,,,,,,,,,,
 station,active,"Mckeesport, PA",,14,"Mckeesport, PA",,,,CSX offline party tracks at Demmler; separate routing station,,,,,,,,,,,,
 station,active,"McKees Rock, PA",,15,"McKees Rock, PA",,,,POHC offline party tracks at Scully; separate routing station,,,,,,,,,,,,
-location_rename,proposed,SCL,,9,,,POHC,,,,,,,,,,,SCULLY,Yard location code renamed SCULLY → SCL,,
-location_rename,proposed,DEM,,10,,,CSX,,,,,,,,,,,DEMMLER,Yard location code renamed DEMMLER → DEM,,
+location_rename,proposed,SCULLY-YARD,,9,,,POHC,,,,,,,,,,,SCULLY,Yard location code renamed SCULLY → SCL,,
+location_rename,proposed,DEMMLER-YARD,,10,,,CSX,,,,,,,,,,,DEMMLER,Yard location code renamed DEMMLER → DEM,,
 design_pattern,proposed,,,,,,,,,,,,,,,,,Shipment codes: {INDUSTRY}-{PRODUCT}-{IN|OUT}[-{PARTY}]; drop LOA-/card_id,,See hart_shipment_code_renames_proposed.csv,
-location,active,NORTH,,11,North Yard,,,,,,,,,,,,,Outbound coke staging; CK1; track-scale outbound load point,,,
-location,active,EAST,,13,East Yard,,,,,,,,,,,,,Reserved for future staging,,,
-location,active,NIL-SHEN-COKE,,12,Shenango Coke Works,OUTBOUND,OUT,Neville Island,Shenango Coke Works,,,,,,,,,Coke fleet home; outbound coke shipment load point,,,
-location,active,WEST,,2,West Yard,,,,,,,,,,,,,Existing yard location,,,
-location,active,SOUTH,,8,South Yard,,,,,,,,,,,,,General South Yard yard track,,,
+location,active,NORTH-YARD,,11,North Yard,,,,,,,,,,,,,Outbound coke staging; CK1; track-scale outbound load point,,,
+location,active,EAST-YARD,,13,East Yard,,,,,,,,,,,,,Reserved for future staging,,,
+location,active,SHEN-COKE-SHIPPING,,12,Shenango Coke Works,OUTBOUND,OUT,Neville Island,Shenango Coke Works,,,,,,,,,Coke fleet home; outbound coke shipment load point,,,
+location,active,WEST-YARD,,2,West Yard,,,,,,,,,,,,,Existing yard location,,,
+location,active,SOUTH-YARD,,8,South Yard,,,,,,,,,,,,,General South Yard yard track,,,
 location,active,SOUTH-SCALE,,8,South Yard,West Lead,Scale,,Track scale; reload load point,,,,,,,,,,,Not outbound coke load point,
-job_step,active,,,9,Scully Yard,,,,STG-SCULLY step 10,,,,,,STG-SCULLY,10,,,,15,"McKees Rock, PA",pickup only — shuffle from yard,
-job_step,active,,,15,"McKees Rock, PA",,,,STG-SCULLY step 11,,,,,,STG-SCULLY,11,,,,,,setout only — receive from yard,
-job_step,active,,,15,"McKees Rock, PA",,,,STG-SCULLY step 12,,,,,,STG-SCULLY,12,,,,15,"McKees Rock, PA",pickup+setout — home offline,
-job_step,active,,,15,"McKees Rock, PA",,,,STG-SCULLY step 20,,,,,,STG-SCULLY,20,,,,9,Scully Yard,pickup+setout,
-job_step,active,,,15,"McKees Rock, PA",,,,STG-SCULLY step 30,,,,,,STG-SCULLY,30,,,,12,Shenango Coke Works,pickup+setout,
-job_step,active,,,15,"McKees Rock, PA",,,,STG-SCULLY step 40,,,,,,STG-SCULLY,40,,,,3,Neville Island,pickup+setout,
-job_step,active,,,15,"McKees Rock, PA",,,,STG-SCULLY step 45,,,,,,STG-SCULLY,45,,,,14,"Mckeesport, PA",pickup+setout — IX,
-job_step,active,,,15,"McKees Rock, PA",,,,STG-SCULLY step 50,,,,,,STG-SCULLY,50,,,,10,Demmler Yard,pickup+setout,
-job_step,active,,,9,Scully Yard,,,,STG-SCULLY step 60,,,,,,STG-SCULLY,60,,,,9,Scully Yard,pickup+setout — home yard,
-job_step,active,,,10,Demmler Yard,,,,STG-DEMMLER step 10,,,,,,STG-DEMMLER,10,,,,14,"Mckeesport, PA",pickup only — shuffle from yard,
-job_step,active,,,14,"Mckeesport, PA",,,,STG-DEMMLER step 11,,,,,,STG-DEMMLER,11,,,,,,setout only — receive from yard,
-job_step,active,,,14,"Mckeesport, PA",,,,STG-DEMMLER step 12,,,,,,STG-DEMMLER,12,,,,14,"Mckeesport, PA",pickup+setout — home offline,
-job_step,active,,,14,"Mckeesport, PA",,,,STG-DEMMLER step 20,,,,,,STG-DEMMLER,20,,,,9,Scully Yard,pickup+setout,
-job_step,active,,,14,"Mckeesport, PA",,,,STG-DEMMLER step 30,,,,,,STG-DEMMLER,30,,,,12,Shenango Coke Works,pickup+setout,
-job_step,active,,,14,"Mckeesport, PA",,,,STG-DEMMLER step 40,,,,,,STG-DEMMLER,40,,,,3,Neville Island,pickup+setout,
-job_step,active,,,14,"Mckeesport, PA",,,,STG-DEMMLER step 45,,,,,,STG-DEMMLER,45,,,,15,"McKees Rock, PA",pickup+setout — IX,
-job_step,active,,,14,"Mckeesport, PA",,,,STG-DEMMLER step 50,,,,,,STG-DEMMLER,50,,,,10,Demmler Yard,pickup+setout,
-job_step,active,,,10,Demmler Yard,,,,STG-DEMMLER step 60,,,,,,STG-DEMMLER,60,,,,10,Demmler Yard,pickup+setout — home yard,
+job_step,active,,,9,Scully Yard,,,,STG-SCULLY step 10,,,,,,STG-SCULLY,10,,,,15,"McKees Rock, PA"
+job_step,active,,,15,"McKees Rock, PA",,,,STG-SCULLY step 11,,,,,,STG-SCULLY,11,,,,,
+job_step,active,,,15,"McKees Rock, PA",,,,STG-SCULLY step 12,,,,,,STG-SCULLY,12,,,,15,"McKees Rock, PA"
+job_step,active,,,15,"McKees Rock, PA",,,,STG-SCULLY step 20,,,,,,STG-SCULLY,20,,,,9,Scully Yard
+job_step,active,,,15,"McKees Rock, PA",,,,STG-SCULLY step 30,,,,,,STG-SCULLY,30,,,,12,Shenango Coke Works
+job_step,active,,,15,"McKees Rock, PA",,,,STG-SCULLY step 40,,,,,,STG-SCULLY,40,,,,3,Neville Island
+job_step,active,,,15,"McKees Rock, PA",,,,STG-SCULLY step 45,,,,,,STG-SCULLY,45,,,,14,"Mckeesport, PA"
+job_step,active,,,15,"McKees Rock, PA",,,,STG-SCULLY step 50,,,,,,STG-SCULLY,50,,,,10,Demmler Yard
+job_step,active,,,9,Scully Yard,,,,STG-SCULLY step 60,,,,,,STG-SCULLY,60,,,,9,Scully Yard
+job_step,active,,,10,Demmler Yard,,,,STG-DEMMLER step 10,,,,,,STG-DEMMLER,10,,,,14,"Mckeesport, PA"
+job_step,active,,,14,"Mckeesport, PA",,,,STG-DEMMLER step 11,,,,,,STG-DEMMLER,11,,,,,
+job_step,active,,,14,"Mckeesport, PA",,,,STG-DEMMLER step 12,,,,,,STG-DEMMLER,12,,,,14,"Mckeesport, PA"
+job_step,active,,,14,"Mckeesport, PA",,,,STG-DEMMLER step 20,,,,,,STG-DEMMLER,20,,,,9,Scully Yard
+job_step,active,,,14,"Mckeesport, PA",,,,STG-DEMMLER step 30,,,,,,STG-DEMMLER,30,,,,12,Shenango Coke Works
+job_step,active,,,14,"Mckeesport, PA",,,,STG-DEMMLER step 40,,,,,,STG-DEMMLER,40,,,,3,Neville Island
+job_step,active,,,14,"Mckeesport, PA",,,,STG-DEMMLER step 45,,,,,,STG-DEMMLER,45,,,,15,"McKees Rock, PA"
+job_step,active,,,14,"Mckeesport, PA",,,,STG-DEMMLER step 50,,,,,,STG-DEMMLER,50,,,,10,Demmler Yard
+job_step,active,,,10,Demmler Yard,,,,STG-DEMMLER step 60,,,,,,STG-DEMMLER,60,,,,10,Demmler Yard
