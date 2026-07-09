@@ -30,7 +30,8 @@ Run from **Car Cards project root** (thin wrappers) or directly from **`sts-dock
 |--------|---------|
 | `apply_hart_seed.sh` | Generate and/or restore `hart_seed` |
 | `apply_warm_start.sh` | Simulate prior operating sessions |
-| `run_session_simulations.sh` | Tracked warm start + phased switch lists per session |
+| `run_session_simulations.sh` | Warm start once, then begin + switch lists + play per session |
+| `play_operating_session.sh` | Play through one operating session (after begin_session) |
 | `generate_switchlists.sh` | Dry-run phased switch lists (D749, NVL, CK1) |
 | `begin_session.sh` | Live session prep after STG-SCULLY |
 | `apply_hart_job_descriptions.sh` | Push crew instructions from seed config → DB |
@@ -46,7 +47,7 @@ Run from **Car Cards project root** (thin wrappers) or directly from **`sts-dock
 # Fresh seed with car fleet from session10 backup
 ./sts-docker-helpers/bin/apply_hart_seed.sh --generate --merge-fleet
 
-# Ten tracked sessions: warm start → begin_session (fill+assign) → switch lists per operating session
+# Ten operating sessions: warm start once → begin + switch lists + play (×10)
 ./sts-docker-helpers/bin/run_session_simulations.sh --sessions 10
 
 # Single session prep + switch lists (after STG-SCULLY backlog exists)

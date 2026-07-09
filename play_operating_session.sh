@@ -1,0 +1,1 @@
+bin/play_operating_session.sh

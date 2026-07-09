@@ -1144,30 +1144,121 @@ function warm_start_run_ck1_session_ops($dbc, $config = [])
     return array_merge($stats, ['weigh' => $weigh]);
 }
 
+function warm_start_default_fractions(array $config = [])
+{
+    $repo_fraction = (float) ($config['reposition_fraction'] ?? 0.65);
+
+    return [
+        'fill_orders' => 1.0,
+        'reposition' => $repo_fraction,
+        'auto_assign' => 1.0,
+        'pickup' => 1.0,
+        'setout' => 1.0,
+        'load_unload' => 1.0,
+    ];
+}
+
+function warm_start_tracked_sim_overrides(array $overrides = [])
+{
+    return array_merge([
+        'stop_when_stg_scully_ready' => true,
+        'stop_when_locals_secured' => false,
+        'stop_when_staging_ready' => false,
+        'run_ck1_each_session' => true,
+        'secure_locals_each_session' => true,
+        'staging_after_locals' => true,
+        'run_phased_locals' => true,
+        'max_sessions' => 10,
+    ], $overrides);
+}
+
 /**
- * Advance one operating session: optionally generate orders, run ops.
- * Skips generation when more than max_unfilled_before_generate orders are open.
+ * Run local/staging work for the current operating session (no session increment).
+ * Call after begin_session has opened the session (STG-SCULLY, fill, assign).
+ * Ends with STG-SCULLY deferred at Scully for the next begin_session.
+ */
+function warm_start_play_operating_session($dbc, array $config = [], array $fractions = null, $label = '')
+{
+    $config = warm_start_merge_config(array_merge(
+        warm_start_tracked_sim_overrides(),
+        ['play_operating_session' => true],
+        $config
+    ));
+    $fractions = $fractions ?? warm_start_default_fractions($config);
+    $max_unfilled = (int) ($config['max_unfilled_before_generate'] ?? 30);
+
+    return warm_start_run_session_work(
+        $dbc,
+        $fractions,
+        $label,
+        $max_unfilled,
+        false,
+        $config,
+        false,
+        warm_start_get_session($dbc),
+        null
+    );
+}
+
+/**
+ * Advance one operating session: increment session, clear pending STG-SCULLY, run ops.
+ * Used by warm-start simulation (prior sessions). Skips generation when too many unfilled orders.
  */
 function warm_start_advance_session($dbc, $fractions, $label, $max_unfilled, $finish_non_staging_only = false, $config = [], $run_staging = true)
 {
-    $coke_before = warm_start_coke_stats_copy();
-    warm_start_session_stats_reset();
-    $unfilled = warm_start_count_unfilled($dbc);
     $session = warm_start_get_session($dbc) + 1;
     warm_start_set_session($dbc, $session);
-    $suffix = $label !== '' ? " ({$label})" : '';
     $load_unload_fraction = $fractions['load_unload'] ?? 1.0;
     $pending_stg_scully = null;
 
     if (!empty($config['stop_when_stg_scully_ready']) || !empty($config['secure_locals_each_session'])) {
         $pending_stg_scully = warm_start_run_pending_stg_scully($dbc, $config, $load_unload_fraction);
         if (($pending_stg_scully['set_out'] ?? 0) > 0) {
+            $suffix = $label !== '' ? " ({$label})" : '';
             warm_start_log(
                 "Session {$session}{$suffix} start: pending STG-SCULLY moves="
                 . ($pending_stg_scully['set_out'] ?? 0)
             );
         }
     }
+
+    $result = warm_start_run_session_work(
+        $dbc,
+        $fractions,
+        $label,
+        $max_unfilled,
+        $finish_non_staging_only,
+        $config,
+        $run_staging,
+        $session,
+        $pending_stg_scully
+    );
+
+    return $result;
+}
+
+/**
+ * Shared session body: generate orders, locals, CK1, bookend staging.
+ */
+function warm_start_run_session_work(
+    $dbc,
+    $fractions,
+    $label,
+    $max_unfilled,
+    $finish_non_staging_only = false,
+    $config = [],
+    $run_staging = true,
+    $session = null,
+    $pending_stg_scully = null
+) {
+    $coke_before = warm_start_coke_stats_copy();
+    warm_start_session_stats_reset();
+    if ($session === null) {
+        $session = warm_start_get_session($dbc);
+    }
+    $unfilled = warm_start_count_unfilled($dbc);
+    $suffix = $label !== '' ? " ({$label})" : '';
+    $load_unload_fraction = $fractions['load_unload'] ?? 1.0;
 
     if ($unfilled > $max_unfilled) {
         warm_start_log(
@@ -1241,7 +1332,10 @@ function warm_start_advance_session($dbc, $fractions, $label, $max_unfilled, $fi
         $stats['stg_scully_stop_ready'] = false;
         $stats['stg_scully_backlog'] = ['eligible' => 0, 'on_jobs' => 0, 'ready' => false];
 
-        if (!empty($config['stop_when_stg_scully_ready'])) {
+        if (!empty($config['play_operating_session'])) {
+            $secured = warm_start_secure_locals_at_session_end($dbc, $config, $load_unload_fraction, false);
+            $stats['stg_scully_backlog'] = warm_start_staging_backlog_for_job($dbc, 'STG-SCULLY', $config);
+        } elseif (!empty($config['stop_when_stg_scully_ready'])) {
             $secured = warm_start_secure_locals_at_session_end($dbc, $config, $load_unload_fraction, false);
             $scully_backlog = warm_start_staging_backlog_for_job($dbc, 'STG-SCULLY', $config);
             $min_sessions = (int) ($config['min_sessions'] ?? 3);
@@ -3040,14 +3134,7 @@ function warm_start_run($dbc, $config)
     warm_start_reset_session_stats_log();
 
     $repo_fraction = (float) ($config['reposition_fraction'] ?? 0.65);
-    $full = [
-        'fill_orders' => 1.0,
-        'reposition' => $repo_fraction,
-        'auto_assign' => 1.0,
-        'pickup' => 1.0,
-        'setout' => 1.0,
-        'load_unload' => 1.0,
-    ];
+    $full = warm_start_default_fractions($config);
 
     $max_unfilled = (int) ($config['max_unfilled_before_generate'] ?? 30);
     $min_sessions = (int) ($config['min_sessions'] ?? $config['completed_sessions'] ?? 3);

@@ -55,14 +55,6 @@ docker cp "${HELPERS_ROOT}/sts/master_switchlist_helpers.php" "${WEB_CID}:/var/w
 docker cp "${HELPERS_ROOT}/sts/generate_master_switchlists.php" "${WEB_CID}:/var/www/html/sts/generate_master_switchlists.php"
 docker cp "${HELPERS_ROOT}/sts/warm_start_helpers.php" "${WEB_CID}:/var/www/html/sts/warm_start_helpers.php"
 
-SESSION_GUESS="$(basename "$(ls -d "${OUTPUT_ROOT}"/session_* 2>/dev/null | sort -V | tail -1)" 2>/dev/null || true)"
-SESSION_GUESS="${SESSION_GUESS#session_}"
-if [[ -n "${SESSION_GUESS}" && -d "${OUTPUT_ROOT}/session_${SESSION_GUESS}" ]]; then
-  echo "==> Syncing existing switchlists/session_${SESSION_GUESS} into container"
-  docker exec "${WEB_CID}" mkdir -p "/var/www/html/switchlists/session_${SESSION_GUESS}"
-  docker cp "${OUTPUT_ROOT}/session_${SESSION_GUESS}/." "${WEB_CID}:/var/www/html/switchlists/session_${SESSION_GUESS}/"
-fi
-
 echo "==> Generating master switch lists"
 docker exec "${WEB_CID}" php /var/www/html/sts/generate_master_switchlists.php --output=/var/www/html/switchlists "${ARGS[@]}"
 
