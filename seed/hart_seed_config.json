@@ -34,7 +34,7 @@
     },
     {
       "id": 15,
-      "name": "Scully Offline",
+      "name": "McKees Rock, PA",
       "sort_seq": 255
     },
     {
@@ -64,15 +64,15 @@
     },
     {
       "id": 14,
-      "name": "Demmler Offline",
+      "name": "Mckeesport, PA",
       "sort_seq": 855
     }
   ],
   "offline_stations": {
     "csx_offline_station_id": 14,
-    "csx_offline_station_name": "Demmler Offline",
+    "csx_offline_station_name": "Mckeesport, PA",
     "pohc_offline_station_id": 15,
-    "pohc_offline_station_name": "Scully Offline",
+    "pohc_offline_station_name": "McKees Rock, PA",
     "csx_interchange_station_id": 10,
     "pohc_interchange_station_id": 9
   },
@@ -111,23 +111,23 @@
     "West Yard": "WEST",
     "East Yard": "EAST",
     "Scully Yard": "SCL",
-    "Scully Offline": "SCL",
+    "McKees Rock, PA": "SCL",
     "Shenango Coke Works": "NIL-SHEN-COKE",
     "South Yard": "SOUTH",
     "Demmler Yard": "DEM",
-    "Demmler Offline": "DEM"
+    "Mckeesport, PA": "DEM"
   },
   "routing_instructions": {
     "North Yard": "Outbound coke staging — CK1 to South Yard scale when authorized.",
     "West Yard": "D749 terminates here at end of session after return from Demmler.",
     "East Yard": "Reserved for future staging.",
     "Scully Yard": "POHC interchange — NVL picks up its block here at session start; STG-SCULLY runs end-of-session offline shuffle.",
-    "Scully Offline": "POHC offline party tracks — STG-SCULLY stages blocks after the operating session.",
+    "McKees Rock, PA": "POHC offline party tracks — STG-SCULLY stages blocks after the operating session.",
     "Shenango Coke Works": "Coke plant on Neville Island — CK1 picks coke blocks for weighing and resort at South Yard scale.",
     "Neville Island": "Island industries — NVL delivers and pulls; cars remain spotted here between sessions.",
     "South Yard": "Classification hub and session start point.\nD749 sets out inbound Demmler block here to begin ops.\nNVL exchanges blocks with D749 (Demmler-bound off, Island-bound on).",
     "Demmler Yard": "CSX interchange — D749 picks up inbound block at session start; STG-DEMMLER runs end-of-session offline shuffle.",
-    "Demmler Offline": "CSX offline party tracks — STG-DEMMLER stages blocks after the operating session."
+    "Mckeesport, PA": "CSX offline party tracks — STG-DEMMLER stages blocks after the operating session."
   },
   "session_operations": {
     "session_start": [
@@ -138,9 +138,10 @@
       "NVL simultaneously assigns its block at Scully Yard and waits for D749 to cross the bridge with its load."
     ],
     "during_session": [
-      "NVL comes to South Yard, sets out Demmler-bound blocks, picks up D749 blocks for Neville Island, and works the island industries and Shenango Coke Works.",
+      "NVL Phase 1 — Scully → South Yard: after STG-SCULLY, pick up the Scully outbound block and run to South Yard; set out Demmler-bound cars at South Yard.",
+      "NVL Phase 2 — Neville Island Industries: at South Yard, pick up cars for Neville Island and Shenango Coke Works (not Scully-bound); work island industries and Shenango.",
+      "NVL Phase 3 — South Yard → Scully: return to South Yard, drop Neville Island outbound deliveries as needed, pick up all Scully-bound traffic (including D749/CK1 handoffs), and return to Scully Yard.",
       "CK1 picks up the coke block from Shenango Coke Works, runs to South Yard scale for weighing, and resorts cars for outgoing trains.",
-      "When NVL finishes island work, it returns to South Yard, sets out remaining Demmler-bound traffic, picks up Scully-bound cars, and returns to Scully Yard.",
       "D749 returns from Demmler with a fresh block and terminates in West Yard for the night."
     ],
     "session_end": [
@@ -301,7 +302,8 @@
     "track": "OUTBOUND",
     "spot": "OUT",
     "rpt_station": "Neville Island",
-    "remarks": "Shenango Coke Works"
+    "remarks": "Shenango Coke Works",
+    "color": "black"
   },
   "coke_shipments": [
     {
@@ -395,7 +397,7 @@
     {
       "id": 1,
       "name": "D749",
-      "description": "CSX Neville Island Switcher.\n\nSESSION START (inbound from Demmler):\n1. Pick up all cars with orders at Demmler Yard.\n2. Run to South Yard and set out the inbound block — the operating session begins here.\n3. Yardmaster and engineer swap blocks; D749 departs South Yard westbound.\n\nDURING SESSION:\n- South Yard: pick up outbound for Demmler Yard and Demmler Offline; set out inbound.\n- Demmler Yard: pick up inbound and offline traffic for Scully, Scully Offline, Shenango, Neville Island, and Demmler; set out outbound.\n\nSESSION END:\n- STG-DEMMLER stages Demmler Yard offline traffic (load/unload).\n- Return from Demmler with a fresh block; cars remain on D749 for the night.\n- NVL secures at Scully Yard; STG-SCULLY runs after.",
+      "description": "Turn from Neville Island to McKeesport.\n\nDeparture Instructions:\n1. Retrieve power from engine terminal. Top off fuel and sand.\n2. Pickup train from West Yard with consist from previous shift.\n3. Interchange cars at South Yard following yardmaster instructions.\n4. Depart Neville Island. Wait for dispatcher clearance to cross the bridge.\n\nArrival Instructions:\n1. Return from McKeesport with inbound cars.\n2. Follow yardmaster instructions for arrival in West Yard or South Yard.\n3. Park engine in terminal.",
       "steps": [
         {
           "step_number": 10,
@@ -409,7 +411,7 @@
           "station": 8,
           "pickup": true,
           "setout": false,
-          "remarks": "South Yard — Pick up for Demmler Offline"
+          "remarks": "South Yard — Pick up for Mckeesport, PA"
         },
         {
           "step_number": 20,
@@ -430,7 +432,7 @@
           "station": 10,
           "pickup": true,
           "setout": false,
-          "remarks": "Demmler Yard — Pick up for Scully Offline"
+          "remarks": "Demmler Yard — Pick up for McKees Rock, PA"
         },
         {
           "step_number": 40,
@@ -458,7 +460,7 @@
     {
       "id": 2,
       "name": "NVL",
-      "description": "POHC Neville Local.\n\nSESSION START:\n- At Scully Yard, pick up the POHC block and hold for D749 to cross the bridge with its inbound load.\n\nDURING SESSION:\n1. After D749 clears the bridge, run to South Yard.\n2. Set out blocks bound for Demmler; pick up D749 blocks for Neville Island.\n3. Work Neville Island industries and Shenango Coke Works — leave cars spotted on the island.\n4. Return to South Yard; set out remaining Demmler-bound traffic.\n5. Pick up cars pending for Scully Yard and return to Scully.\n\nScully Yard: interchange pick up and set out.\nSouth Yard: block exchange with D749.\nNeville Island: industry spotting and pulls.",
+      "description": "POHC Neville Island Local\n\nWork the local Neville Island industries and interchange with CSX\n\n-- Shenango Coke Works\n-- Aristech Plastics\n-- Kosmos Cement\n-- Calgon Carbon\n-- Ferrel Gas\n-- A Sucki Co.\n\nSwitch list phases:\n1. Scully → South Yard — After STG-SCULLY, pick up the Scully outbound block and run to South Yard. Set out Demmler-bound cars at South Yard.\n2. Neville Island Industries — At South Yard, pick up cars for Neville Island and Shenango Coke Works (not Scully-bound). Work island industries and Shenango.\n3. South Yard → Scully — Return to South Yard, drop Neville Island outbound deliveries as needed, pick up all Scully-bound traffic (including D749/CK1 handoffs), and return to Scully Yard.\n\nAfter D749 clears the bridge, run to South Yard with dispatcher clearance.",
       "steps": [
         {
           "step_number": 10,
@@ -486,7 +488,7 @@
           "station": 9,
           "pickup": true,
           "setout": false,
-          "remarks": "Scully Yard — Pick up for Demmler Offline"
+          "remarks": "Scully Yard — Pick up for Mckeesport, PA"
         },
         {
           "step_number": 40,
@@ -528,7 +530,7 @@
           "station": 3,
           "pickup": true,
           "setout": false,
-          "remarks": "Neville Island — Pick up for Demmler Offline"
+          "remarks": "Neville Island — Pick up for Mckeesport, PA"
         },
         {
           "step_number": 80,
@@ -542,7 +544,7 @@
           "station": 3,
           "pickup": true,
           "setout": false,
-          "remarks": "Neville Island — Pick up for Scully Offline"
+          "remarks": "Neville Island — Pick up for McKees Rock, PA"
         },
         {
           "step_number": 90,
@@ -556,7 +558,7 @@
           "station": 8,
           "pickup": true,
           "setout": false,
-          "remarks": "South Yard — Pick up for Scully Offline"
+          "remarks": "South Yard — Pick up for McKees Rock, PA"
         },
         {
           "step_number": 100,
@@ -577,7 +579,7 @@
     {
       "id": 4,
       "name": "CK1",
-      "description": "Coke transfer train.\n\nDURING SESSION (parallel with NVL):\n1. Pick up loaded coke cars from Shenango Coke Works.\n2. Run to South Yard track scale and weigh each car.\n3. In-tolerance loads get outbound orders; off-tolerance loads get reload orders back to Shenango.\n4. After weighing, pick up reload cars at South Yard and return them to Shenango Coke Works.\n5. Set out outbound coke at South Yard for outgoing trains.\n\nSouth Yard scale is the weigh point; reloads cycle Shenango ↔ scale ↔ Shenango.",
+      "description": "Coke Transfer\n\n1. Calibrate track scale using the scale test car.\n2. Pick up cars to be reloaded at Shenango Coke Works\n1. Set out reloads and pick up outgoing coke cars from shipping tracks.\n2. Run to South Yard Scale located on the West Lead of South Yard.\n3. Weigh track string via CIM scale at a continuous, steady 4 MPH—keep cars fully stretched and do not apply brakes.\n4. Record the actual weight and reassign imbalanced cars to RELOAD car orders.   \n4. Set out all cars in South Yard to be classified.\n\nRefer to HART Railroad Scale Operating Instructions for calibration and usage details. ",
       "steps": [
         {
           "step_number": 10,
@@ -591,7 +593,7 @@
           "station": 11,
           "pickup": true,
           "setout": false,
-          "remarks": "North Yard — Pick up for Scully Offline"
+          "remarks": "North Yard — Pick up for McKees Rock, PA"
         },
         {
           "step_number": 30,
@@ -612,7 +614,7 @@
           "station": 11,
           "pickup": true,
           "setout": false,
-          "remarks": "North Yard — Pick up for Demmler Offline"
+          "remarks": "North Yard — Pick up for Mckeesport, PA"
         },
         {
           "step_number": 60,
@@ -626,7 +628,7 @@
           "station": 12,
           "pickup": true,
           "setout": false,
-          "remarks": "Shenango Coke Works — Pick up for Scully Offline"
+          "remarks": "Shenango Coke Works — Pick up for McKees Rock, PA"
         },
         {
           "step_number": 80,
@@ -654,7 +656,7 @@
           "station": 12,
           "pickup": true,
           "setout": false,
-          "remarks": "Shenango Coke Works — Pick up for Demmler Offline"
+          "remarks": "Shenango Coke Works — Pick up for Mckeesport, PA"
         },
         {
           "step_number": 110,
@@ -682,63 +684,63 @@
     {
       "id": 5,
       "name": "STG-SCULLY",
-      "description": "Scully Yard staging — END OF SESSION ONLY (after D749 secures in West Yard).\n\nShuffle cars between Scully Yard and Scully Offline party tracks.\nStep 10 picks at Scully Yard; step 11 set out at Scully Offline; steps 12–50 work offline blocks; step 60 returns cars to Scully Yard.\nLoads and unloads complete at offline tracks as cars are staged.",
+      "description": "Scully Yard staging \n\nSwap cars between offline staging and online staging.",
       "steps": [
         {
           "step_number": 10,
           "station": 9,
           "pickup": true,
           "setout": false,
-          "remarks": "Scully Yard — Pick up for Scully Offline"
+          "remarks": "Scully Yard — Pick up for McKees Rock, PA"
         },
         {
           "step_number": 11,
           "station": 15,
           "pickup": false,
           "setout": true,
-          "remarks": "Scully Offline — Set out at Scully Offline"
+          "remarks": "McKees Rock, PA — Set out at McKees Rock, PA"
         },
         {
           "step_number": 12,
           "station": 15,
           "pickup": true,
           "setout": true,
-          "remarks": "Scully Offline — Pick up for Scully Offline; Set out at Scully Offline"
+          "remarks": "McKees Rock, PA — Pick up for McKees Rock, PA; Set out at McKees Rock, PA"
         },
         {
           "step_number": 20,
           "station": 15,
           "pickup": true,
           "setout": true,
-          "remarks": "Scully Offline — Pick up for Scully Yard; Set out at Scully Offline"
+          "remarks": "McKees Rock, PA — Pick up for Scully Yard; Set out at McKees Rock, PA"
         },
         {
           "step_number": 30,
           "station": 15,
           "pickup": true,
           "setout": true,
-          "remarks": "Scully Offline — Pick up for Shenango Coke Works; Set out at Scully Offline"
+          "remarks": "McKees Rock, PA — Pick up for Shenango Coke Works; Set out at McKees Rock, PA"
         },
         {
           "step_number": 40,
           "station": 15,
           "pickup": true,
           "setout": true,
-          "remarks": "Scully Offline — Pick up for Neville Island; Set out at Scully Offline"
+          "remarks": "McKees Rock, PA — Pick up for Neville Island; Set out at McKees Rock, PA"
         },
         {
           "step_number": 45,
           "station": 15,
           "pickup": true,
           "setout": true,
-          "remarks": "Scully Offline — Pick up for Demmler Offline; Set out at Scully Offline"
+          "remarks": "McKees Rock, PA — Pick up for Mckeesport, PA; Set out at McKees Rock, PA"
         },
         {
           "step_number": 50,
           "station": 15,
           "pickup": true,
           "setout": true,
-          "remarks": "Scully Offline — Pick up for Demmler Yard; Set out at Scully Offline"
+          "remarks": "McKees Rock, PA — Pick up for Demmler Yard; Set out at McKees Rock, PA"
         },
         {
           "step_number": 60,
@@ -752,63 +754,63 @@
     {
       "id": 6,
       "name": "STG-DEMMLER",
-      "description": "Demmler Yard staging — END OF SESSION ONLY (after D749 secures in West Yard).\n\nShuffle cars between Demmler Yard and Demmler Offline party tracks.\nStep 10 picks at Demmler Yard; step 11 set out at Demmler Offline; steps 12–50 work offline blocks; step 60 returns cars to Demmler Yard.\nLoads and unloads complete at offline tracks as cars are staged.",
+      "description": "Demmler Yard staging \n\nSwap cars between offline staging and online staging. ",
       "steps": [
         {
           "step_number": 10,
           "station": 10,
           "pickup": true,
           "setout": false,
-          "remarks": "Demmler Yard — Pick up for Demmler Offline"
+          "remarks": "Demmler Yard — Pick up for Mckeesport, PA"
         },
         {
           "step_number": 11,
           "station": 14,
           "pickup": false,
           "setout": true,
-          "remarks": "Demmler Offline — Set out at Demmler Offline"
+          "remarks": "Mckeesport, PA — Set out at Mckeesport, PA"
         },
         {
           "step_number": 12,
           "station": 14,
           "pickup": true,
           "setout": true,
-          "remarks": "Demmler Offline — Pick up for Demmler Offline; Set out at Demmler Offline"
+          "remarks": "Mckeesport, PA — Pick up for Mckeesport, PA; Set out at Mckeesport, PA"
         },
         {
           "step_number": 20,
           "station": 14,
           "pickup": true,
           "setout": true,
-          "remarks": "Demmler Offline — Pick up for Scully Yard; Set out at Demmler Offline"
+          "remarks": "Mckeesport, PA — Pick up for Scully Yard; Set out at Mckeesport, PA"
         },
         {
           "step_number": 30,
           "station": 14,
           "pickup": true,
           "setout": true,
-          "remarks": "Demmler Offline — Pick up for Shenango Coke Works; Set out at Demmler Offline"
+          "remarks": "Mckeesport, PA — Pick up for Shenango Coke Works; Set out at Mckeesport, PA"
         },
         {
           "step_number": 40,
           "station": 14,
           "pickup": true,
           "setout": true,
-          "remarks": "Demmler Offline — Pick up for Neville Island; Set out at Demmler Offline"
+          "remarks": "Mckeesport, PA — Pick up for Neville Island; Set out at Mckeesport, PA"
         },
         {
           "step_number": 45,
           "station": 14,
           "pickup": true,
           "setout": true,
-          "remarks": "Demmler Offline — Pick up for Scully Offline; Set out at Demmler Offline"
+          "remarks": "Mckeesport, PA — Pick up for McKees Rock, PA; Set out at Mckeesport, PA"
         },
         {
           "step_number": 50,
           "station": 14,
           "pickup": true,
           "setout": true,
-          "remarks": "Demmler Offline — Pick up for Demmler Yard; Set out at Demmler Offline"
+          "remarks": "Mckeesport, PA — Pick up for Demmler Yard; Set out at Mckeesport, PA"
         },
         {
           "step_number": 60,
@@ -1121,5 +1123,11 @@
       "car_status": "",
       "dest_station_id": 10
     }
-  ]
+  ],
+  "_db_sync": {
+    "last_synced": "2026-07-08T19:22:10Z",
+    "sections": [
+      "jobs"
+    ]
+  }
 }

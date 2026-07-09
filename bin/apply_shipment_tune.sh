@@ -2,10 +2,12 @@
 # Apply tune_shipment_orders.sql to the running STS MariaDB container.
 set -euo pipefail
 
-BIN_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+_script_home="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+[[ "${_script_home##*/}" != "bin" ]] && _script_home="${_script_home}/bin"
 # shellcheck source=../lib/paths.sh
-source "${BIN_DIR}/../lib/paths.sh"
-sts_helpers_resolve_paths
+source "${_script_home}/../lib/paths.sh"
+sts_helpers_resolve_paths "${_script_home}/$(basename "${BASH_SOURCE[0]}")"
+
 
 SQL_FILE="${MIGRATIONS_DIR}/tune_shipment_orders.sql"
 YARD_BALANCE_PY="${SEED_DIR}/balance_shipment_yards.py"
@@ -28,9 +30,6 @@ Options:
   --sql-file PATH       SQL file to apply (default: tune_shipment_orders.sql)
   --reset-last-ship     Set last_ship_date = 0 on all shipments after tuning
   -h, --help            Show this help
-
-Requires the build-profile db container to be running:
-  cd sts-docker && docker compose --profile build up -d
 EOF
 }
 
@@ -102,7 +101,7 @@ ORDER BY kind;
 echo "==> Applying ${SQL_FILE}"
 mysql_exec < "${SQL_FILE}"
 
-if [[ -f "${YARD_BALANCE_PY}" ]]; then
+if [[ "${SQL_FILE}" == "${MIGRATIONS_DIR}/tune_shipment_orders.sql" && -f "${YARD_BALANCE_PY}" ]]; then
   echo "==> Balancing interchange yards (available fleet)"
   python3 "${YARD_BALANCE_PY}" --apply --config "${SEED_DIR}/hart_seed_config.json"
 fi
@@ -138,20 +137,4 @@ GROUP BY kind
 ORDER BY kind;
 "
 
-echo "==> Interchange yard forecast balance (10-session est.)"
-mysql_exec -e "
-SELECT r.station,
-       COUNT(*) AS shipments,
-       ROUND(SUM(10 * (s.min_amount + s.max_amount) / 2
-            / NULLIF((s.min_interval + s.max_interval) / 2, 0)), 1) AS est_carloads_10sess
-FROM shipments s
-LEFT JOIN locations l ON l.id = s.loading_location
-LEFT JOIN routing r ON r.id = l.station
-WHERE r.station IN ('Demmler Yard', 'Scully Yard')
-  AND s.code NOT LIKE 'COKE-%'
-GROUP BY r.station
-ORDER BY r.station;
-"
-
 echo "Done. Generate Car Orders will now fire shipments less often."
-echo "Tip: wipe or restart car orders first if you want a clean slate for the next session."

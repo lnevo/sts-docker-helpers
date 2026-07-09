@@ -1,17 +1,18 @@
 #!/usr/bin/env bash
-# Copy hart_seed into the running STS container and restore it.
 set -euo pipefail
-
-BIN_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+_script_home="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+[[ "${_script_home##*/}" != "bin" ]] && _script_home="${_script_home}/bin"
 # shellcheck source=../lib/paths.sh
-source "${BIN_DIR}/../lib/paths.sh"
-sts_helpers_resolve_paths
+source "${_script_home}/../lib/paths.sh"
+sts_helpers_resolve_paths "${_script_home}/$(basename "${BASH_SOURCE[0]}")"
 
 SQL_FILE="${BACKUPS_DIR}/hart_seed"
 BACKUP_NAME="hart_seed"
 
 GENERATE=0
 SYNC_IMAGES=0
+FLEET_BACKUP=""
+MERGE_FLEET=0
 
 usage() {
   cat <<'EOF'
@@ -24,6 +25,8 @@ Photos are always restored from that folder when it exists (same as STS Restore)
 
 Options:
   --generate         Run generate_hart_seed.py before restoring
+  --merge-fleet      After --generate, copy car fleet from --fleet-backup (default: session10)
+  --fleet-backup PATH  STS backup with car roster (default: sts-backups/session10)
   --sync-images      Run sync_hart_car_images.py before restoring (refresh _photos folder)
   --sql-file PATH    SQL file to restore (default: sts-backups/hart_seed)
   -h, --help         Show this help
@@ -41,6 +44,14 @@ while [[ $# -gt 0 ]]; do
     --generate)
       GENERATE=1
       shift
+      ;;
+    --merge-fleet)
+      MERGE_FLEET=1
+      shift
+      ;;
+    --fleet-backup)
+      FLEET_BACKUP="$2"
+      shift 2
       ;;
     --sync-images)
       SYNC_IMAGES=1
@@ -66,11 +77,24 @@ done
 if [[ "${GENERATE}" -eq 1 ]]; then
   echo "==> Generating ${SQL_FILE}"
   python3 "${SEED_DIR}/generate_hart_seed.py" --output "${SQL_FILE}"
+  if [[ "${MERGE_FLEET}" -eq 1 || "$(grep -ci 'insert into \`cars\`' "${SQL_FILE}" || true)" -eq 0 ]]; then
+    fleet_source="${FLEET_BACKUP:-${BACKUPS_DIR}/session10}"
+    echo "==> Merging car fleet from ${fleet_source}"
+    merge_args=(--seed "${SQL_FILE}" --fleet-backup "${fleet_source}" --output "${SQL_FILE}")
+    python3 "${TOOLS_DIR}/merge_car_fleet_from_backup.py" "${merge_args[@]}"
+  fi
 elif [[ ! -f "${SQL_FILE}" ]]; then
   echo "SQL file not found: ${SQL_FILE}" >&2
   echo "Run with --generate or: python3 seed/generate_hart_seed.py --output backups/hart_seed" >&2
   exit 1
 fi
+
+car_rows="$(grep -ci 'insert into \`cars\`' "${SQL_FILE}" || true)"
+if [[ "${car_rows}" -eq 0 ]]; then
+  echo "ERROR: ${SQL_FILE} has 0 cars. Regenerate with --generate --merge-fleet." >&2
+  exit 1
+fi
+echo "==> hart_seed car rows: ${car_rows}"
 
 BACKUP_DIR="${BACKUPS_DIR}"
 PHOTOS_DIR="${BACKUP_DIR}/${BACKUP_NAME}_photos"
@@ -109,7 +133,6 @@ DROP DATABASE IF EXISTS ${MYSQL_DATABASE};
 CREATE DATABASE ${MYSQL_DATABASE} CHARACTER SET latin1 COLLATE latin1_swedish_ci;
 "
 
-# Ensure the file lives on the host backups mount (symlink to ~/sts-backups).
 mkdir -p "${BACKUP_DIR}"
 if [[ "$(cd "$(dirname "${SQL_FILE}")" && pwd)" != "$(cd "${BACKUP_DIR}" && pwd)" ]]; then
   echo "==> Copying ${SQL_FILE} -> ${BACKUP_DIR}/${BACKUP_NAME}"
@@ -168,7 +191,6 @@ docker exec \
     }
   }
 
-  // Match restore_db.php: always restore photos when _photos folder exists.
   clear_image_folder("./ImageStore/DB_Images/barcodes");
   clear_image_folder("./ImageStore/DB_Images/qrcodes");
   clear_image_folder("./ImageStore/DB_Images/uploads");

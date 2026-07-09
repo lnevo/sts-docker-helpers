@@ -1,8 +1,14 @@
 # Shared path resolution for sts-docker-helpers shell scripts.
-# Source from bin/: source "${BIN_DIR}/../lib/paths.sh"
+# Source from bin/ after resolving _script_home (see bin/*.sh bootstrap).
 
 sts_helpers_resolve_paths() {
-  local caller="${BASH_SOURCE[1]:-${BASH_SOURCE[0]}}"
+  local caller="${1:-${BASH_SOURCE[1]:-${BASH_SOURCE[0]}}}"
+  while [[ -L "${caller}" ]]; do
+    local linkdir
+    linkdir="$(cd "$(dirname "${caller}")" && pwd)"
+    caller="$(readlink "${caller}")"
+    [[ "${caller}" != /* ]] && caller="${linkdir}/${caller}"
+  done
   BIN_DIR="$(cd "$(dirname "${caller}")" && pwd)"
   if [[ "$(basename "${BIN_DIR}")" == "bin" ]]; then
     HELPERS_ROOT="$(cd "${BIN_DIR}/.." && pwd)"
@@ -37,10 +43,11 @@ sts_helpers_resolve_paths() {
   TOOLS_DIR="${HELPERS_ROOT}/tools"
   MIGRATIONS_DIR="${HELPERS_ROOT}/migrations"
 
+  # Prefer sts-backups (symlink to ~/sts/sts-backups) — same path Docker mounts.
   for candidate in \
-    "${HELPERS_ROOT}/backups" \
+    "${HELPERS_ROOT}/../sts-backups" \
     "${HELPERS_ROOT}/sts-backups" \
-    "${HELPERS_ROOT}/../sts-backups"; do
+    "${HELPERS_ROOT}/backups"; do
     if [[ -d "${candidate}" ]]; then
       BACKUPS_DIR="$(cd "${candidate}" && pwd)"
       break

@@ -17,10 +17,33 @@ from pathlib import Path
 
 SEED_DIR = Path(__file__).resolve().parent
 REPO_ROOT = SEED_DIR.parent
+CARDS_ROOT = REPO_ROOT.parent
 INPUTS_DIR = SEED_DIR / "inputs"
-DEFAULT_HART_DIR = INPUTS_DIR
 DEFAULT_CONFIG = SEED_DIR / "hart_seed_config.json"
-DEFAULT_OUTPUT = REPO_ROOT / "backups" / "hart_seed"
+
+
+def resolve_default_hart_dir() -> Path:
+    """Prefer a directory that has CarImagesFinal (required for car roster)."""
+    for candidate in (INPUTS_DIR, CARDS_ROOT, REPO_ROOT):
+        if (candidate / "CarImagesFinal").is_dir() and (
+            candidate / "HART_MergedCarRoster.xml"
+        ).is_file():
+            return candidate
+    return INPUTS_DIR
+
+
+def resolve_default_output() -> Path:
+    for candidate in (
+        CARDS_ROOT / "sts-backups" / "hart_seed",
+        REPO_ROOT / "backups" / "hart_seed",
+    ):
+        candidate.parent.mkdir(parents=True, exist_ok=True)
+        return candidate
+    return CARDS_ROOT / "sts-backups" / "hart_seed"
+
+
+DEFAULT_HART_DIR = resolve_default_hart_dir()
+DEFAULT_OUTPUT = resolve_default_output()
 DEFAULT_MRR_CSV = INPUTS_DIR / "MRR-AAR_Class_Codes.csv"
 DEFAULT_SCULLY_MAP = INPUTS_DIR / "hart_scully_nville_shipping_map_proposed.csv"
 DEFAULT_IX_MAP = INPUTS_DIR / "hart_ix_shipping_map_proposed.csv"
@@ -1191,6 +1214,7 @@ class SeedBuilder:
                 spot=shenango.get("spot", ""),
                 rpt_station=shenango.get("rpt_station", "Neville Island"),
                 remarks=shenango.get("remarks", "Shenango Coke Works"),
+                color=shenango.get("color", "black"),
             )
         # Empty-return yards (separate routing stations; see outbound_empty_return in config)
         pohc_yard = self.config["car_home_yard"]["pohc_yard_code"]
@@ -2548,6 +2572,15 @@ def main() -> None:
     builder.add_club_ops()
 
     sql = builder.render_backup()
+    if len(builder.car_rows) == 0:
+        print(
+            "ERROR: generate_hart_seed produced 0 cars. "
+            "Ensure CarImagesFinal exists (project root or --hart-dir) "
+            "or run tools/merge_car_fleet_from_backup.py after generation.",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(sql, encoding="utf-8")
     print(f"Wrote {args.output}")

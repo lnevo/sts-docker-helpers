@@ -3464,7 +3464,7 @@ function warm_start_evaluate_session_prep($dbc, $config = [])
 
 /**
  * Begin a live operating session from warm-start end state:
- * load/unload, increment session, reposition empties, auto-assign (no fill).
+ * load/unload, increment session, fill unfilled orders, reposition empties, auto-assign.
  */
 function warm_start_begin_operating_session($dbc, array $options = [])
 {
@@ -3473,9 +3473,11 @@ function warm_start_begin_operating_session($dbc, array $options = [])
     $increment = !isset($options['increment']) || $options['increment'];
     $reposition = !isset($options['reposition']) || $options['reposition'];
     $assign = !isset($options['assign']) || $options['assign'];
+    $fill = !isset($options['fill']) || $options['fill'];
     $generate = !empty($options['generate']);
     $run_stg_scully = !empty($options['run_stg_scully']);
     $repo_fraction = (float) ($options['reposition_fraction'] ?? $config['reposition_fraction'] ?? 0.65);
+    $fill_fraction = (float) ($options['fill_fraction'] ?? $config['fill_orders'] ?? 1.0);
     $staging_jobs = warm_start_staging_job_names($dbc, $config);
 
     $result = [
@@ -3483,6 +3485,7 @@ function warm_start_begin_operating_session($dbc, array $options = [])
         'session' => warm_start_get_session($dbc),
         'stg_scully' => ['assigned' => 0, 'picked_up' => 0, 'set_out' => 0, 'load_unload' => 0, 'skipped' => true],
         'load_unload' => 0,
+        'filled' => 0,
         'repositioned' => 0,
         'generated' => 0,
         'assigned' => 0,
@@ -3531,6 +3534,10 @@ function warm_start_begin_operating_session($dbc, array $options = [])
     if ($generate) {
         $waybill_counter = warm_start_get_next_auto_waybill_counter($dbc, $result['session']);
         $result['generated'] = warm_start_generate_orders($dbc, $result['session'], $waybill_counter);
+    }
+
+    if ($fill) {
+        $result['filled'] = warm_start_auto_fill($dbc, $fill_fraction);
     }
 
     if ($reposition) {
@@ -3608,6 +3615,7 @@ function warm_start_format_begin_session_report(array $result)
             . ' load/unload=' . (int) ($stg['load_unload'] ?? 0);
     }
     $lines[] = 'Load/unload transitions: ' . (int) ($result['load_unload'] ?? 0);
+    $lines[] = 'Orders filled: ' . (int) ($result['filled'] ?? 0);
     $lines[] = 'Reposition orders created: ' . (int) ($result['repositioned'] ?? 0);
     if (!empty($result['generated'])) {
         $lines[] = 'Orders generated: ' . (int) $result['generated'];
@@ -3657,7 +3665,21 @@ function warm_start_format_begin_session_report(array $result)
     }
 
     $lines[] = '';
-    $lines[] = 'Orders were NOT filled. Run D749 South setout, then pickups/setouts in Operations.';
+    $filled = (int) ($result['filled'] ?? 0);
+    $unfilled = (int) ($eval['unfilled_count'] ?? 0);
+    $assigned = (int) ($result['assigned'] ?? 0);
+    if ($filled > 0 && $unfilled === 0) {
+        $lines[] = 'All eligible orders filled and auto-assigned. Begin operating session per switch lists.';
+    } elseif ($filled > 0) {
+        $lines[] = "Filled {$filled} order(s); {$unfilled} unfilled remain. Review Orders in STS if needed.";
+    } elseif ($unfilled > 0) {
+        $lines[] = "{$unfilled} unfilled order(s) remain — no eligible cars matched auto-fill.";
+    } else {
+        $lines[] = 'No unfilled orders. Begin operating session (D749 South setout, then local jobs).';
+    }
+    if ($assigned > 0) {
+        $lines[] = "Auto-assigned {$assigned} car(s) to jobs.";
+    }
 
     return implode(PHP_EOL, $lines);
 }

@@ -2,10 +2,12 @@
 # Restore warm-start DB and clear weigh artifacts, then re-weigh CK1 coke cars.
 set -euo pipefail
 
-BIN_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+_script_home="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+[[ "${_script_home##*/}" != "bin" ]] && _script_home="${_script_home}/bin"
 # shellcheck source=../lib/paths.sh
-source "${BIN_DIR}/../lib/paths.sh"
-sts_helpers_resolve_paths
+source "${_script_home}/../lib/paths.sh"
+sts_helpers_resolve_paths "${_script_home}/$(basename "${BASH_SOURCE[0]}")"
+
 
 SCALE_DIR="${BACKUPS_DIR}/track_scale"
 if [[ ! -d "${SCALE_DIR}" && -d "${HELPERS_ROOT}/track_scale" ]]; then
@@ -26,14 +28,8 @@ if [[ ! -f "${APPLY_HART_SEED}" ]]; then
   exit 1
 fi
 
-warm_start="${BACKUPS_DIR}/hart_warm_start"
-if [[ ! -f "${warm_start}" ]]; then
-  echo "hart_warm_start not found at ${warm_start}" >&2
-  exit 1
-fi
-
 echo "==> Restoring hart_warm_start database"
-"${APPLY_HART_SEED}" --sql-file "${warm_start}"
+"${APPLY_HART_SEED}" --sql-file "${BACKUPS_DIR}/hart_warm_start"
 
 echo "==> Clearing weigh cache for ${MARKS}"
 python3 - <<PY

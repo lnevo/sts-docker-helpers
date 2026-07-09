@@ -2,10 +2,12 @@
 # Build and apply a warm-start STS database (simulated prior operating sessions).
 set -euo pipefail
 
-BIN_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+_script_home="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+[[ "${_script_home##*/}" != "bin" ]] && _script_home="${_script_home}/bin"
 # shellcheck source=../lib/paths.sh
-source "${BIN_DIR}/../lib/paths.sh"
-sts_helpers_resolve_paths
+source "${_script_home}/../lib/paths.sh"
+sts_helpers_resolve_paths "${_script_home}/$(basename "${BASH_SOURCE[0]}")"
+
 
 BACKUP_NAME="hart_warm_start"
 SEED=42

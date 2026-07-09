@@ -17,38 +17,66 @@ DEFAULT_MATRIX = SEED_DIR / "hart_job_criteria_matrix.xlsx"
 
 JOB_DESCRIPTIONS: dict[str, str] = {
     "D749": (
-        "CSX Neville Island Switcher.\n"
-        "Works South Yard and CSX Demmler interchange.\n"
-        "- Demmler Yard: pick up inbound and offline for Scully, Shenango, Neville Island, and Demmler; set out outbound\n"
-        "- South Yard: set out inbound; pick up for Demmler"
+        """Turn from Neville Island to McKeesport.
+
+Departure Instructions:
+1. Retrieve power from engine terminal. Top off fuel and sand.
+2. Pickup train from West Yard with consist from previous shift.
+3. Interchange cars at South Yard following yardmaster instructions.
+4. Depart Neville Island. Wait for dispatcher clearance to cross the bridge.
+
+Arrival Instructions:
+1. Return from McKeesport with inbound cars.
+2. Follow yardmaster instructions for arrival in West Yard or South Yard.
+3. Park engine in terminal."""
     ),
     "NVL": (
-        "POHC Neville Local.\n"
-        "Works Scully interchange, Neville Island industries, and South Yard.\n"
-        "- Scully Yard: pick up and set out interchange traffic for all destinations\n"
-        "- Neville Island: industry spotting and pulls for Scully, Shenango, island, and Demmler\n"
-        "- South Yard: pick up blocks for Scully and island; set out staging"
+        """POHC Neville Island Local
+
+Work the local Neville Island industries and interchange with CSX
+
+-- Shenango Coke Works
+-- Aristech Plastics
+-- Kosmos Cement
+-- Calgon Carbon
+-- Ferrel Gas
+-- A Sucki Co.
+
+1. After D749 clears the bridge, run to South Yard with dispatcher clearance.
+2. Interchange cars at South Yard following yardmaster instructions.
+3. Work the local Neville Island industries and Shenango Coke Works.
+4. Return to South Yard; Perform final interchange following yardmaster instructions.
+5. Depart Neville Island. Wait for dispatcher clearance to cross the bridge."""
     ),
     "YM1": (
-        "South Yard yardmaster (YM1) — inter-island switching on Neville Island.\n"
-        "Retrieve and stage cars across North, West, and East satellite yards for island industries.\n"
-        "Sort inbound traffic and build blocks for Scully, Shenango, South Yard, and Demmler (CSX D749).\n"
-        "South Yard staging completes blocks for POHC NVL (via Scully).\n"
-        "D749 and NVL handle interchange and industry spotting; YM1 works satellite yards only."
+        """South Yard yardmaster (YM1) — inter-island switching on Neville Island.
+Retrieve and stage cars across North, West, and East satellite yards for island industries.
+Sort inbound traffic and build blocks for Scully, Shenango, South Yard, and Demmler (CSX D749).
+South Yard staging completes blocks for POHC NVL (via Scully).
+D749 and NVL handle interchange and industry spotting; YM1 works satellite yards only."""
     ),
     "CK1": (
-        "Coke transfer — optional yard move.\n"
-        "Move coke loads between Shenango Coke Works, North Yard, and South Yard for weighing and classification when authorized.\n"
-        "North Yard and Shenango export coke to Demmler Offline and Scully Offline; South Yard picks for North Yard and Shenango only.\n"
-        "Run only when it will not interfere with NVL or passenger movements."
+        """Coke Transfer
+
+1. Calibrate track scale using the scale test car.
+2. Pick up cars to be reloaded at Shenango Coke Works
+1. Set out reloads and pick up outgoing coke cars from shipping tracks.
+2. Run to South Yard Scale located on the West Lead of South Yard.
+3. Weigh track string via CIM scale at a continuous, steady 4 MPH—keep cars fully stretched and do not apply brakes.
+4. Record the actual weight and reassign imbalanced cars to RELOAD car orders.   
+4. Set out all cars in South Yard to be classified.
+
+Refer to HART Railroad Scale Operating Instructions for calibration and usage details. """
     ),
     "STG-SCULLY": (
-        "Scully Yard staging — shuffle to Scully Offline, stage blocks, set out at each step.\n"
-        "Step 10 picks at Scully Yard; step 11 set out at Scully Offline; steps 12–50 pick and set out at Scully Offline; step 60 set out at Scully Yard."
+        """Scully Yard staging 
+
+Swap cars between offline staging and online staging."""
     ),
     "STG-DEMMLER": (
-        "Demmler Yard staging — shuffle to Demmler Offline, stage blocks, set out at each step.\n"
-        "Step 10 picks at Demmler Yard; step 11 set out at Demmler Offline; steps 12–50 pick and set out at Demmler Offline; step 60 set out at Demmler Yard."
+        """Demmler Yard staging 
+
+Swap cars between offline staging and online staging. """
     ),
 }
 

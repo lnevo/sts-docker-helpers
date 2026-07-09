@@ -230,29 +230,29 @@ insert into `car_codes` values("1","FC","flatcar, center beam","");
 #
 insert into `car_codes` values("2","FM","flatcar, general service","");
 #
-insert into `car_codes` values("6","GA","gondola, open top","");
-#
-insert into `car_codes` values("14","H*","hopper, open top (HM, HT, or HK)","");
-#
-insert into `car_codes` values("7","HC","hopper, covered, gravity discharge","");
+insert into `car_codes` values("3","HM","hopper, open top, twin hopper, gravity discharge inside rails","");
 #
 insert into `car_codes` values("4","HK","hopper, open top, triple hopper, gravity discharge outside rails","");
 #
-insert into `car_codes` values("3","HM","hopper, open top, twin hopper, gravity discharge inside rails","");
+insert into `car_codes` values("5","XM","boxcar, general service","");
 #
-insert into `car_codes` values("9","HP","hopper, covered, pneumatic discharge","");
+insert into `car_codes` values("6","GA","gondola, open top","");
+#
+insert into `car_codes` values("7","HC","hopper, covered, gravity discharge","");
 #
 insert into `car_codes` values("8","HT","hopper, open top, crosswise dump between rails","");
 #
-insert into `car_codes` values("11","RM","refrigerator, mechanical","");
+insert into `car_codes` values("9","HP","hopper, covered, pneumatic discharge","");
 #
 insert into `car_codes` values("10","TA","tankcar, general service","");
 #
-insert into `car_codes` values("13","WC","work crane car, MOW service","");
+insert into `car_codes` values("11","RM","refrigerator, mechanical","");
 #
 insert into `car_codes` values("12","WF","work flatcar, MOW service","");
 #
-insert into `car_codes` values("5","XM","boxcar, general service","");
+insert into `car_codes` values("13","WC","work crane car, MOW service","");
+#
+insert into `car_codes` values("14","H*","hopper, open top (HM, HT, or HK)","");
 #
 
 #
@@ -288,145 +288,145 @@ CREATE TABLE `cars` (
   PRIMARY KEY (`Id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=81 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 #
-insert into `cars` values("2","BO8300","1","7","","Empty","0","Coil 55ft","0","7","","","0");
+insert into `cars` values("2","BO8300","1","7","" ,"Empty","0","Coil 55ft","0","7","","","0");
 #
-insert into `cars` values("3","BO8405","2","8","","Empty","0","Flatcar 53ft","0","8","","","0");
+insert into `cars` values("3","BO8405","2","8","" ,"Empty","0","Flatcar 53ft","0","8","","","0");
 #
-insert into `cars` values("4","BO8417","2","7","","Empty","0","Flatcar 53ft","0","7","","","0");
+insert into `cars` values("4","BO8417","2","7","" ,"Empty","0","Flatcar 53ft","0","7","","","0");
 #
-insert into `cars` values("5","BO8451","2","8","","Empty","0","Flatcar 53ft","0","8","","","0");
+insert into `cars` values("5","BO8451","2","8","" ,"Empty","0","Flatcar 53ft","0","8","","","0");
 #
-insert into `cars` values("6","BO8476","2","7","","Empty","0","Flatcar 53ft","0","7","","","0");
+insert into `cars` values("6","BO8476","2","7","" ,"Empty","0","Flatcar 53ft","0","7","","","0");
 #
-insert into `cars` values("9","BO10389","3","6","","Empty","0","Hopper 40ft","0","6","","","0");
+insert into `cars` values("9","BO10389","3","6","" ,"Empty","0","Hopper 40ft","0","6","","","0");
 #
-insert into `cars` values("10","BO11027","3","6","","Empty","0","Hopper 40ft","0","6","","","0");
+insert into `cars` values("10","BO11027","3","6","" ,"Empty","0","Hopper 40ft","0","6","","","0");
 #
-insert into `cars` values("11","BO11137","3","6","","Empty","0","Hopper 40ft","0","6","","","0");
+insert into `cars` values("11","BO11137","3","6","" ,"Empty","0","Hopper 40ft","0","6","","","0");
 #
-insert into `cars` values("12","BO30222","3","6","","Empty","0","Hopper 34ft","0","6","","","0");
+insert into `cars` values("12","BO30222","3","6","" ,"Empty","0","Hopper 34ft","0","6","","","0");
 #
-insert into `cars` values("13","BO30963","3","6","","Empty","0","Hopper 34ft","0","6","","","0");
+insert into `cars` values("13","BO30963","3","6","" ,"Empty","0","Hopper 34ft","0","6","","","0");
 #
-insert into `cars` values("14","BO31000","3","6","","Empty","0","Hopper 34ft","0","6","","","0");
+insert into `cars` values("14","BO31000","3","6","" ,"Empty","0","Hopper 34ft","0","6","","","0");
 #
-insert into `cars` values("15","BO73133","3","6","","Empty","0","Hopper 45ft","0","6","","","0");
+insert into `cars` values("15","BO73133","3","6","" ,"Empty","0","Hopper 45ft","0","6","","","0");
 #
-insert into `cars` values("16","BO132315","4","8","","Unavailable","0","Hopper 50ft","0","8","","","0");
+insert into `cars` values("16","BO132315","4","8","0","Unavailable","0","Hopper 50ft","0","8","","0","0");
 #
-insert into `cars` values("17","BO132392","4","7","","Empty","0","Hopper 50ft","0","7","","","0");
+insert into `cars` values("17","BO132392","4","7","" ,"Empty","0","Hopper 50ft","0","7","","","0");
 #
-insert into `cars` values("18","BO133007","4","8","","Empty","0","Hopper 50ft","0","8","","","0");
+insert into `cars` values("18","BO133007","4","8","" ,"Empty","0","Hopper 50ft","0","8","","","0");
 #
-insert into `cars` values("19","BO283057","5","8","","Empty","0","Boxcar 50ft","0","8","","","0");
+insert into `cars` values("19","BO283057","5","8","" ,"Empty","0","Boxcar 50ft","0","8","","","0");
 #
-insert into `cars` values("20","BO283069","5","8","","Empty","0","Boxcar 50ft","0","8","","","0");
+insert into `cars` values("20","BO283069","5","8","" ,"Empty","0","Boxcar 50ft","0","8","","","0");
 #
-insert into `cars` values("21","BO371604","6","7","","Empty","0","Gondola 50ft","0","7","","","0");
+insert into `cars` values("21","BO371604","6","7","" ,"Empty","0","Gondola 50ft","0","7","","","0");
 #
-insert into `cars` values("22","BO466063","5","8","","Empty","0","Boxcar 40ft","0","8","","","0");
+insert into `cars` values("22","BO466063","5","8","" ,"Empty","0","Boxcar 40ft","0","8","","","0");
 #
-insert into `cars` values("23","BO467071","5","7","","Empty","0","Boxcar 40ft","0","7","","","0");
+insert into `cars` values("23","BO467071","5","7","" ,"Empty","0","Boxcar 40ft","0","7","","","0");
 #
-insert into `cars` values("24","BO467439","5","8","","Empty","0","Boxcar 40ft","0","8","","","0");
+insert into `cars` values("24","BO467439","5","8","" ,"Empty","0","Boxcar 40ft","0","8","","","0");
 #
-insert into `cars` values("25","BO551470","6","7","","Empty","0","Gondola 50ft","0","7","","","0");
+insert into `cars` values("25","BO551470","6","7","" ,"Empty","0","Gondola 50ft","0","7","","","0");
 #
-insert into `cars` values("26","BO600401","7","7","","Empty","0","Hopper 40ft","0","7","","","0");
+insert into `cars` values("26","BO600401","7","7","" ,"Empty","0","Hopper 40ft","0","7","","","0");
 #
-insert into `cars` values("27","BO600409","7","7","","Empty","0","Hopper 40ft","0","7","","","0");
+insert into `cars` values("27","BO600409","7","7","" ,"Empty","0","Hopper 40ft","0","7","","","0");
 #
-insert into `cars` values("28","BO600421","7","8","","Empty","0","Hopper 40ft","0","8","","","0");
+insert into `cars` values("28","BO600421","7","8","" ,"Empty","0","Hopper 40ft","0","8","","","0");
 #
-insert into `cars` values("29","BO625082","3","8","","Unavailable","0","Hopper 40ft","0","8","","","0");
+insert into `cars` values("29","BO625082","3","8","0","Unavailable","0","Hopper 40ft","0","8","","0","0");
 #
-insert into `cars` values("30","BO625238","3","6","","Empty","0","Hopper 40ft","0","6","","","0");
+insert into `cars` values("30","BO625238","3","6","" ,"Empty","0","Hopper 40ft","0","6","","","0");
 #
-insert into `cars` values("31","BO625509","3","6","","Empty","0","Hopper 40ft","0","6","","","0");
+insert into `cars` values("31","BO625509","3","6","" ,"Empty","0","Hopper 40ft","0","6","","","0");
 #
-insert into `cars` values("32","BO625943","3","6","","Empty","0","Hopper 40ft","0","6","","","0");
+insert into `cars` values("32","BO625943","3","6","" ,"Empty","0","Hopper 40ft","0","6","","","0");
 #
-insert into `cars` values("33","BO628038","7","7","","Empty","0","Hopper 40ft","0","7","","","0");
+insert into `cars` values("33","BO628038","7","7","" ,"Empty","0","Hopper 40ft","0","7","","","0");
 #
-insert into `cars` values("34","BO631140","7","8","","Empty","0","Hopper 34ft","0","8","","","0");
+insert into `cars` values("34","BO631140","7","8","" ,"Empty","0","Hopper 34ft","0","8","","","0");
 #
-insert into `cars` values("35","CBQ171856","8","8","","Empty","0","Hopper 40ft","0","8","","","0");
+insert into `cars` values("35","CBQ171856","8","8","" ,"Empty","0","Hopper 40ft","0","8","","","0");
 #
-insert into `cars` values("36","CO2052","9","7","","Empty","0","Hopper 40ft","0","7","","","0");
+insert into `cars` values("36","CO2052","9","7","" ,"Empty","0","Hopper 40ft","0","7","","","0");
 #
-insert into `cars` values("37","CO2063","9","8","","Empty","0","Hopper 40ft","0","8","","","0");
+insert into `cars` values("37","CO2063","9","8","" ,"Empty","0","Hopper 40ft","0","8","","","0");
 #
-insert into `cars` values("39","CO142374","3","7","","Empty","0","Hopper 40ft","0","7","","","0");
+insert into `cars` values("39","CO142374","3","7","" ,"Empty","0","Hopper 40ft","0","7","","","0");
 #
-insert into `cars` values("40","CO306607","1","8","","Empty","0","Coil 52ft","0","8","","","0");
+insert into `cars` values("40","CO306607","1","8","" ,"Empty","0","Coil 52ft","0","8","","","0");
 #
-insert into `cars` values("41","CR477935","8","8","","Empty","0","Hopper 40ft","0","8","","","0");
+insert into `cars` values("41","CR477935","8","8","" ,"Empty","0","Hopper 40ft","0","8","","","0");
 #
-insert into `cars` values("42","EL8063","2","8","","Empty","0","Flatcar 52ft","0","8","","","0");
+insert into `cars` values("42","EL8063","2","8","" ,"Empty","0","Flatcar 52ft","0","8","","","0");
 #
-insert into `cars` values("43","EL66410","5","7","","Empty","0","Boxcar 50ft","0","7","","","0");
+insert into `cars` values("43","EL66410","5","7","" ,"Empty","0","Boxcar 50ft","0","7","","","0");
 #
-insert into `cars` values("44","GATX31090","10","7","","Empty","0","Tank 40ft","0","7","","","0");
+insert into `cars` values("44","GATX31090","10","7","" ,"Empty","0","Tank 40ft","0","7","","","0");
 #
-insert into `cars` values("46","KSMX101","7","7","","Empty","0","Hopper 34ft","0","7","","","0");
+insert into `cars` values("46","KSMX101","7","7","" ,"Empty","0","Hopper 34ft","0","7","","","0");
 #
-insert into `cars` values("47","KSMX105","7","8","","Empty","0","Hopper 34ft","0","8","","","0");
+insert into `cars` values("47","KSMX105","7","8","" ,"Empty","0","Hopper 34ft","0","8","","","0");
 #
-insert into `cars` values("48","KSMX110","7","7","","Empty","0","Hopper 34ft","0","7","","","0");
+insert into `cars` values("48","KSMX110","7","7","" ,"Empty","0","Hopper 34ft","0","7","","","0");
 #
-insert into `cars` values("50","MOW0017","10","8","","Unavailable","0","Tank 40ft","0","8","","","0");
+insert into `cars` values("50","MOW0017","10","8","0","Unavailable","0","Tank 40ft","0","8","","0","0");
 #
-insert into `cars` values("51","MSTL52673","5","8","","Unavailable","0","Boxcar 40ft","0","8","","","0");
+insert into `cars` values("51","MSTL52673","5","8","0","Unavailable","0","Boxcar 40ft","0","8","","0","0");
 #
-insert into `cars` values("52","NW12986","7","6","","Empty","0","Hopper 40ft","0","6","","","0");
+insert into `cars` values("52","NW12986","7","6","" ,"Empty","0","Hopper 40ft","0","6","","","0");
 #
-insert into `cars` values("53","NW12988","3","6","","Empty","0","Hopper 40ft","0","6","","","0");
+insert into `cars` values("53","NW12988","3","6","" ,"Empty","0","Hopper 40ft","0","6","","","0");
 #
-insert into `cars` values("54","NW32800","2","7","","Empty","0","Flatcar 52ft","0","7","","","0");
+insert into `cars` values("54","NW32800","2","7","" ,"Empty","0","Flatcar 52ft","0","7","","","0");
 #
-insert into `cars` values("55","NYC47516","5","7","","Empty","0","Boxcar 50ft","0","7","","","0");
+insert into `cars` values("55","NYC47516","5","7","" ,"Empty","0","Boxcar 50ft","0","7","","","0");
 #
-insert into `cars` values("57","PRR474563","2","8","","Empty","0","Flatcar 50ft","0","8","","","0");
+insert into `cars` values("57","PRR474563","2","8","" ,"Empty","0","Flatcar 50ft","0","8","","","0");
 #
-insert into `cars` values("58","PRR498647","10","7","","Empty","0","Tank 40ft","0","7","","","0");
+insert into `cars` values("58","PRR498647","10","7","" ,"Empty","0","Tank 40ft","0","7","","","0");
 #
-insert into `cars` values("59","PRR702186","3","8","","Empty","0","Hopper 40ft","0","8","","","0");
+insert into `cars` values("59","PRR702186","3","8","" ,"Empty","0","Hopper 40ft","0","8","","","0");
 #
-insert into `cars` values("61","PRR728012","3","7","","Empty","0","Hopper 40ft","0","7","","","0");
+insert into `cars` values("61","PRR728012","3","7","" ,"Empty","0","Hopper 40ft","0","7","","","0");
 #
-insert into `cars` values("62","RDG99143","1","7","","Empty","0","Coil 55ft","0","7","","","0");
+insert into `cars` values("62","RDG99143","1","7","" ,"Empty","0","Coil 55ft","0","7","","","0");
 #
-insert into `cars` values("63","RDG107333","5","8","","Unavailable","0","Boxcar 50ft","0","8","","","0");
+insert into `cars` values("63","RDG107333","5","8","0","Unavailable","0","Boxcar 50ft","0","8","","0","0");
 #
-insert into `cars` values("64","REX350","11","7","","Empty","0","Reefer 50ft","0","7","","","0");
+insert into `cars` values("64","REX350","11","7","" ,"Empty","0","Reefer 50ft","0","7","","","0");
 #
-insert into `cars` values("65","RMLI2018","5","7","","Empty","0","Boxcar 40ft","0","7","","","0");
+insert into `cars` values("65","RMLI2018","5","7","" ,"Empty","0","Boxcar 40ft","0","7","","","0");
 #
-insert into `cars` values("66","RMP50","5","8","","Empty","0","Boxcar 40ft","0","8","","","0");
+insert into `cars` values("66","RMP50","5","8","" ,"Empty","0","Boxcar 40ft","0","8","","","0");
 #
-insert into `cars` values("67","SHPX22329","10","8","","Empty","0","Tank 40ft","0","8","","","0");
+insert into `cars` values("67","SHPX22329","10","8","" ,"Empty","0","Tank 40ft","0","8","","","0");
 #
-insert into `cars` values("68","URR15003","3","6","","Empty","0","Hopper 50ft","0","6","","","0");
+insert into `cars` values("68","URR15003","3","6","" ,"Empty","0","Hopper 50ft","0","6","","","0");
 #
-insert into `cars` values("69","URR15022","3","8","","Unavailable","0","Hopper 50ft","0","8","","","0");
+insert into `cars` values("69","URR15022","3","8","0","Unavailable","0","Hopper 50ft","0","8","","0","0");
 #
-insert into `cars` values("70","URR15044","3","6","","Empty","0","Hopper 50ft","0","6","","","0");
+insert into `cars` values("70","URR15044","3","6","" ,"Empty","0","Hopper 50ft","0","6","","","0");
 #
-insert into `cars` values("71","URTX63627","11","8","","Unavailable","0","Reefer 40ft","0","8","","","0");
+insert into `cars` values("71","URTX63627","11","8","0","Unavailable","0","Reefer 40ft","0","8","","0","0");
 #
-insert into `cars` values("72","UTLX32642","10","7","","Empty","0","Tank 40ft","0","7","","","0");
+insert into `cars` values("72","UTLX32642","10","7","" ,"Empty","0","Tank 40ft","0","7","","","0");
 #
-insert into `cars` values("74","UTLX36299","10","8","","Empty","0","Tank 40ft","0","8","","","0");
+insert into `cars` values("74","UTLX36299","10","8","" ,"Empty","0","Tank 40ft","0","8","","","0");
 #
-insert into `cars` values("75","UTLX39042","10","7","","Empty","0","Tank 40ft","0","7","","","0");
+insert into `cars` values("75","UTLX39042","10","7","" ,"Empty","0","Tank 40ft","0","7","","","0");
 #
-insert into `cars` values("76","WLE621","3","6","","Empty","0","Hopper 40ft","0","6","","","0");
+insert into `cars` values("76","WLE621","3","6","" ,"Empty","0","Hopper 40ft","0","6","","","0");
 #
-insert into `cars` values("78","COST1","12","5","","Unavailable","0","Scale test car","0","5","","","0");
+insert into `cars` values("78","COST1","12","5","0","Unavailable","0","Scale test car","0","5","","0","0");
 #
-insert into `cars` values("79","COW86","12","8","","Unavailable","0","MOW camp car","0","8","","","0");
+insert into `cars` values("79","COW86","12","8","0","Unavailable","0","MOW camp car","0","8","","0","0");
 #
-insert into `cars` values("80","CO377700","13","8","","Unavailable","0","MOW crane car","0","8","","","0");
+insert into `cars` values("80","CO377700","13","8","0","Unavailable","0","MOW crane car","0","8","","0","0");
 #
 
 #
@@ -546,58 +546,55 @@ CREATE TABLE `jobs` (
   PRIMARY KEY (`Id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 #
-insert into `jobs` values("1","D749","CSX Neville Island Switcher.
+insert into `jobs` values("1","D749","Turn from Neville Island to McKeesport.
 
-SESSION START (inbound from Demmler):
-1. Pick up all cars with orders at Demmler Yard.
-2. Run to South Yard and set out the inbound block — the operating session begins here.
-3. Yardmaster and engineer swap blocks; D749 departs South Yard westbound.
+Departure Instructions:
+1. Retrieve power from engine terminal. Top off fuel and sand.
+2. Pickup train from West Yard with consist from previous shift.
+3. Interchange cars at South Yard following yardmaster instructions.
+4. Depart Neville Island. Wait for dispatcher clearance to cross the bridge.
 
-DURING SESSION:
-- South Yard: pick up outbound for Demmler Yard and Demmler Offline; set out inbound.
-- Demmler Yard: pick up inbound and offline traffic for Scully, Scully Offline, Shenango, Neville Island, and Demmler; set out outbound.
-
-SESSION END:
-- Return from Demmler with a fresh block and terminate in West Yard for the night.
-- STG-DEMMLER runs after D749 secures.");
+Arrival Instructions:
+1. Return from McKeesport with inbound cars.
+2. Follow yardmaster instructions for arrival in West Yard or South Yard.
+3. Park engine in terminal.");
 #
-insert into `jobs` values("2","NVL","POHC Neville Local.
+insert into `jobs` values("2","NVL","POHC Neville Island Local
 
-SESSION START:
-- At Scully Yard, pick up the POHC block and hold for D749 to cross the bridge with its inbound load.
+Work the local Neville Island industries and interchange with CSX
 
-DURING SESSION:
-1. After D749 clears the bridge, run to South Yard.
-2. Set out blocks bound for Demmler; pick up D749 blocks for Neville Island.
-3. Work Neville Island industries and Shenango Coke Works — leave cars spotted on the island.
-4. Return to South Yard; set out remaining Demmler-bound traffic.
-5. Pick up cars pending for Scully Yard and return to Scully.
+-- Shenango Coke Works
+-- Aristech Plastics
+-- Kosmos Cement
+-- Calgon Carbon
+-- Ferrel Gas
+-- A Sucki Co.
 
-Scully Yard: interchange pick up and set out.
-South Yard: block exchange with D749.
-Neville Island: industry spotting and pulls.");
+1. After D749 clears the bridge, run to South Yard with dispatcher clearance.
+2. Interchange cars at South Yard following yardmaster instructions.
+3. Work the local Neville Island industries and Shenango Coke Works.
+4. Return to South Yard; Perform final interchange following yardmaster instructions.
+5. Depart Neville Island. Wait for dispatcher clearance to cross the bridge.");
 #
-insert into `jobs` values("4","CK1","Coke transfer train.
+insert into `jobs` values("4","CK1","Coke Transfer
 
-DURING SESSION (parallel with NVL):
-1. Pick up the block of coke cars from Shenango Coke Works.
-2. Run to South Yard and spot cars on the track scale (step 95).
-3. Weigh each car; in-tolerance loads get outbound orders, off-tolerance loads get reload orders.
-4. Resort weighed cars for outgoing trains (North Yard, Demmler Offline, Scully Offline).
+1. Calibrate track scale using the scale test car.
+2. Pick up cars to be reloaded at Shenango Coke Works
+1. Set out reloads and pick up outgoing coke cars from shipping tracks.
+2. Run to South Yard Scale located on the West Lead of South Yard.
+3. Weigh track string via CIM scale at a continuous, steady 4 MPH—keep cars fully stretched and do not apply brakes.
+4. Record the actual weight and reassign imbalanced cars to RELOAD car orders.   
+4. Set out all cars in South Yard to be classified.
 
-North Yard and Shenango export coke outbound; South Yard scale is the weigh point.");
+Refer to HART Railroad Scale Operating Instructions for calibration and usage details. ");
 #
-insert into `jobs` values("5","STG-SCULLY","Scully Yard staging — END OF SESSION ONLY (after D749 secures in West Yard).
+insert into `jobs` values("5","STG-SCULLY","Scully Yard staging 
 
-Shuffle cars between Scully Yard and Scully Offline party tracks.
-Step 10 picks at Scully Yard; step 11 set out at Scully Offline; steps 12–50 work offline blocks; step 60 returns cars to Scully Yard.
-Loads and unloads complete at offline tracks as cars are staged.");
+Swap cars between offline staging and online staging.");
 #
-insert into `jobs` values("6","STG-DEMMLER","Demmler Yard staging — END OF SESSION ONLY (after D749 secures in West Yard).
+insert into `jobs` values("6","STG-DEMMLER","Demmler Yard staging 
 
-Shuffle cars between Demmler Yard and Demmler Offline party tracks.
-Step 10 picks at Demmler Yard; step 11 set out at Demmler Offline; steps 12–50 work offline blocks; step 60 returns cars to Demmler Yard.
-Loads and unloads complete at offline tracks as cars are staged.");
+Swap cars between offline staging and online staging. ");
 #
 
 #
@@ -626,7 +623,7 @@ insert into `locations` values("4","SOUTH","8","","","","","");
 #
 insert into `locations` values("5","SOUTH-SCALE","8","West Lead","Scale","","","");
 #
-insert into `locations` values("6","NIL-SHEN-COKE","12","OUTBOUND","OUT","Neville Island","Shenango Coke Works","");
+insert into `locations` values("6","NIL-SHEN-COKE","12","OUTBOUND","OUT","Neville Island","Shenango Coke Works","black");
 #
 insert into `locations` values("7","SCL","9","","","","POHC","pink");
 #
@@ -828,7 +825,7 @@ CREATE TABLE `owners` (
   `name` varchar(256) DEFAULT NULL,
   `remarks` varchar(256) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 #
 insert into `owners` values("1","Lee Nevo","");
 #

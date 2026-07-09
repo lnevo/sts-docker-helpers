@@ -118,36 +118,67 @@ def fetch_lookup_maps() -> tuple[dict[int, str], dict[int, str], dict[int, str]]
     return commodities, car_codes, locations
 
 
-def fetch_jobs() -> list[dict]:
-    jobs: list[dict] = []
-    for job_id, name, description in parse_rows(
-        docker_mysql_query("SELECT Id, name, description FROM jobs ORDER BY Id")
-    ):
-        safe_name = name.replace("`", "``")
-        steps: list[dict] = []
-        for step_number, station, pickup, setout, remarks in parse_rows(
-            docker_mysql_query(
-                f"SELECT step_number, station, pickup, setout, remarks "
-                f"FROM `{safe_name}` ORDER BY step_number"
-            )
-        ):
-            steps.append(
-                {
-                    "step_number": int(step_number),
-                    "station": int(station),
-                    "pickup": pickup.upper() == "T",
-                    "setout": setout.upper() == "T",
-                    "remarks": remarks or "",
-                }
-            )
-        jobs.append(
-            {
-                "id": int(job_id),
-                "name": name,
-                "description": description or "",
-                "steps": steps,
-            }
+def docker_web_php(php_code: str) -> str:
+    compose = resolve_sts_docker_dir() / "docker-compose.yml"
+    web_cid = subprocess.check_output(
+        ["docker", "compose", "-f", str(compose), "--profile", "build", "ps", "-q", "web"],
+        text=True,
+    ).strip()
+    if not web_cid:
+        raise SystemExit(
+            "STS web container is not running.\n"
+            "Start with: cd sts-docker && docker compose --profile build up -d"
         )
+    return subprocess.check_output(
+        ["docker", "exec", web_cid, "php", "-r", php_code],
+        text=True,
+    )
+
+
+def normalize_db_text(value: str) -> str:
+    return (value or "").replace("\r\n", "\n").replace("\r", "\n")
+
+
+def fetch_jobs() -> list[dict]:
+    raw = docker_web_php(
+        r'''
+chdir("/var/www/html/sts");
+require "open_db.php";
+$dbc = open_db();
+$jobs = [];
+$rs = mysqli_query($dbc, "SELECT Id, name, description FROM jobs ORDER BY Id");
+while ($row = mysqli_fetch_assoc($rs)) {
+    $name = $row["name"];
+    $safe_name = str_replace("`", "``", $name);
+    $steps = [];
+    $step_rs = mysqli_query(
+        $dbc,
+        "SELECT step_number, station, pickup, setout, remarks FROM `{$safe_name}` ORDER BY step_number"
+    );
+    while ($step = mysqli_fetch_assoc($step_rs)) {
+        $steps[] = [
+            "step_number" => (int) $step["step_number"],
+            "station" => (int) $step["station"],
+            "pickup" => strtoupper($step["pickup"]) === "T",
+            "setout" => strtoupper($step["setout"]) === "T",
+            "remarks" => $step["remarks"] ?? "",
+        ];
+    }
+    $jobs[] = [
+        "id" => (int) $row["Id"],
+        "name" => $name,
+        "description" => $row["description"] ?? "",
+        "steps" => $steps,
+    ];
+}
+echo json_encode($jobs, JSON_UNESCAPED_UNICODE);
+'''
+    )
+    jobs = json.loads(raw)
+    for job in jobs:
+        job["description"] = normalize_db_text(job["description"])
+        for step in job.get("steps", []):
+            step["remarks"] = normalize_db_text(step.get("remarks", ""))
     return jobs
 
 
