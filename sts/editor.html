@@ -138,7 +138,7 @@
       </div>
     </div>
   </div>
-  <script src="workflow-shared.js?v=49"></script>
+  <script src="workflow-shared.js?v=46"></script>
   <script>
 (function () {
   const W = WorkflowUI;
@@ -200,7 +200,7 @@
       if (W.autoLoadCsv && W.activeCsv) {
         await W.loadRecipe();
       } else {
-        W.recipe = W.freshEditorRecipe();
+        W.recipe = { version: 1, name: 'workflow', steps: [] };
         W.compiledSteps = [];
         W.clearDirty();
       }

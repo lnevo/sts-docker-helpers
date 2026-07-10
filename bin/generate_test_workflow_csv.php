@@ -1,142 +1,97 @@
 #!/usr/bin/env php
 <?php
 /**
- * Generate WORKFLOW_TEST_ALL_TYPES.csv — one step per catalog command, three sections.
- * Usage: php bin/generate_test_workflow_csv.php [output path]
+ * Generate WORKFLOW_TEST_ALL_TYPES.csv from selectable catalog adder commands.
+ *
+ * Usage:
+ *   php bin/generate_test_workflow_csv.php [output.csv]
+ *   php bin/generate_test_workflow_csv.php --all-outputs
  */
 $root = getenv('STS_HELPERS_ROOT') ?: dirname(__DIR__);
 require_once $root . '/sts/operational_steps_catalog.php';
-if (!function_exists('operational_steps_catalog_definitions')) {
-    require_once __DIR__ . '/operational_steps_catalog.php';
-    $root = __DIR__;
-}
+require_once $root . '/sts/catalog_test_matrix.php';
 
-function test_workflow_sample_params(array $def): array
-{
-    $params = [];
-    foreach ($def['params'] ?? [] as $pdef) {
-        $key = $pdef['key'] ?? '';
-        if ($key === '') {
-            continue;
-        }
-        if (($pdef['type'] ?? '') === 'filter_group') {
-            $filters = operational_steps_load_unload_default_filters();
-            $filters['current_location'] = 'Scully';
-            $filters['status'] = 'Loading';
-            $params[$key] = $filters;
-            continue;
-        }
-        if (isset($pdef['default']) && $pdef['default'] !== '') {
-            $params[$key] = $pdef['default'];
-            continue;
-        }
-        $type = $pdef['type'] ?? '';
-        switch ($type) {
-            case 'job':
-                $params[$key] = 'D749';
-                break;
-            case 'location':
-            case 'setout_location':
-                $params[$key] = 'Demmler';
-                break;
-            case 'station':
-                $params[$key] = 'all';
-                break;
-            case 'backup':
-                $params[$key] = 'hart_seed';
-                break;
-            case 'scope':
-                $params[$key] = 'locals';
-                break;
-            case 'jobs_multiselect':
-                $params[$key] = 'D749,NVL,CK1';
-                break;
-            case 'car_code':
-                $params[$key] = 'BOX';
-                break;
-            case 'commodity':
-                $params[$key] = 'CL';
-                break;
-            case 'select':
-                $opts = $pdef['options'] ?? [];
-                $params[$key] = $opts[0] ?? '';
-                if ($params[$key] === '' && isset($opts[1])) {
-                    $params[$key] = $opts[1];
-                }
-                break;
-            case 'number':
-                $params[$key] = (string) ($pdef['default'] ?? '1');
-                break;
-            default:
-                if ($key === 'label') {
-                    $params[$key] = '[Sample label]';
-                } elseif ($key === 'section' || $key === 'section_label' || $key === 'step') {
-                    // resolved after build
-                } elseif ($key === 'file') {
-                    $params[$key] = 'uploads/sample.csv';
-                } else {
-                    $params[$key] = '';
-                }
-        }
-    }
-    if (($def['id'] ?? '') === 'run_staging_job' && empty($params['job'])) {
-        $params['job'] = 'STG-SCULLY';
-    }
-    if (($def['id'] ?? '') === 'track_scale' && empty($params['job'])) {
-        $params['job'] = 'CK1';
-    }
-    if (($def['id'] ?? '') === 'generate_switchlists') {
-        $params['jobs'] = $params['jobs'] ?? 'all';
-    }
-    return $params;
-}
-
-$exclude = ['section_label', 'text_instruction', 'marker', 'goto'];
-$catalog = operational_steps_catalog_definitions();
-$commands = [];
-foreach ($catalog as $def) {
-    $id = $def['id'] ?? '';
-    if ($id === '' || in_array($id, $exclude, true)) {
+$allOutputs = in_array('--all-outputs', $argv, true);
+$outArg = null;
+foreach ($argv as $i => $arg) {
+    if ($i === 0 || $arg === '--all-outputs') {
         continue;
     }
-    $commands[] = $def;
+    if ($arg[0] !== '-') {
+        $outArg = $arg;
+        break;
+    }
 }
 
-$chunks = array_chunk($commands, (int) ceil(count($commands) / 3));
-$sectionLabels = ['[Start section]', '[Middle section]', '[End section]'];
-
 $steps = [];
-foreach ($sectionLabels as $i => $label) {
+foreach (catalog_test_matrix_sections() as $section) {
     $steps[] = [
         'function' => 'section_label',
-        'params' => ['label' => $label],
-        'description' => 'Test section ' . ($i + 1),
+        'params' => ['label' => $section['label']],
+        'description' => 'Section: ' . $section['label'],
     ];
-    foreach ($chunks[$i] ?? [] as $def) {
-        $steps[] = [
-            'function' => $def['id'],
-            'params' => test_workflow_sample_params($def),
-            'description' => 'Test: ' . ($def['label'] ?? $def['id']),
-        ];
+    foreach ($section['steps'] as $step) {
+        $steps[] = $step;
     }
 }
 
 $steps[] = [
     'function' => 'stop',
     'params' => [],
-    'description' => 'End test workflow',
+    'description' => 'Test: Stop',
 ];
 
 $recipe = operational_steps_normalize_recipe([
     'version' => 1,
-    'name' => 'test_all_types',
+    'name' => 'test_active_catalog',
     'steps' => $steps,
 ]);
 
 $csv = operational_steps_recipe_to_csv($recipe);
-$out = $argv[1] ?? ($root . '/docs/WORKFLOW_TEST_ALL_TYPES.csv');
-file_put_contents($out, $csv);
+$recipeJson = json_encode($recipe, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n";
+
+$outputs = [];
+if ($allOutputs) {
+    $backups = dirname($root) . '/sts-backups/session_editor';
+    if (is_dir($backups)) {
+        $outputs[] = $backups . '/WORKFLOW_TEST_ALL_TYPES.csv';
+    }
+    $outputs[] = $root . '/docs/WORKFLOW_TEST_ALL_TYPES.csv';
+} else {
+    $outputs[] = $outArg ?? ($root . '/docs/WORKFLOW_TEST_ALL_TYPES.csv');
+}
+
+foreach ($outputs as $out) {
+    $dir = dirname($out);
+    if (!is_dir($dir)) {
+        mkdir($dir, 0755, true);
+    }
+    file_put_contents($out, $csv);
+    $recipePath = preg_replace('/\.csv$/i', '.recipe.json', $out);
+    file_put_contents($recipePath, $recipeJson);
+    echo "Wrote {$out}\n";
+    echo "Wrote {$recipePath}\n";
+}
+
+$selectable = catalog_test_matrix_selectable_commands();
+$covered = catalog_test_matrix_covered_command_ids();
+$covered[] = 'section_label';
+$covered[] = 'stop';
+$missing = [];
+foreach ($selectable as $def) {
+    $id = $def['id'] ?? '';
+    if ($id === 'wipe_database') {
+        continue;
+    }
+    if (!in_array($id, $covered, true)) {
+        $missing[] = $id;
+    }
+}
 
 $lines = substr_count($csv, "\n");
-echo "Wrote {$out}\n";
 echo count($recipe['steps']) . " steps, {$lines} CSV lines\n";
+echo count($selectable) . " selectable adder commands; matrix covers " . count($covered) . " ids\n";
+if ($missing) {
+    fwrite(STDERR, "Warning: no matrix step for: " . implode(', ', $missing) . "\n");
+    exit(1);
+}

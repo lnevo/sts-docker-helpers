@@ -11,11 +11,13 @@ $current = (int) warm_start_get_session($dbc);
 mysqli_close($dbc);
 
 $root = session_web_root();
-$max_session = max(1, $current);
-$sessions = range(1, $max_session);
+$on_disk = session_discover_sessions($root);
+$max_session = max($current, $on_disk ? max($on_disk) : 0);
+$sessions = range(1, max(1, $max_session));
+$sessions = array_reverse($sessions);
 
 $selected = isset($_GET['session']) ? (int) $_GET['session'] : $current;
-if ($selected < 1 || $selected > $current) {
+if ($selected < 1 || $selected > $max_session) {
     $selected = $current;
 }
 

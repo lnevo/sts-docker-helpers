@@ -1,8 +1,11 @@
 <?php
 /**
- * Session browser — session editor entry and per-session output.
+ * Session browser — /session/ entry (output lives under /sts/session_N/).
  */
-$sts_dir = __DIR__;
+$sts_dir = dirname(__DIR__) . '/sts';
+if (!is_dir($sts_dir)) {
+    $sts_dir = __DIR__ . '/../sts';
+}
 require_once $sts_dir . '/open_db.php';
 require_once $sts_dir . '/session_helpers.php';
 
@@ -32,7 +35,7 @@ $jobs = array_keys($manifest['jobs'] ?? []);
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Operating Sessions</title>
-  <?php echo session_static_head_assets('session-nav.css'); ?>
+  <?php echo session_static_head_assets(); ?>
 </head>
 <body>
 <?php
@@ -51,7 +54,7 @@ session_render_nav_bar([
     <p class="muted">Current DB session: <strong><?php echo (int) $current; ?></strong>. Each session may have multiple switch-list phases from the workflow generator.</p>
 
     <div class="card">
-      <form method="get" class="session-go-form" action="session.php">
+      <form method="get" class="session-go-form" action="index.php">
         <label>
           <span>Session</span>
           <select name="session">
@@ -68,7 +71,7 @@ session_render_nav_bar([
 
     <div class="card">
       <h2>
-        <a href="session_<?php echo (int) $selected; ?>/index.php">Session <?php echo (int) $selected; ?></a>
+        <a href="/sts/session_<?php echo (int) $selected; ?>/index.php">Session <?php echo (int) $selected; ?></a>
         <?php if ($selected === $current): ?><span class="badge">current</span><?php endif; ?>
         <?php if (!$has_data): ?><span class="badge">no output</span><?php endif; ?>
       </h2>
@@ -76,7 +79,7 @@ session_render_nav_bar([
         <p class="muted"><?php echo count($phases); ?> phase(s) · <?php echo count($jobs); ?> train(s)</p>
         <ul>
           <?php foreach ($jobs as $job): ?>
-            <li><a href="job.php?session=<?php echo (int) $selected; ?>&amp;job=<?php echo htmlspecialchars($job); ?>"><?php echo htmlspecialchars($job); ?></a></li>
+            <li><a href="/sts/job.php?session=<?php echo (int) $selected; ?>&amp;job=<?php echo htmlspecialchars($job); ?>"><?php echo htmlspecialchars($job); ?></a></li>
           <?php endforeach; ?>
         </ul>
       <?php else: ?>

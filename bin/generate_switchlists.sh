@@ -72,6 +72,4 @@ if docker exec "${WEB_CID}" test -f "/var/www/html/switchlists/operational_steps
   docker cp "${WEB_CID}:/var/www/html/switchlists/operational_steps_editor.html" "${OUTPUT_ROOT}/operational_steps_editor.html"
   docker cp "${WEB_CID}:/var/www/html/switchlists/operational_steps_api.php" "${OUTPUT_ROOT}/operational_steps_api.php" 2>/dev/null || true
   docker cp "${WEB_CID}:/var/www/html/switchlists/save_operational_steps.php" "${OUTPUT_ROOT}/save_operational_steps.php" 2>/dev/null || true
-  docker cp "${WEB_CID}:/var/www/html/switchlists/STS_OPERATIONAL_STEPS.csv" "${OUTPUT_ROOT}/STS_OPERATIONAL_STEPS.csv"
-  docker cp "${WEB_CID}:/var/www/html/switchlists/STS_OPERATIONAL_RECIPE.json" "${OUTPUT_ROOT}/STS_OPERATIONAL_RECIPE.json" 2>/dev/null || true
 fi

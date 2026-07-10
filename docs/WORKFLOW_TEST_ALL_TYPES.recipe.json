@@ -1,0 +1,280 @@
+{
+    "version": 1,
+    "name": "test_active_catalog",
+    "steps": [
+        {
+            "function": "section_label",
+            "params": {
+                "label": "[Catalog test \u2014 setup]"
+            },
+            "description": "Section: [Catalog test \u2014 setup]"
+        },
+        {
+            "function": "restore_database",
+            "params": {
+                "backup": "hart_seed"
+            },
+            "description": "Test: Restore Database"
+        },
+        {
+            "function": "section_label",
+            "params": {
+                "label": "[Before Operations]"
+            },
+            "description": "Section: [Before Operations]"
+        },
+        {
+            "function": "generate_orders",
+            "params": {
+                "shipment": "",
+                "increment_session": "",
+                "max_unfilled": ""
+            },
+            "description": "Test: Generate Car Orders"
+        },
+        {
+            "function": "fill_orders",
+            "params": {
+                "percent": "100",
+                "car_filters": {
+                    "categories": "pool,station,priority,system",
+                    "current_station": "all",
+                    "current_location": "",
+                    "car_code": ""
+                },
+                "order_filters": {
+                    "loading_location": "",
+                    "unloading_location": "",
+                    "consignment": "",
+                    "car_code": ""
+                }
+            },
+            "description": "Test: Fill Car Orders"
+        },
+        {
+            "function": "reposition_empties",
+            "params": {
+                "mode": "reposition_to_home",
+                "percent": "65",
+                "filters": {
+                    "car_code": "",
+                    "current_station": "all",
+                    "current_location": "",
+                    "home_station": "all",
+                    "home_location": "",
+                    "off_home_only": ""
+                }
+            },
+            "description": "Test: Reposition Empty Cars"
+        },
+        {
+            "function": "section_label",
+            "params": {
+                "label": "[During Operations]"
+            },
+            "description": "Section: [During Operations]"
+        },
+        {
+            "function": "build_switchlists_sts",
+            "params": {
+                "station": "Demmler",
+                "job": "D749"
+            },
+            "description": "Test: Build Switch Lists (Demmler D749)"
+        },
+        {
+            "function": "build_switchlists_sts",
+            "params": {
+                "station": "Scully",
+                "job": "NVL"
+            },
+            "description": "Test: Build Switch Lists (Scully NVL)"
+        },
+        {
+            "function": "auto_assign_locals",
+            "params": {
+                "jobs": "D749,NVL,CK1"
+            },
+            "description": "Test: Auto-Assign Cars (explicit jobs)"
+        },
+        {
+            "function": "auto_assign_locals",
+            "params": {
+                "jobs": ""
+            },
+            "description": "Test: Auto-Assign Cars (locals default)"
+        },
+        {
+            "function": "pick_up_cars",
+            "params": {
+                "job": "D749",
+                "location": "Demmler"
+            },
+            "description": "Test: Pick Up Cars (D749 Demmler)"
+        },
+        {
+            "function": "pick_up_cars",
+            "params": [],
+            "description": "Test: Pick Up Cars (all locals)"
+        },
+        {
+            "function": "set_out_cars",
+            "params": {
+                "job": "D749",
+                "location": "South-Yard"
+            },
+            "description": "Test: Set Out Cars (D749 South-Yard)"
+        },
+        {
+            "function": "set_out_cars",
+            "params": [],
+            "description": "Test: Set Out Cars (all locals)"
+        },
+        {
+            "function": "run_job_criterion",
+            "params": {
+                "job": "NVL",
+                "steps": "10,15,20"
+            },
+            "description": "Test: Run Job Criterion Steps"
+        },
+        {
+            "function": "track_scale",
+            "params": {
+                "job": "CK1"
+            },
+            "description": "Test: Track Scale (CK1)"
+        },
+        {
+            "function": "section_label",
+            "params": {
+                "label": "[After Operations]"
+            },
+            "description": "Section: [After Operations]"
+        },
+        {
+            "function": "load_unload",
+            "params": {
+                "filters": {
+                    "car_code": "",
+                    "status": "Loading",
+                    "commodity": "",
+                    "current_location": "Scully",
+                    "loading_location": "",
+                    "unloading_location": ""
+                }
+            },
+            "description": "Test: Load / Unload Cars"
+        },
+        {
+            "function": "section_label",
+            "params": {
+                "label": "[Session]"
+            },
+            "description": "Section: [Session]"
+        },
+        {
+            "function": "increment_session",
+            "params": [],
+            "description": "Test: Increment Session Number"
+        },
+        {
+            "function": "section_label",
+            "params": {
+                "label": "[Switch Lists]"
+            },
+            "description": "Section: [Switch Lists]"
+        },
+        {
+            "function": "generate_switchlists",
+            "params": {
+                "jobs": "all"
+            },
+            "description": "Test: Generate Switch Lists"
+        },
+        {
+            "function": "generate_waybills",
+            "params": [],
+            "description": "Test: Generate Waybill List"
+        },
+        {
+            "function": "section_label",
+            "params": {
+                "label": "[Database]"
+            },
+            "description": "Section: [Database]"
+        },
+        {
+            "function": "backup_database",
+            "params": {
+                "backup": "catalog_test_backup"
+            },
+            "description": "Test: Create Backup"
+        },
+        {
+            "function": "validate_database",
+            "params": [],
+            "description": "Test: Validate Database"
+        },
+        {
+            "function": "import_data",
+            "params": {
+                "table": "shipments",
+                "add_replace": "append"
+            },
+            "description": "Test: Import Data"
+        },
+        {
+            "function": "restart_session",
+            "params": [],
+            "description": "Test: Restart Session"
+        },
+        {
+            "function": "reset_session",
+            "params": [],
+            "description": "Test: Reset Session"
+        },
+        {
+            "function": "remove_backup",
+            "params": {
+                "backup": "catalog_test_backup"
+            },
+            "description": "Test: Remove Backup"
+        },
+        {
+            "function": "section_label",
+            "params": {
+                "label": "[Workflow notes]"
+            },
+            "description": "Section: [Workflow notes]"
+        },
+        {
+            "function": "text_instruction",
+            "params": {
+                "instruction": "Sample free-text instruction for catalog test"
+            },
+            "description": "Test: Text instruction"
+        },
+        {
+            "function": "if_then",
+            "params": {
+                "variable": "session_nbr",
+                "operator": ">",
+                "value": "0"
+            },
+            "description": "Test: If \u2026 then"
+        },
+        {
+            "function": "goto",
+            "params": {
+                "step": "36"
+            },
+            "description": "Test: Goto step (forward to Stop)"
+        },
+        {
+            "function": "stop",
+            "params": [],
+            "description": "Test: Stop"
+        }
+    ]
+}
