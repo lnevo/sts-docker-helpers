@@ -1906,6 +1906,12 @@ function master_sw_render_switchlists_root_index($output_root, $max_session = nu
         $cards = '<div class="card"><p>No session switch lists found yet. Run <code>begin_session.sh --switchlists</code> after session prep.</p></div>';
     }
 
+    $tools_card = '<div class="card">
+      <h2>Workflow Builder</h2>
+      <p>Define STS operational steps from functions and parameters. Compile, save, and run the switch list generator.</p>
+      <a class="button" href="operational_steps_editor.html">Edit workflow &amp; run generator</a>
+    </div>';
+
     $html = '<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1917,8 +1923,8 @@ function master_sw_render_switchlists_root_index($output_root, $max_session = nu
 <body>
   <div class="page" style="padding-top:24px;">
     <h1>HART Switchlists</h1>
-    <p class="subtitle">Select an operating session</p>
-    ' . $cards . '
+    <p class="subtitle">Select an operating session or edit workflow steps</p>
+    ' . $tools_card . $cards . '
   </div>
 </body>
 </html>';
@@ -2483,7 +2489,9 @@ Total cars: <?= (int) $total ?>
 
 function master_sw_generate_for_jobs($dbc, array $job_names, $output_dir, array $config = [], array $options = [])
 {
-    $session_nbr = master_sw_get_setting($dbc, 'session_nbr');
+    $session_nbr = isset($options['session_override']) && $options['session_override'] !== ''
+        ? (string) $options['session_override']
+        : master_sw_get_setting($dbc, 'session_nbr');
     $format = $options['format'] ?? 'halfsheet';
     $render_only = !empty($options['render_only']);
     $from_halfsheet = !empty($options['from_halfsheet']);

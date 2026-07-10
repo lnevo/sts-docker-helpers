@@ -55,6 +55,8 @@ docker cp "${HELPERS_ROOT}/sts/master_switchlist_helpers.php" "${WEB_CID}:/var/w
 docker cp "${HELPERS_ROOT}/sts/generate_master_switchlists.php" "${WEB_CID}:/var/www/html/sts/generate_master_switchlists.php"
 docker cp "${HELPERS_ROOT}/sts/warm_start_helpers.php" "${WEB_CID}:/var/www/html/sts/warm_start_helpers.php"
 
+"${BIN_DIR}/sync_operational_steps.sh"
+
 echo "==> Generating master switch lists"
 docker exec "${WEB_CID}" php /var/www/html/sts/generate_master_switchlists.php --output=/var/www/html/switchlists "${ARGS[@]}"
 
@@ -65,4 +67,11 @@ docker cp "${WEB_CID}:/var/www/html/switchlists/session_${SESSION}/." "${OUTPUT_
 if docker exec "${WEB_CID}" test -f "/var/www/html/switchlists/index.html"; then
   echo "==> Copying all-sessions index to ${OUTPUT_ROOT}/index.html"
   docker cp "${WEB_CID}:/var/www/html/switchlists/index.html" "${OUTPUT_ROOT}/index.html"
+fi
+if docker exec "${WEB_CID}" test -f "/var/www/html/switchlists/operational_steps_editor.html"; then
+  docker cp "${WEB_CID}:/var/www/html/switchlists/operational_steps_editor.html" "${OUTPUT_ROOT}/operational_steps_editor.html"
+  docker cp "${WEB_CID}:/var/www/html/switchlists/operational_steps_api.php" "${OUTPUT_ROOT}/operational_steps_api.php" 2>/dev/null || true
+  docker cp "${WEB_CID}:/var/www/html/switchlists/save_operational_steps.php" "${OUTPUT_ROOT}/save_operational_steps.php" 2>/dev/null || true
+  docker cp "${WEB_CID}:/var/www/html/switchlists/STS_OPERATIONAL_STEPS.csv" "${OUTPUT_ROOT}/STS_OPERATIONAL_STEPS.csv"
+  docker cp "${WEB_CID}:/var/www/html/switchlists/STS_OPERATIONAL_RECIPE.json" "${OUTPUT_ROOT}/STS_OPERATIONAL_RECIPE.json" 2>/dev/null || true
 fi

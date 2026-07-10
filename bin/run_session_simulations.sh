@@ -145,6 +145,7 @@ echo ""
 echo "==> Syncing switchlists into web container"
 docker exec "${WEB_CID}" mkdir -p /var/www/html/switchlists
 docker cp "${OUTPUT_ROOT}/." "${WEB_CID}:/var/www/html/switchlists/"
+"${BIN_DIR}/sync_operational_steps.sh"
 
 echo ""
 if [[ "${RUN_WARM_START}" -eq 1 ]]; then

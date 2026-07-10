@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>STS Workflow Editor</title>
+  <link rel="stylesheet" href="workflow-ui.css?v=13">
+</head>
+<body>
+  <nav class="nav-bar">
+    <a href="index.php">← Sessions</a>
+    <a href="#simulator">Simulator</a>
+    <a href="STS_OPERATIONAL_STEPS.csv" download>CSV</a>
+    <a href="STS_OPERATIONAL_RECIPE.json" download>JSON</a>
+  </nav>
+  <div class="page page-wide">
+    <h1>Workflow Editor</h1>
+    <p class="subtitle">
+      Build the operating recipe step by step: <strong>Add step</strong>, pick a command, set parameters, and add remarks.
+      <strong>Save</strong> writes the recipe to disk. The simulator runs the saved workflow against the live STS database —
+      switch lists are generated when the recipe reaches a <em>Generate Switch Lists</em> step.
+    </p>
+    <div id="status" class="status info">Loading…</div>
+
+    <div class="panel" id="simulator">
+      <h2>Simulator</h2>
+      <p class="run-instructions">
+        Choose a step range and switch-list format, then <strong>Run</strong> once or use <strong>Repeat</strong> to execute the same range multiple times
+        (useful for warm-start cycles). DB session: <strong id="run-db-session">—</strong>.
+        View output in <a href="index.php">Sessions</a> after a run completes.
+      </p>
+      <div class="run-bar">
+        <label class="run-field">
+          <span class="inline-lbl">Format</span>
+          <select id="run-format" class="field-select">
+            <option value="phased" selected>phased</option>
+            <option value="halfsheet">halfsheet</option>
+            <option value="mobile">mobile</option>
+          </select>
+        </label>
+        <label class="run-field">
+          <span class="inline-lbl">Start step</span>
+          <input type="number" id="run-start" class="field-input" min="1" value="1">
+        </label>
+        <label class="run-field">
+          <span class="inline-lbl">Stop step</span>
+          <input type="number" id="run-stop" class="field-input" min="1" value="1">
+        </label>
+        <button type="button" class="primary" id="btn-run">Run</button>
+        <label class="run-field">
+          <span class="inline-lbl">Times</span>
+          <input type="number" id="run-repeat" class="field-input" min="1" max="30" value="2">
+        </label>
+        <button type="button" class="secondary" id="btn-repeat">Repeat</button>
+      </div>
+      <pre class="log" id="log">Run output appears here.</pre>
+    </div>
+
+    <div class="panel">
+      <div class="actions-bar">
+        <h2 style="margin:0;">Steps <span id="step-count"></span></h2>
+        <div class="toolbar">
+          <div class="insert-controls">
+            <label class="insert-label">
+              <span class="inline-lbl">Insert</span>
+              <select id="insert-mode" class="field-select">
+                <option value="beginning">Beginning</option>
+                <option value="before">Before</option>
+                <option value="after">After</option>
+                <option value="end">End</option>
+              </select>
+            </label>
+            <label class="insert-label insert-step-num-wrap" id="insert-step-num-wrap" hidden>
+              <span class="inline-lbl">Step #</span>
+              <input type="number" id="insert-step-num" class="field-input" min="1" value="1">
+            </label>
+          </div>
+          <button type="button" class="primary" id="btn-add">+ Add step</button>
+          <button type="button" class="primary" id="btn-save">Save</button>
+          <button type="button" class="secondary" id="btn-import">Import CSV</button>
+          <button type="button" class="ghost" id="btn-reload">Reload</button>
+        </div>
+      </div>
+      <div id="steps-scroll" class="steps-scroll">
+        <div class="steps-header row-top" aria-hidden="true">
+          <span></span>
+          <span class="col-hdr">#</span>
+          <span class="col-hdr"></span>
+          <span class="col-hdr">Command</span>
+          <span class="col-hdr">Parameters</span>
+          <span class="col-hdr col-hdr-right">Remarks</span>
+          <span class="col-hdr">STS</span>
+          <span></span>
+        </div>
+        <div id="steps-list" class="steps-list"></div>
+      </div>
+    </div>
+  </div>
+  <script src="workflow-shared.js?v=13"></script>
+  <script>
+(function () {
+  const W = WorkflowUI;
+
+  W.el('btn-add').addEventListener('click', () => W.addStep());
+  W.el('btn-save').addEventListener('click', () => W.saveRecipe().catch((e) => W.setStatus(e.message, 'err')));
+  W.el('btn-import').addEventListener('click', () => W.importCsv().catch((e) => W.setStatus(e.message, 'err')));
+  W.el('btn-reload').addEventListener('click', () => init());
+  W.el('insert-mode')?.addEventListener('change', () => W.syncInsertUi());
+  W.el('insert-step-num')?.addEventListener('input', () => W.syncInsertFromDom());
+
+  W.el('run-start')?.addEventListener('input', (e) => { e.target.dataset.userSet = '1'; });
+  W.el('run-stop')?.addEventListener('input', (e) => { e.target.dataset.userSet = '1'; });
+  W.el('btn-run')?.addEventListener('click', () => {
+    W.runWorkflow({ saveFirst: true }).catch((e) => W.setStatus(e.message, 'err'));
+  });
+  W.el('btn-repeat')?.addEventListener('click', () => {
+    W.runWorkflow({ saveFirst: true, repeat: true }).catch((e) => W.setStatus(e.message, 'err'));
+  });
+
+  async function init() {
+    try {
+      await W.loadCatalog();
+      await W.loadRecipe();
+      await W.loadRunOptions();
+      W.syncInsertUi();
+      W.renderSteps();
+      W.setStatus(
+        'Ready — ' + W.recipe.steps.length + ' steps · DB session ' +
+        (W.runOptions?.current_session ?? '?'),
+        'ok'
+      );
+    } catch (e) {
+      W.setStatus(e.message, 'err');
+    }
+  }
+  init();
+})();
+  </script>
+</body>
+</html>

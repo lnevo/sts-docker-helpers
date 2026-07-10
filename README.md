@@ -33,6 +33,7 @@ Run from **Car Cards project root** (thin wrappers) or directly from **`sts-dock
 | `run_session_simulations.sh` | Warm start once, then begin + switch lists + play per session |
 | `play_operating_session.sh` | Play through one operating session (after begin_session) |
 | `generate_switchlists.sh` | Dry-run phased switch lists (D749, NVL, CK1) |
+| `sync_operational_steps.sh` | Sync operational steps editor + CSV to switchlists |
 | `begin_session.sh` | Live session prep after STG-SCULLY |
 | `apply_hart_job_descriptions.sh` | Push crew instructions from seed config → DB |
 | `sync_hart_seed_config.sh` | Export manual STS edits back into `hart_seed_config.json` |
@@ -59,7 +60,16 @@ Run from **Car Cards project root** (thin wrappers) or directly from **`sts-dock
 
 Browse switch lists: `http://localhost:8980/switchlists/index.html`
 
+Edit workflow steps: `http://localhost:8980/switchlists/operational_steps_editor.html` (linked from switchlists index).
+
 Switch list design, phase logic, and known gaps: **`docs/SWITCHLIST_BUILDING.md`**.
+
+Workflow from an STS user perspective:
+
+- **`docs/WARM_START_STEPS.md`** — prior-session simulation (run once)
+- **`docs/BEGIN_SESSION_STEPS.md`** — session-open prep and switch list capture point
+- **`docs/FULL_OPERATING_SESSION.md`** — one complete cycle (warm start → begin → lists → play)
+- **`docs/STS_OPERATIONAL_STEPS.csv`** — numbered STS GUI steps (editable checklist)
 
 ## Requirements
 
