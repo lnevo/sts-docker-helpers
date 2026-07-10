@@ -7,16 +7,12 @@
 
 header('Content-Type: application/json; charset=utf-8');
 
-$sts_dir = dirname(__DIR__) . '/sts';
-if (!is_dir($sts_dir)) {
-    $sts_dir = __DIR__ . '/../sts';
-}
-
+$sts_dir = __DIR__;
 require_once $sts_dir . '/open_db.php';
 require_once $sts_dir . '/operational_steps_catalog.php';
 require_once $sts_dir . '/session_helpers.php';
 
-$session_dir = __DIR__;
+$session_dir = operational_steps_editor_dir();
 $body = null;
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $body = operational_steps_api_body();
@@ -60,7 +56,8 @@ try {
             ]);
 
         case 'run_options':
-            $recipe = operational_steps_load_recipe($session_dir);
+            $csv_file = operational_steps_active_csv($session_dir, $_GET['csv_file'] ?? null);
+            $recipe = operational_steps_load_recipe($session_dir, $csv_file);
             $compiled = operational_steps_compile_recipe($recipe);
             $indices = operational_steps_recipe_indices($recipe);
             $dbc = open_db();
@@ -72,18 +69,30 @@ try {
                 'current_session' => $current_session,
                 'existing_sessions' => $existing,
                 'indices' => $indices,
-                'default_breakpoint' => $indices['session_end'] ?: $indices['generate_step'],
-                'default_start' => $indices['operating_start'],
-                'default_stop' => $indices['session_end'] ?: $indices['generate_step'],
+                'default_breakpoint' => $indices['total'] ?: count($recipe['steps'] ?? []),
+                'default_start' => 1,
+                'default_stop' => $indices['total'] ?: count($recipe['steps'] ?? []),
                 'breakpoints' => $indices['breakpoints'],
                 'compiled' => $compiled,
             ]);
 
+        case 'list_csv':
+            $files = operational_steps_list_csv_files($session_dir);
+            $active = operational_steps_resolve_active_csv($session_dir, $_GET['csv_file'] ?? null);
+            operational_steps_api_json([
+                'ok' => true,
+                'files' => $files,
+                'active_csv' => $active,
+                'auto_load' => count($files) === 1,
+            ]);
+
         case 'recipe':
-            $recipe = operational_steps_load_recipe($session_dir);
+            $csv_file = operational_steps_active_csv($session_dir, $_GET['csv_file'] ?? null);
+            $recipe = operational_steps_load_recipe($session_dir, $csv_file);
             operational_steps_api_json([
                 'ok' => true,
                 'recipe' => $recipe,
+                'csv_file' => $csv_file,
                 'compiled' => operational_steps_compile_recipe($recipe),
             ]);
 
@@ -109,7 +118,8 @@ try {
                 $recipe['version'] = 1;
             }
             $recipe = operational_steps_normalize_recipe($recipe);
-            $save = operational_steps_save_recipe($session_dir, $recipe);
+            $csv_file = operational_steps_active_csv($session_dir, $body['csv_file'] ?? null);
+            $save = operational_steps_save_recipe($session_dir, $recipe, $csv_file);
             if (empty($save['written'])) {
                 operational_steps_api_json(['ok' => false, 'error' => implode('; ', $save['errors'])], 500);
             }
@@ -119,6 +129,7 @@ try {
                 'warnings' => $save['errors'],
                 'compiled' => $save['compiled'],
                 'rows' => count($save['compiled']),
+                'csv_file' => $save['csv_file'] ?? $csv_file,
             ]);
 
         case 'run_switchlists':
@@ -193,8 +204,8 @@ try {
                 'summary' => $lines,
                 'warnings' => $result['warnings'] ?? [],
                 'cycles' => $result['cycles'],
-                'index_url' => '/session/index.php',
-                'session_url' => $last ? '/session/session_' . $last['session'] . '/index.php' : '/session/index.php',
+                'index_url' => '/sts/session.php',
+                'session_url' => $last ? '/sts/session_' . $last['session'] . '/index.php' : '/sts/session.php',
             ]);
 
         case 'normalize_recipe':
@@ -203,7 +214,8 @@ try {
             }
             $body = operational_steps_api_body();
             if (!empty($body['use_file'])) {
-                $paths = operational_steps_recipe_paths($session_dir);
+                $csv_file = operational_steps_active_csv($session_dir, $body['csv_file'] ?? null);
+                $paths = operational_steps_recipe_paths_for_csv($session_dir, $csv_file);
                 $csv = is_file($paths['csv']) ? file_get_contents($paths['csv']) : '';
                 if ($csv === '') {
                     operational_steps_api_json(['ok' => false, 'error' => 'No CSV file'], 400);
@@ -228,25 +240,65 @@ try {
             $body = operational_steps_api_body();
             $csv = $body['csv'] ?? '';
             if ($csv === '' && !empty($body['use_file'])) {
-                $paths = operational_steps_recipe_paths($session_dir);
+                $csv_file = operational_steps_active_csv($session_dir, $body['csv_file'] ?? null);
+                if ($csv_file === '') {
+                    operational_steps_api_json(['ok' => false, 'error' => 'Choose a CSV file to load'], 400);
+                }
+                $paths = operational_steps_recipe_paths_for_csv($session_dir, $csv_file);
                 $csv = is_file($paths['csv']) ? file_get_contents($paths['csv']) : '';
+                if ($csv === '') {
+                    operational_steps_api_json(['ok' => false, 'error' => 'CSV file not found: ' . $csv_file], 404);
+                }
             }
             if ($csv === '') {
                 operational_steps_api_json(['ok' => false, 'error' => 'No CSV content'], 400);
             }
             $steps = operational_steps_parse_csv($csv);
             $recipe = operational_steps_normalize_recipe(['version' => 1, 'name' => 'imported', 'steps' => $steps]);
+            if (!empty($body['csv_file'])) {
+                operational_steps_set_active_csv($session_dir, $body['csv_file']);
+            }
             operational_steps_api_json([
                 'ok' => true,
                 'recipe' => $recipe,
+                'csv_file' => operational_steps_active_csv($session_dir, $body['csv_file'] ?? null),
                 'compiled' => operational_steps_compile_recipe($recipe),
             ]);
+
+        case 'set_active_csv':
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                operational_steps_api_json(['ok' => false, 'error' => 'POST required'], 405);
+            }
+            $body = operational_steps_api_body();
+            if (empty($body['csv_file'])) {
+                operational_steps_api_json(['ok' => false, 'error' => 'Missing csv_file'], 400);
+            }
+            $csv_file = operational_steps_set_active_csv($session_dir, $body['csv_file']);
+            operational_steps_api_json(['ok' => true, 'active_csv' => $csv_file]);
+
+        case 'download':
+            $csv_file = operational_steps_active_csv($session_dir, $_GET['csv_file'] ?? null);
+            if ($csv_file === '') {
+                operational_steps_api_json(['ok' => false, 'error' => 'Choose a CSV file'], 400);
+            }
+            $paths = operational_steps_recipe_paths_for_csv($session_dir, $csv_file);
+            $kind = strtolower((string) ($_GET['kind'] ?? 'csv'));
+            $path = ($kind === 'recipe' || $kind === 'json') ? $paths['recipe'] : $paths['csv'];
+            if (!is_file($path)) {
+                operational_steps_api_json(['ok' => false, 'error' => 'File not found'], 404);
+            }
+            $download_name = basename($path);
+            header('Content-Type: application/octet-stream');
+            header('Content-Disposition: attachment; filename="' . $download_name . '"');
+            header('Content-Length: ' . filesize($path));
+            readfile($path);
+            exit;
 
         default:
             operational_steps_api_json([
                 'ok' => false,
                 'error' => 'Unknown action',
-                'actions' => ['catalog', 'recipe', 'compile', 'save', 'run_switchlists', 'run_options', 'import_csv', 'normalize_recipe'],
+                'actions' => ['catalog', 'list_csv', 'recipe', 'compile', 'save', 'run_switchlists', 'run_options', 'import_csv', 'normalize_recipe', 'set_active_csv', 'download'],
             ], 400);
     }
 } catch (Throwable $e) {

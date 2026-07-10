@@ -10,6 +10,8 @@ $root = session_web_root();
 $manifest = session_load_manifest($session, $root);
 $phases = $manifest['phases'] ?? [];
 $jobs = $manifest['jobs'] ?? [];
+$session_waybills = session_dir_for($session, $root) . '/waybills';
+$has_session_waybills = is_file($session_waybills . '/print_all.html');
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -23,8 +25,16 @@ $jobs = $manifest['jobs'] ?? [];
   </style>
 </head>
 <body>
-  <nav><a href="../index.php">← All sessions</a> · <a href="../editor.html">Editor</a> · <a href="../simulator.php">Simulator</a></nav>
+  <nav><a href="../index.php">← All sessions</a> · <a href="../editor.html">Session Editor</a></nav>
   <h1>Session <?php echo (int) $session; ?></h1>
+  <?php if ($has_session_waybills): ?>
+    <div class="card" style="border-color:#1f4d2e;background:#f8fbf9;">
+      <h2 style="margin:0 0 8px;">Layout owner — print waybills</h2>
+      <p>Print every freight waybill generated for this operating session.</p>
+      <p><a href="waybills/print_all.html"><strong>Print all session waybills</strong></a>
+        · <a href="waybills/index.html">Browse waybill list</a></p>
+    </div>
+  <?php endif; ?>
   <?php foreach ($phases as $phase): ?>
     <div class="card">
       <h2 style="margin:0 0 8px;">Phase <?php echo (int) ($phase['phase'] ?? 0); ?></h2>
@@ -34,7 +44,15 @@ $jobs = $manifest['jobs'] ?? [];
           <li><a href="../job.php?session=<?php echo (int) $session; ?>&amp;job=<?php echo urlencode($job); ?>"><?php echo htmlspecialchars($job); ?></a></li>
         <?php endforeach; ?>
       </ul>
-      <p><a href="phase_<?php echo str_pad((int) ($phase['phase'] ?? 1), 2, '0', STR_PAD_LEFT); ?>/waybills/index.html">Waybills (phase)</a></p>
+      <p><a href="phase_<?php echo str_pad((int) ($phase['phase'] ?? 1), 2, '0', STR_PAD_LEFT); ?>/waybills/index.html">Waybills (phase)</a>
+        <?php
+          $phase_wb = session_dir_for($session, $root) . '/phase_'
+            . str_pad((int) ($phase['phase'] ?? 1), 2, '0', STR_PAD_LEFT) . '/waybills/print_all.html';
+          if (is_file($phase_wb)):
+        ?>
+          · <a href="phase_<?php echo str_pad((int) ($phase['phase'] ?? 1), 2, '0', STR_PAD_LEFT); ?>/waybills/print_all.html">Print all (phase)</a>
+        <?php endif; ?>
+      </p>
     </div>
   <?php endforeach; ?>
   <?php if (!count($phases)): ?>

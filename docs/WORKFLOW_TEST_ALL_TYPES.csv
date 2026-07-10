@@ -1,0 +1,68 @@
+Step #,STS GUI Instruction,Full Description
+1,[Start section],Test section 1
+2,Restore Database hart_seed,Test: Restore Database
+3,Create Backup manual_backup,Test: Create Backup
+4,Validate Database,Test: Validate Database
+5,Remove Backup hart_seed,Test: Remove Backup
+6,Import Data shipments (append),Test: Import Data
+7,Restart Session,Test: Restart Session
+8,Reset Session,Test: Reset Session
+9,Wipe Database,Test: Wipe Database
+10,Warm Start tracked simulation,Test: Warm Start (tracked)
+11,Begin Operating Session,Test: Begin Operating Session (composite)
+12,Play Operating Session,Test: Play Operating Session (composite)
+13,Evaluate Session Prep,Test: Evaluate Session Prep
+14,Stop execution,Test: Stop
+15,If session # >= 1,Test: If … then
+16,Run STG-SCULLY,Test: Run STG-SCULLY
+17,Run STG-DEMMLER,Test: Run STG-DEMMLER
+18,Generate Orders ,Test: Generate Car Orders
+19,Increment Session Number,Test: Increment Session Number
+20,Fill Orders,Test: Fill Car Orders
+21,Reposition Empties,Test: Reposition Empty Cars
+22,Auto-Assign Cars locals,Test: Auto-Assign Cars
+23,[Middle section],Test section 2
+24,Build Switch Lists Demmler D749,Test: Build Switch Lists
+25,Pick Up Cars D749 Demmler,Test: Pick Up Cars
+26,Set Out Cars D749 Demmler,Test: Set Out Cars
+27,Pick Up Cars locals,Test: Pick Up Cars (all jobs)
+28,Set Out Cars locals,Test: Set Out Cars (all jobs)
+29,Load/Unload status=Loading; current=Scully,Test: Load / Unload Cars
+30,Weigh Cars D749,Test: Track Scale
+31,Weigh Cars CK1,Test: Weigh Cars CK1
+32,Assign Cars CK1 reload/outbound,Test: Assign CK1 reload/outbound
+33,"Set Out Cars D749 criterion 10,15,20",Test: Run Job Criterion Steps
+34,Run D749,Test: Run Staging Job
+35,NVL pre-CK1 block,Test: NVL pre-CK1 (composite)
+36,CK1 session block,Test: CK1 session (composite)
+37,NVL post-CK1 block,Test: NVL post-CK1 (composite)
+38,D749 session start Demmler→South,Test: D749 session start (composite)
+39,D749 phased remainder,Test: D749 phased ops (composite)
+40,Finish open local jobs,Test: Finish Open Jobs
+41,Assign/Pick Up Cars D749 Demmler,Test: Secure D749 at Demmler
+42,Assign/Pick Up/Set Out Cars NVL Scully,Test: Secure NVL at Scully
+43,Generate Switch Lists all,Test: Generate Switch Lists
+44,Generate Waybill List,Test: Generate Waybill List
+45,[End section],Test section 3
+46,Render Switch Lists from cache,Test: Render Switch Lists (cache)
+47,Save Switch List Cache,Test: Save Switch List Cache
+48,Rebuild Switchlists Index,Test: Rebuild Switchlists Index
+49,Build Switch Lists,Test: Build Switch Lists
+50,Display Switch Lists,Test: Display Switch Lists
+51,Track Scale,Test: Track Scale (STS GUI)
+53,Station Car Report,Test: Station Car Report
+54,Wheel Report,Test: Wheel Report
+55,Waybill List,Test: Waybill List
+56,Waybill Sheets for Cars,Test: Waybill Sheets for Cars
+57,Waybill Sheets for Shipments,Test: Waybill Sheets for Shipments
+58,Car Fleet Report,Test: Car Fleet Report
+59,Printable Fleet Report,Test: Printable Fleet Report
+60,Shipment Forecast,Test: Shipment Forecast
+61,Car Forecast,Test: Car Forecast
+62,Car QR Codes,Test: Car QR Codes
+63,Printable Car QR Report,Test: Printable Car QR Report
+64,Location QR Codes,Test: Location QR Codes
+65,Printable Location QR Report,Test: Printable Location QR Report
+66,Printable Station QR Code Report,Test: Printable Station QR Code Report
+67,If session # > 0,Test if/then
+68,Goto [Start section],Loop back to start (test)

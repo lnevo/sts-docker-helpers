@@ -1,651 +1,697 @@
 {
-  "version": 1,
-  "name": "imported",
-  "steps": [
-    {
-      "function": "restore_database",
-      "params": {
-        "note": "[Setup once] Restore Database hart_seed"
-      },
-      "instruction": "[Setup once] Restore Database hart_seed"
-    },
-    {
-      "function": "marker",
-      "params": {
-        "location": "SCULLY",
-        "note": "[Warm start — repeat steps 2-29 until STG-SCULLY backlog ready] Run STG-SCULLY pending backlog"
-      },
-      "instruction": "[Warm start — repeat steps 2-29 until STG-SCULLY backlog ready] Run STG-SCULLY pending backlog"
-    },
-    {
-      "function": "generate_orders",
-      "params": [],
-      "instruction": "Generate Orders"
-    },
-    {
-      "function": "assign_cars",
-      "params": {
-        "job": "D749",
-        "location": "Demmler"
-      },
-      "instruction": "Assign Cars D749 Demmler"
-    },
-    {
-      "function": "pick_up_cars",
-      "params": {
-        "job": "D749"
-      },
-      "instruction": "Pick Up Cars D749"
-    },
-    {
-      "function": "set_out_cars",
-      "params": {
-        "job": "D749",
-        "location": "South-Yard"
-      },
-      "instruction": "Set Out Cars D749 South-Yard"
-    },
-    {
-      "function": "fill_orders",
-      "params": [],
-      "instruction": "Fill Orders"
-    },
-    {
-      "function": "reposition_empties",
-      "params": [],
-      "instruction": "Reposition Empties"
-    },
-    {
-      "function": "auto_assign_locals",
-      "params": {
-        "job": "locals",
-        "scope": "locals"
-      },
-      "instruction": "Auto-Assign Cars locals"
-    },
-    {
-      "function": "pick_up_locals",
-      "params": {
-        "job": "locals"
-      },
-      "instruction": "Pick Up Cars locals"
-    },
-    {
-      "function": "set_out_locals",
-      "params": {
-        "job": "locals"
-      },
-      "instruction": "Set Out Cars locals"
-    },
-    {
-      "function": "load_unload",
-      "params": [],
-      "instruction": "Load/Unload offline"
-    },
-    {
-      "function": "assign_cars",
-      "params": {
-        "job": "NVL",
-        "location": "Scully"
-      },
-      "instruction": "Assign Cars NVL Scully"
-    },
-    {
-      "function": "pick_up_cars",
-      "params": {
-        "job": "NVL",
-        "location": "Scully"
-      },
-      "instruction": "Pick Up Cars NVL Scully"
-    },
-    {
-      "function": "set_out_cars",
-      "params": {
-        "job": "NVL",
-        "location": "Demmler"
-      },
-      "instruction": "Set Out Cars NVL Demmler"
-    },
-    {
-      "function": "assign_cars",
-      "params": {
-        "job": "CK1",
-        "location": "Shenango"
-      },
-      "instruction": "Assign Cars CK1 Shenango"
-    },
-    {
-      "function": "pick_up_cars",
-      "params": {
-        "job": "CK1",
-        "location": "Shenango"
-      },
-      "instruction": "Pick Up Cars CK1 Shenango"
-    },
-    {
-      "function": "set_out_cars",
-      "params": {
-        "job": "CK1",
-        "location": "South-Scale"
-      },
-      "instruction": "Set Out Cars CK1 South-Scale"
-    },
-    {
-      "function": "weigh_ck1",
-      "params": [],
-      "instruction": "Weigh Cars CK1"
-    },
-    {
-      "function": "assign_ck1_reload",
-      "params": {
-        "job": "CK1"
-      },
-      "instruction": "Assign Cars CK1 reload/outbound"
-    },
-    {
-      "function": "pick_up_cars",
-      "params": {
-        "job": "CK1"
-      },
-      "instruction": "Pick Up Cars CK1"
-    },
-    {
-      "function": "set_out_cars",
-      "params": {
-        "job": "CK1",
-        "location": "Shenango"
-      },
-      "instruction": "Set Out Cars CK1 Shenango"
-    },
-    {
-      "function": "set_out_cars",
-      "params": {
-        "job": "CK1",
-        "location": "South-Yard"
-      },
-      "instruction": "Set Out Cars CK1 South-Yard"
-    },
-    {
-      "function": "pick_up_cars",
-      "params": {
-        "job": "NVL",
-        "location": "Scully"
-      },
-      "instruction": "Pick Up Cars NVL Scully CK1-handoff"
-    },
-    {
-      "function": "set_out_cars",
-      "params": {
-        "job": "NVL",
-        "location": "Island"
-      },
-      "instruction": "Set Out Cars NVL Island/Shenango"
-    },
-    {
-      "function": "set_out_cars",
-      "params": {
-        "job": "NVL"
-      },
-      "instruction": "Set Out Cars NVL criterion steps"
-    },
-    {
-      "function": "set_out_cars",
-      "params": {
-        "job": "NVL",
-        "location": "Demmler"
-      },
-      "instruction": "Set Out Cars NVL Demmler"
-    },
-    {
-      "function": "set_out_cars",
-      "params": {
-        "job": "NVL",
-        "location": "Scully"
-      },
-      "instruction": "Set Out Cars NVL Scully"
-    },
-    {
-      "function": "set_out_cars",
-      "params": {
-        "job": "D749",
-        "location": "South-Yard"
-      },
-      "instruction": "Set Out Cars D749 South-Yard"
-    },
-    {
-      "function": "set_out_cars",
-      "params": {
-        "job": "D749",
-        "location": "Demmler"
-      },
-      "instruction": "Set Out Cars D749 Demmler"
-    },
-    {
-      "function": "pick_up_cars",
-      "params": {
-        "job": "D749",
-        "location": "Island"
-      },
-      "instruction": "Pick Up Cars D749 Island"
-    },
-    {
-      "function": "set_out_cars",
-      "params": {
-        "job": "D749",
-        "location": "Demmler"
-      },
-      "instruction": "Set Out Cars D749 Demmler"
-    },
-    {
-      "function": "set_out_cars",
-      "params": {
-        "job": "D749"
-      },
-      "instruction": "Set Out Cars D749 remainder"
-    },
-    {
-      "function": "finish_local_jobs",
-      "params": [],
-      "instruction": "Finish open local jobs"
-    },
-    {
-      "function": "run_stg_demmler",
-      "params": {
-        "location": "DEMMLER"
-      },
-      "instruction": "Run STG-DEMMLER"
-    },
-    {
-      "function": "assign_cars",
-      "params": {
-        "job": "D749",
-        "location": "Demmler"
-      },
-      "instruction": "Assign Cars D749 Demmler"
-    },
-    {
-      "function": "pick_up_cars",
-      "params": {
-        "job": "D749",
-        "location": "Demmler"
-      },
-      "instruction": "Pick Up Cars D749 Demmler"
-    },
-    {
-      "function": "assign_cars",
-      "params": {
-        "job": "NVL",
-        "location": "Scully"
-      },
-      "instruction": "Assign Cars NVL Scully"
-    },
-    {
-      "function": "pick_up_cars",
-      "params": {
-        "job": "NVL",
-        "location": "Scully"
-      },
-      "instruction": "Pick Up Cars NVL Scully"
-    },
-    {
-      "function": "set_out_cars",
-      "params": {
-        "job": "NVL",
-        "location": "Scully"
-      },
-      "instruction": "Set Out Cars NVL Scully"
-    },
-    {
-      "function": "marker",
-      "params": {
-        "location": "SCULLY",
-        "note": "[Warm start end] Defer STG-SCULLY leave backlog Scully"
-      },
-      "instruction": "[Warm start end] Defer STG-SCULLY leave backlog Scully"
-    },
-    {
-      "function": "marker",
-      "params": {
-        "job": "STG-SCULLY",
-        "location": "SCULLY",
-        "note": "[Each operating session — repeat steps 42-89] Assign Cars STG-SCULLY Scully"
-      },
-      "instruction": "[Each operating session — repeat steps 42-89] Assign Cars STG-SCULLY Scully"
-    },
-    {
-      "function": "run_stg_scully",
-      "params": {
-        "job": "STG",
-        "location": "SCULLY"
-      },
-      "instruction": "Pick Up Cars STG-SCULLY"
-    },
-    {
-      "function": "run_stg_scully",
-      "params": {
-        "job": "STG",
-        "location": "SCULLY"
-      },
-      "instruction": "Set Out Cars STG-SCULLY Scully-Offline"
-    },
-    {
-      "function": "load_unload",
-      "params": [],
-      "instruction": "Load/Unload offline"
-    },
-    {
-      "function": "increment_session",
-      "params": [],
-      "instruction": "Increment Session Number"
-    },
-    {
-      "function": "fill_orders",
-      "params": [],
-      "instruction": "Fill Orders"
-    },
-    {
-      "function": "reposition_empties",
-      "params": [],
-      "instruction": "Reposition Empties"
-    },
-    {
-      "function": "auto_assign_locals",
-      "params": {
-        "job": "locals",
-        "scope": "locals"
-      },
-      "instruction": "Auto-Assign Cars locals"
-    },
-    {
-      "function": "generate_switchlists",
-      "params": [],
-      "instruction": "Generate Switch Lists"
-    },
-    {
-      "function": "generate_orders",
-      "params": [],
-      "instruction": "Generate Orders"
-    },
-    {
-      "function": "assign_cars",
-      "params": {
-        "job": "D749",
-        "location": "Demmler"
-      },
-      "instruction": "Assign Cars D749 Demmler"
-    },
-    {
-      "function": "pick_up_cars",
-      "params": {
-        "job": "D749"
-      },
-      "instruction": "Pick Up Cars D749"
-    },
-    {
-      "function": "set_out_cars",
-      "params": {
-        "job": "D749",
-        "location": "South-Yard"
-      },
-      "instruction": "Set Out Cars D749 South-Yard"
-    },
-    {
-      "function": "fill_orders",
-      "params": [],
-      "instruction": "Fill Orders"
-    },
-    {
-      "function": "reposition_empties",
-      "params": [],
-      "instruction": "Reposition Empties"
-    },
-    {
-      "function": "auto_assign_locals",
-      "params": {
-        "job": "locals",
-        "scope": "locals"
-      },
-      "instruction": "Auto-Assign Cars locals"
-    },
-    {
-      "function": "pick_up_locals",
-      "params": {
-        "job": "locals"
-      },
-      "instruction": "Pick Up Cars locals"
-    },
-    {
-      "function": "set_out_locals",
-      "params": {
-        "job": "locals"
-      },
-      "instruction": "Set Out Cars locals"
-    },
-    {
-      "function": "load_unload",
-      "params": [],
-      "instruction": "Load/Unload offline"
-    },
-    {
-      "function": "assign_cars",
-      "params": {
-        "job": "NVL",
-        "location": "Scully"
-      },
-      "instruction": "Assign Cars NVL Scully"
-    },
-    {
-      "function": "pick_up_cars",
-      "params": {
-        "job": "NVL",
-        "location": "Scully"
-      },
-      "instruction": "Pick Up Cars NVL Scully"
-    },
-    {
-      "function": "set_out_cars",
-      "params": {
-        "job": "NVL",
-        "location": "Demmler"
-      },
-      "instruction": "Set Out Cars NVL Demmler"
-    },
-    {
-      "function": "assign_cars",
-      "params": {
-        "job": "CK1",
-        "location": "Shenango"
-      },
-      "instruction": "Assign Cars CK1 Shenango"
-    },
-    {
-      "function": "pick_up_cars",
-      "params": {
-        "job": "CK1",
-        "location": "Shenango"
-      },
-      "instruction": "Pick Up Cars CK1 Shenango"
-    },
-    {
-      "function": "set_out_cars",
-      "params": {
-        "job": "CK1",
-        "location": "South-Scale"
-      },
-      "instruction": "Set Out Cars CK1 South-Scale"
-    },
-    {
-      "function": "weigh_ck1",
-      "params": [],
-      "instruction": "Weigh Cars CK1"
-    },
-    {
-      "function": "assign_ck1_reload",
-      "params": {
-        "job": "CK1"
-      },
-      "instruction": "Assign Cars CK1 reload/outbound"
-    },
-    {
-      "function": "pick_up_cars",
-      "params": {
-        "job": "CK1"
-      },
-      "instruction": "Pick Up Cars CK1"
-    },
-    {
-      "function": "set_out_cars",
-      "params": {
-        "job": "CK1",
-        "location": "Shenango"
-      },
-      "instruction": "Set Out Cars CK1 Shenango"
-    },
-    {
-      "function": "set_out_cars",
-      "params": {
-        "job": "CK1",
-        "location": "South-Yard"
-      },
-      "instruction": "Set Out Cars CK1 South-Yard"
-    },
-    {
-      "function": "pick_up_cars",
-      "params": {
-        "job": "NVL",
-        "location": "Scully"
-      },
-      "instruction": "Pick Up Cars NVL Scully CK1-handoff"
-    },
-    {
-      "function": "set_out_cars",
-      "params": {
-        "job": "NVL",
-        "location": "Island"
-      },
-      "instruction": "Set Out Cars NVL Island/Shenango"
-    },
-    {
-      "function": "set_out_cars",
-      "params": {
-        "job": "NVL"
-      },
-      "instruction": "Set Out Cars NVL criterion steps"
-    },
-    {
-      "function": "set_out_cars",
-      "params": {
-        "job": "NVL",
-        "location": "Demmler"
-      },
-      "instruction": "Set Out Cars NVL Demmler"
-    },
-    {
-      "function": "set_out_cars",
-      "params": {
-        "job": "NVL",
-        "location": "Scully"
-      },
-      "instruction": "Set Out Cars NVL Scully"
-    },
-    {
-      "function": "set_out_cars",
-      "params": {
-        "job": "D749",
-        "location": "South-Yard"
-      },
-      "instruction": "Set Out Cars D749 South-Yard"
-    },
-    {
-      "function": "set_out_cars",
-      "params": {
-        "job": "D749",
-        "location": "Demmler"
-      },
-      "instruction": "Set Out Cars D749 Demmler"
-    },
-    {
-      "function": "pick_up_cars",
-      "params": {
-        "job": "D749",
-        "location": "Island"
-      },
-      "instruction": "Pick Up Cars D749 Island"
-    },
-    {
-      "function": "set_out_cars",
-      "params": {
-        "job": "D749",
-        "location": "Demmler"
-      },
-      "instruction": "Set Out Cars D749 Demmler"
-    },
-    {
-      "function": "set_out_cars",
-      "params": {
-        "job": "D749"
-      },
-      "instruction": "Set Out Cars D749 remainder"
-    },
-    {
-      "function": "finish_local_jobs",
-      "params": [],
-      "instruction": "Finish open local jobs"
-    },
-    {
-      "function": "run_stg_demmler",
-      "params": {
-        "location": "DEMMLER"
-      },
-      "instruction": "Run STG-DEMMLER"
-    },
-    {
-      "function": "assign_cars",
-      "params": {
-        "job": "D749",
-        "location": "Demmler"
-      },
-      "instruction": "Assign Cars D749 Demmler"
-    },
-    {
-      "function": "pick_up_cars",
-      "params": {
-        "job": "D749",
-        "location": "Demmler"
-      },
-      "instruction": "Pick Up Cars D749 Demmler"
-    },
-    {
-      "function": "assign_cars",
-      "params": {
-        "job": "NVL",
-        "location": "Scully"
-      },
-      "instruction": "Assign Cars NVL Scully"
-    },
-    {
-      "function": "pick_up_cars",
-      "params": {
-        "job": "NVL",
-        "location": "Scully"
-      },
-      "instruction": "Pick Up Cars NVL Scully"
-    },
-    {
-      "function": "set_out_cars",
-      "params": {
-        "job": "NVL",
-        "location": "Scully"
-      },
-      "instruction": "Set Out Cars NVL Scully"
-    },
-    {
-      "function": "defer_stg_scully",
-      "params": {
-        "location": "SCULLY",
-        "note": "[Session end] Defer STG-SCULLY leave backlog Scully"
-      },
-      "instruction": "[Session end] Defer STG-SCULLY leave backlog Scully"
-    }
-  ]
+    "version": 1,
+    "name": "imported",
+    "steps": [
+        {
+            "function": "section_label",
+            "params": {
+                "label": "[Setup once]"
+            }
+        },
+        {
+            "function": "if_then",
+            "params": {
+                "variable": "session_nbr",
+                "operator": ">",
+                "value": "0"
+            }
+        },
+        {
+            "function": "goto",
+            "params": {
+                "section_label": "[Warm start \u2014 repeat steps 6-44 until STG-SCULLY backlog ready]",
+                "section": "step-5",
+                "step": "5"
+            }
+        },
+        {
+            "function": "restore_database",
+            "params": {
+                "backup": "hart_seed"
+            }
+        },
+        {
+            "function": "section_label",
+            "params": {
+                "label": "[Warm start \u2014 repeat steps 6-44 until STG-SCULLY backlog ready]"
+            }
+        },
+        {
+            "function": "section_label",
+            "params": {
+                "label": "[Run Staging Job STG-SCULLY]"
+            }
+        },
+        {
+            "function": "generate_orders",
+            "params": {
+                "shipment": "",
+                "increment_session": "",
+                "max_unfilled": ""
+            }
+        },
+        {
+            "function": "build_switchlists_sts",
+            "params": {
+                "station": "Demmler",
+                "job": "D749"
+            }
+        },
+        {
+            "function": "pick_up_cars",
+            "params": {
+                "job": "D749"
+            }
+        },
+        {
+            "function": "set_out_cars",
+            "params": {
+                "job": "D749",
+                "location": "South-Yard"
+            }
+        },
+        {
+            "function": "fill_orders",
+            "params": {
+                "order_filters": {
+                    "loading_location": "",
+                    "unloading_location": "",
+                    "consignment": "",
+                    "car_code": ""
+                },
+                "car_filters": {
+                    "categories": "pool,station,priority,system",
+                    "current_station": "",
+                    "current_location": "",
+                    "car_code": ""
+                },
+                "percent": "100"
+            }
+        },
+        {
+            "function": "reposition_empties",
+            "params": {
+                "mode": "reposition_to_home",
+                "filters": {
+                    "car_code": "",
+                    "current_station": "",
+                    "current_location": "",
+                    "home_station": "",
+                    "home_location": "",
+                    "off_home_only": ""
+                },
+                "percent": "65"
+            }
+        },
+        {
+            "function": "auto_assign_locals",
+            "params": {
+                "jobs": ""
+            }
+        },
+        {
+            "function": "pick_up_cars",
+            "params": {
+                "job": "",
+                "location": ""
+            }
+        },
+        {
+            "function": "set_out_cars",
+            "params": {
+                "job": "",
+                "location": ""
+            }
+        },
+        {
+            "function": "load_unload",
+            "params": {
+                "filters": {
+                    "car_code": "",
+                    "status": "",
+                    "commodity": "",
+                    "current_location": "",
+                    "loading_location": "",
+                    "unloading_location": ""
+                }
+            }
+        },
+        {
+            "function": "build_switchlists_sts",
+            "params": {
+                "station": "Scully",
+                "job": "NVL"
+            }
+        },
+        {
+            "function": "pick_up_cars",
+            "params": {
+                "job": "NVL",
+                "location": "Scully"
+            }
+        },
+        {
+            "function": "set_out_cars",
+            "params": {
+                "job": "NVL",
+                "location": "Demmler"
+            }
+        },
+        {
+            "function": "build_switchlists_sts",
+            "params": {
+                "station": "Shenango",
+                "job": "CK1"
+            }
+        },
+        {
+            "function": "pick_up_cars",
+            "params": {
+                "job": "CK1",
+                "location": "Shenango"
+            }
+        },
+        {
+            "function": "set_out_cars",
+            "params": {
+                "job": "CK1",
+                "location": "South-Scale"
+            }
+        },
+        {
+            "function": "track_scale",
+            "params": {
+                "job": "CK1"
+            }
+        },
+        {
+            "function": "assign_ck1_reload",
+            "params": []
+        },
+        {
+            "function": "pick_up_cars",
+            "params": {
+                "job": "CK1"
+            }
+        },
+        {
+            "function": "set_out_cars",
+            "params": {
+                "job": "CK1",
+                "location": "Shenango"
+            }
+        },
+        {
+            "function": "set_out_cars",
+            "params": {
+                "job": "CK1",
+                "location": "South-Yard"
+            }
+        },
+        {
+            "function": "pick_up_cars",
+            "params": {
+                "job": "NVL",
+                "location": "Scully CK1-handoff"
+            }
+        },
+        {
+            "function": "set_out_cars",
+            "params": {
+                "job": "NVL",
+                "location": "Island/Shenango"
+            }
+        },
+        {
+            "function": "run_job_criterion",
+            "params": {
+                "job": "NVL",
+                "steps": "10,15,20"
+            }
+        },
+        {
+            "function": "set_out_cars",
+            "params": {
+                "job": "NVL",
+                "location": "Demmler"
+            }
+        },
+        {
+            "function": "set_out_cars",
+            "params": {
+                "job": "NVL",
+                "location": "Scully"
+            }
+        },
+        {
+            "function": "set_out_cars",
+            "params": {
+                "job": "D749",
+                "location": "South-Yard"
+            }
+        },
+        {
+            "function": "set_out_cars",
+            "params": {
+                "job": "D749",
+                "location": "Demmler"
+            }
+        },
+        {
+            "function": "pick_up_cars",
+            "params": {
+                "job": "D749",
+                "location": "Island"
+            }
+        },
+        {
+            "function": "set_out_cars",
+            "params": {
+                "job": "D749",
+                "location": "Demmler"
+            }
+        },
+        {
+            "function": "set_out_cars",
+            "params": {
+                "job": "D749",
+                "location": "remainder"
+            }
+        },
+        {
+            "function": "finish_local_jobs",
+            "params": []
+        },
+        {
+            "function": "section_label",
+            "params": {
+                "label": "[Run Staging Job STG-DEMMLER]"
+            }
+        },
+        {
+            "function": "build_switchlists_sts",
+            "params": {
+                "station": "Demmler",
+                "job": "D749"
+            }
+        },
+        {
+            "function": "pick_up_cars",
+            "params": {
+                "job": "D749",
+                "location": "Demmler"
+            }
+        },
+        {
+            "function": "build_switchlists_sts",
+            "params": {
+                "station": "Scully",
+                "job": "NVL"
+            }
+        },
+        {
+            "function": "pick_up_cars",
+            "params": {
+                "job": "NVL",
+                "location": "Scully"
+            }
+        },
+        {
+            "function": "set_out_cars",
+            "params": {
+                "job": "NVL",
+                "location": "Scully"
+            }
+        },
+        {
+            "function": "section_label",
+            "params": {
+                "label": "[Each operating session \u2014 repeat steps 46-92]"
+            }
+        },
+        {
+            "function": "build_switchlists_sts",
+            "params": {
+                "station": "Scully",
+                "job": "STG-SCULLY"
+            }
+        },
+        {
+            "function": "pick_up_cars",
+            "params": {
+                "job": "STG-SCULLY",
+                "location": "SCULLY"
+            }
+        },
+        {
+            "function": "set_out_cars",
+            "params": {
+                "job": "STG-SCULLY",
+                "location": "Scully-Offline"
+            }
+        },
+        {
+            "function": "load_unload",
+            "params": {
+                "filters": {
+                    "car_code": "",
+                    "status": "",
+                    "commodity": "",
+                    "current_location": "",
+                    "loading_location": "",
+                    "unloading_location": ""
+                }
+            }
+        },
+        {
+            "function": "increment_session",
+            "params": []
+        },
+        {
+            "function": "fill_orders",
+            "params": {
+                "order_filters": {
+                    "loading_location": "",
+                    "unloading_location": "",
+                    "consignment": "",
+                    "car_code": ""
+                },
+                "car_filters": {
+                    "categories": "pool,station,priority,system",
+                    "current_station": "",
+                    "current_location": "",
+                    "car_code": ""
+                },
+                "percent": "100"
+            }
+        },
+        {
+            "function": "reposition_empties",
+            "params": {
+                "mode": "reposition_to_home",
+                "filters": {
+                    "car_code": "",
+                    "current_station": "",
+                    "current_location": "",
+                    "home_station": "",
+                    "home_location": "",
+                    "off_home_only": ""
+                },
+                "percent": "65"
+            }
+        },
+        {
+            "function": "auto_assign_locals",
+            "params": {
+                "jobs": ""
+            }
+        },
+        {
+            "function": "generate_switchlists",
+            "params": {
+                "jobs": "all"
+            }
+        },
+        {
+            "function": "generate_orders",
+            "params": {
+                "shipment": "",
+                "increment_session": "",
+                "max_unfilled": ""
+            }
+        },
+        {
+            "function": "build_switchlists_sts",
+            "params": {
+                "station": "Demmler",
+                "job": "D749"
+            }
+        },
+        {
+            "function": "pick_up_cars",
+            "params": {
+                "job": "D749"
+            }
+        },
+        {
+            "function": "set_out_cars",
+            "params": {
+                "job": "D749",
+                "location": "South-Yard"
+            }
+        },
+        {
+            "function": "fill_orders",
+            "params": {
+                "order_filters": {
+                    "loading_location": "",
+                    "unloading_location": "",
+                    "consignment": "",
+                    "car_code": ""
+                },
+                "car_filters": {
+                    "categories": "pool,station,priority,system",
+                    "current_station": "",
+                    "current_location": "",
+                    "car_code": ""
+                },
+                "percent": "100"
+            }
+        },
+        {
+            "function": "reposition_empties",
+            "params": {
+                "mode": "reposition_to_home",
+                "filters": {
+                    "car_code": "",
+                    "current_station": "",
+                    "current_location": "",
+                    "home_station": "",
+                    "home_location": "",
+                    "off_home_only": ""
+                },
+                "percent": "65"
+            }
+        },
+        {
+            "function": "auto_assign_locals",
+            "params": {
+                "jobs": ""
+            }
+        },
+        {
+            "function": "pick_up_cars",
+            "params": {
+                "job": "",
+                "location": ""
+            }
+        },
+        {
+            "function": "set_out_cars",
+            "params": {
+                "job": "",
+                "location": ""
+            }
+        },
+        {
+            "function": "load_unload",
+            "params": {
+                "filters": {
+                    "car_code": "",
+                    "status": "",
+                    "commodity": "",
+                    "current_location": "",
+                    "loading_location": "",
+                    "unloading_location": ""
+                }
+            }
+        },
+        {
+            "function": "build_switchlists_sts",
+            "params": {
+                "station": "Scully",
+                "job": "NVL"
+            }
+        },
+        {
+            "function": "pick_up_cars",
+            "params": {
+                "job": "NVL",
+                "location": "Scully"
+            }
+        },
+        {
+            "function": "set_out_cars",
+            "params": {
+                "job": "NVL",
+                "location": "Demmler"
+            }
+        },
+        {
+            "function": "build_switchlists_sts",
+            "params": {
+                "station": "Shenango",
+                "job": "CK1"
+            }
+        },
+        {
+            "function": "pick_up_cars",
+            "params": {
+                "job": "CK1",
+                "location": "Shenango"
+            }
+        },
+        {
+            "function": "set_out_cars",
+            "params": {
+                "job": "CK1",
+                "location": "South-Scale"
+            }
+        },
+        {
+            "function": "track_scale",
+            "params": {
+                "job": "CK1"
+            }
+        },
+        {
+            "function": "assign_ck1_reload",
+            "params": []
+        },
+        {
+            "function": "pick_up_cars",
+            "params": {
+                "job": "CK1"
+            }
+        },
+        {
+            "function": "set_out_cars",
+            "params": {
+                "job": "CK1",
+                "location": "Shenango"
+            }
+        },
+        {
+            "function": "set_out_cars",
+            "params": {
+                "job": "CK1",
+                "location": "South-Yard"
+            }
+        },
+        {
+            "function": "pick_up_cars",
+            "params": {
+                "job": "NVL",
+                "location": "Scully CK1-handoff"
+            }
+        },
+        {
+            "function": "set_out_cars",
+            "params": {
+                "job": "NVL",
+                "location": "Island/Shenango"
+            }
+        },
+        {
+            "function": "run_job_criterion",
+            "params": {
+                "job": "NVL",
+                "steps": "10,15,20"
+            }
+        },
+        {
+            "function": "set_out_cars",
+            "params": {
+                "job": "NVL",
+                "location": "Demmler"
+            }
+        },
+        {
+            "function": "set_out_cars",
+            "params": {
+                "job": "NVL",
+                "location": "Scully"
+            }
+        },
+        {
+            "function": "set_out_cars",
+            "params": {
+                "job": "D749",
+                "location": "South-Yard"
+            }
+        },
+        {
+            "function": "set_out_cars",
+            "params": {
+                "job": "D749",
+                "location": "Demmler"
+            }
+        },
+        {
+            "function": "pick_up_cars",
+            "params": {
+                "job": "D749",
+                "location": "Island"
+            }
+        },
+        {
+            "function": "set_out_cars",
+            "params": {
+                "job": "D749",
+                "location": "Demmler"
+            }
+        },
+        {
+            "function": "set_out_cars",
+            "params": {
+                "job": "D749",
+                "location": "remainder"
+            }
+        },
+        {
+            "function": "finish_local_jobs",
+            "params": []
+        },
+        {
+            "function": "section_label",
+            "params": {
+                "label": "[Run Staging Job STG-DEMMLER]"
+            }
+        },
+        {
+            "function": "build_switchlists_sts",
+            "params": {
+                "station": "Demmler",
+                "job": "D749"
+            }
+        },
+        {
+            "function": "pick_up_cars",
+            "params": {
+                "job": "D749",
+                "location": "Demmler"
+            }
+        },
+        {
+            "function": "build_switchlists_sts",
+            "params": {
+                "station": "Scully",
+                "job": "NVL"
+            }
+        },
+        {
+            "function": "pick_up_cars",
+            "params": {
+                "job": "NVL",
+                "location": "Scully"
+            }
+        },
+        {
+            "function": "set_out_cars",
+            "params": {
+                "job": "NVL",
+                "location": "Scully"
+            }
+        }
+    ]
 }

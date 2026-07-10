@@ -38,15 +38,13 @@ function operational_steps_catalog_adder_order()
     return [
         'before' => ['generate_orders', 'fill_orders', 'reposition_empties'],
         'during' => [
-            'assign_cars', 'pick_up_cars', 'set_out_cars', 'organize_cars',
-            'auto_assign_locals', 'pick_up_locals', 'set_out_locals',
+            'build_switchlists_sts', 'auto_assign_locals', 'pick_up_cars', 'set_out_cars',
             'run_job_criterion', 'track_scale',
         ],
         'after' => ['load_unload'],
         'session' => ['increment_session'],
         'switchlists' => [
             'generate_switchlists', 'generate_waybills',
-            'build_switchlists_sts', 'display_switchlists_sts',
         ],
         'waybills' => [
             'report_waybill_list', 'report_waybill_cars_print', 'report_waybill_shipments_print',
@@ -60,7 +58,7 @@ function operational_steps_catalog_adder_order()
             'restore_database', 'backup_database', 'validate_database',
             'restart_session', 'reset_session', 'import_data', 'remove_backup', 'wipe_database',
         ],
-        'workflow' => ['section_label', 'if_then', 'goto', 'stop'],
+        'workflow' => ['section_label', 'text_instruction', 'if_then', 'goto', 'stop'],
     ];
 }
 
@@ -102,6 +100,30 @@ function operational_steps_catalog_location_param($required = true, $label = 'Lo
     ];
 }
 
+function operational_steps_catalog_station_param($required = false, $label = 'Station')
+{
+    return [
+        'key' => 'station',
+        'label' => $label,
+        'type' => 'station',
+        'options_from' => 'stations',
+        'allow_custom' => true,
+        'required' => $required,
+        'default' => 'all',
+    ];
+}
+
+function operational_steps_catalog_job_or_all_param($key = 'jobs', $label = 'Job / train')
+{
+    return [
+        'key' => $key,
+        'label' => $label,
+        'type' => 'job_or_all',
+        'default' => 'all',
+        'required' => false,
+    ];
+}
+
 function operational_steps_catalog_backup_param($required = true, $default = '')
 {
     return [
@@ -115,6 +137,84 @@ function operational_steps_catalog_backup_param($required = true, $default = '')
     ];
 }
 
+/**
+ * Directory for STS SQL backups (Docker: sts/backups bind-mount; dev: Car Cards sts-backups).
+ */
+function operational_steps_backups_dir()
+{
+    static $dir = null;
+    if ($dir !== null) {
+        return $dir;
+    }
+
+    $candidates = [__DIR__ . '/backups'];
+    $home = getenv('HOME') ?: '';
+    if ($home !== '') {
+        $candidates[] = $home . '/sts/sts-backups';
+        $candidates[] = $home . '/sts-backups';
+    }
+    $repo = dirname(__DIR__, 2);
+    if ($repo !== false && $repo !== '') {
+        $candidates[] = $repo . '/sts-backups';
+    }
+
+    foreach ($candidates as $path) {
+        $real = @realpath($path);
+        if ($real !== false && is_dir($real)) {
+            $dir = $real;
+            return $dir;
+        }
+    }
+
+    $dir = __DIR__ . '/backups';
+    return $dir;
+}
+
+/** Session editor recipe/CSV storage (under sts-backups; hidden from restore_db.php). */
+function operational_steps_editor_dir()
+{
+    static $dir = null;
+    if ($dir !== null) {
+        return $dir;
+    }
+    $dir = operational_steps_backups_dir() . '/session_editor';
+    if (!is_dir($dir) && !@mkdir($dir, 0755, true)) {
+        $dir = operational_steps_backups_dir() . '/session_editor';
+    }
+    return $dir;
+}
+
+/** Legacy locations to read when migrating editor files into session_editor/. */
+function operational_steps_legacy_editor_dirs()
+{
+    $dirs = [__DIR__];
+    $backups = operational_steps_backups_dir();
+    if ($backups !== operational_steps_editor_dir()) {
+        $dirs[] = $backups;
+    }
+    return array_values(array_unique($dirs));
+}
+
+/** Same file list as sts/restore_db.php (sorted scandir entries that are regular files). */
+function operational_steps_list_backup_files($backup_dir = null)
+{
+    $backup_dir = $backup_dir ?? operational_steps_backups_dir();
+    if (!is_dir($backup_dir)) {
+        return [];
+    }
+
+    $entries = array_slice(scandir($backup_dir) ?: [], 2);
+    sort($entries);
+    $files = [];
+    foreach ($entries as $file_name) {
+        if (is_file($backup_dir . '/' . $file_name)) {
+            $files[] = $file_name;
+        }
+    }
+
+    return $files;
+}
+
 function operational_steps_catalog_scope_param()
 {
     return [
@@ -126,6 +226,657 @@ function operational_steps_catalog_scope_param()
         'required' => false,
         'default' => 'locals',
     ];
+}
+
+function operational_steps_catalog_auto_assign_jobs_param()
+{
+    return [
+        'key' => 'jobs',
+        'label' => 'Jobs',
+        'type' => 'jobs_multiselect',
+        'options_from' => 'jobs',
+        'required' => false,
+        'default' => '',
+        'visible_label' => true,
+    ];
+}
+
+function operational_steps_non_staging_job_names($dbc, array $config = [])
+{
+    $staging = warm_start_staging_job_names($dbc, $config);
+    $jobs = [];
+    $rs = mysqli_query($dbc, 'SELECT name FROM jobs ORDER BY name');
+    while ($row = mysqli_fetch_array($rs)) {
+        $name = (string) ($row['name'] ?? '');
+        if ($name !== '' && !warm_start_is_staging_job($name, $staging)) {
+            $jobs[] = $name;
+        }
+    }
+    return $jobs;
+}
+
+function operational_steps_resolve_auto_assign_jobs($dbc, array $params, array $config = [])
+{
+    if (array_key_exists('jobs', $params)) {
+        $jobs_text = trim((string) ($params['jobs'] ?? ''));
+        if ($jobs_text === '') {
+            return [];
+        }
+        return array_values(array_filter(array_map('trim', explode(',', $jobs_text))));
+    }
+    if (!empty($params['scope'])) {
+        if ((string) $params['scope'] === 'locals') {
+            return operational_steps_non_staging_job_names($dbc, $config);
+        }
+        return [trim((string) $params['scope'])];
+    }
+    return operational_steps_non_staging_job_names($dbc, $config);
+}
+
+function operational_steps_normalize_auto_assign_jobs(array $params)
+{
+    if (!empty($params['jobs'])) {
+        $jobs = array_values(array_filter(array_map('trim', explode(',', (string) $params['jobs']))));
+        return implode(',', $jobs);
+    }
+    if (!empty($params['scope'])) {
+        if ((string) $params['scope'] === 'locals') {
+            return '';
+        }
+        return trim((string) $params['scope']);
+    }
+    return '';
+}
+
+function operational_steps_compile_auto_assign_gui(array $params)
+{
+    $jobs = operational_steps_normalize_auto_assign_jobs($params);
+    if ($jobs === '') {
+        return 'Auto-Assign Cars locals';
+    }
+    return 'Auto-Assign Cars ' . str_replace(',', ', ', $jobs);
+}
+
+function operational_steps_load_unload_filter_fields()
+{
+    return [
+        [
+            'key' => 'car_code',
+            'label' => 'Car code',
+            'type' => 'car_code',
+            'options_from' => 'car_codes',
+            'allow_custom' => true,
+            'default' => '',
+        ],
+        [
+            'key' => 'status',
+            'label' => 'Status',
+            'type' => 'select',
+            'options' => ['', 'Loading', 'Unloading', 'Empty'],
+            'default' => '',
+        ],
+        [
+            'key' => 'commodity',
+            'label' => 'Consignment',
+            'type' => 'commodity',
+            'options_from' => 'commodities',
+            'allow_custom' => true,
+            'default' => '',
+        ],
+        [
+            'key' => 'current_location',
+            'label' => 'Current location',
+            'type' => 'location',
+            'options_from' => 'locations',
+            'allow_custom' => true,
+            'default' => '',
+            'group' => 'locations',
+        ],
+        [
+            'key' => 'loading_location',
+            'label' => 'Loading location',
+            'type' => 'location',
+            'options_from' => 'locations',
+            'allow_custom' => true,
+            'default' => '',
+            'group' => 'locations',
+        ],
+        [
+            'key' => 'unloading_location',
+            'label' => 'Unloading location',
+            'type' => 'location',
+            'options_from' => 'locations',
+            'allow_custom' => true,
+            'default' => '',
+            'group' => 'locations',
+        ],
+    ];
+}
+
+function operational_steps_load_unload_default_filters()
+{
+    $filters = [];
+    foreach (operational_steps_load_unload_filter_fields() as $field) {
+        $filters[$field['key']] = $field['default'] ?? '';
+    }
+    return $filters;
+}
+
+function operational_steps_normalize_load_unload_filters(array $params)
+{
+    $filters = is_array($params['filters'] ?? null) ? $params['filters'] : [];
+    $legacy = [
+        'location' => 'current_location',
+        'car_code' => 'car_code',
+        'commodity' => 'commodity',
+    ];
+    foreach ($legacy as $old => $new) {
+        if (!empty($params[$old]) && empty($filters[$new])) {
+            $filters[$new] = $params[$old];
+        }
+    }
+    return array_merge(operational_steps_load_unload_default_filters(), $filters);
+}
+
+function operational_steps_load_unload_filter_token_match($needle, $station, $code)
+{
+    return warm_start_load_unload_filter_token_match($needle, $station, $code);
+}
+
+function operational_steps_load_unload_row_matches(array $row, array $filters)
+{
+    return warm_start_load_unload_row_matches($row, $filters);
+}
+
+function operational_steps_parse_load_unload_filters($text)
+{
+    $filters = operational_steps_load_unload_default_filters();
+    $text = trim((string) $text);
+    if ($text === '' || stripos($text, 'offline') === 0) {
+        return $filters;
+    }
+    $aliases = [
+        'current' => 'current_location',
+        'current_location' => 'current_location',
+        'car' => 'car_code',
+        'car_code' => 'car_code',
+        'status' => 'status',
+        'consignment' => 'commodity',
+        'commodity' => 'commodity',
+        'load' => 'loading_location',
+        'loading' => 'loading_location',
+        'loading_location' => 'loading_location',
+        'unload' => 'unloading_location',
+        'unloading' => 'unloading_location',
+        'unloading_location' => 'unloading_location',
+    ];
+    foreach (preg_split('/\s*;\s*/', $text) as $part) {
+        $part = trim($part);
+        if ($part === '') {
+            continue;
+        }
+        if (strpos($part, '=') === false) {
+            if (empty($filters['current_location'])) {
+                $filters['current_location'] = $part;
+            }
+            continue;
+        }
+        [$key, $value] = array_map('trim', explode('=', $part, 2));
+        $key = strtolower($key);
+        if (isset($aliases[$key])) {
+            $filters[$aliases[$key]] = $value;
+        }
+    }
+    return $filters;
+}
+
+function operational_steps_compile_load_unload_gui(array $filters)
+{
+    $filters = array_filter(operational_steps_normalize_load_unload_filters(['filters' => $filters]));
+    if (empty($filters)) {
+        return 'Load/Unload offline';
+    }
+    $labels = [
+        'current_location' => 'current',
+        'car_code' => 'car',
+        'status' => 'status',
+        'commodity' => 'consignment',
+        'loading_location' => 'load',
+        'unloading_location' => 'unload',
+    ];
+    $parts = [];
+    foreach ($filters as $key => $value) {
+        if ($value === '' || $value === null) {
+            continue;
+        }
+        $parts[] = ($labels[$key] ?? $key) . '=' . $value;
+    }
+    if (empty($parts)) {
+        return 'Load/Unload offline';
+    }
+    return 'Load/Unload ' . implode('; ', $parts);
+}
+
+function operational_steps_fill_order_valid_sources()
+{
+    return ['pool', 'station', 'priority', 'system'];
+}
+
+function operational_steps_fill_order_filter_fields()
+{
+    return [
+        [
+            'key' => 'loading_location',
+            'label' => 'Loading',
+            'type' => 'location',
+            'options_from' => 'locations',
+            'allow_custom' => true,
+            'default' => '',
+        ],
+        [
+            'key' => 'unloading_location',
+            'label' => 'Unloading',
+            'type' => 'location',
+            'options_from' => 'locations',
+            'allow_custom' => true,
+            'default' => '',
+        ],
+        [
+            'key' => 'consignment',
+            'label' => 'Commodity',
+            'type' => 'commodity',
+            'options_from' => 'commodities',
+            'allow_custom' => true,
+            'default' => '',
+        ],
+        [
+            'key' => 'car_code',
+            'label' => 'Car type',
+            'type' => 'car_code',
+            'options_from' => 'car_codes',
+            'allow_custom' => true,
+            'default' => '',
+        ],
+    ];
+}
+
+function operational_steps_fill_order_car_filter_fields()
+{
+    return [
+        [
+            'key' => 'categories',
+            'label' => 'Source',
+            'type' => 'fill_sources',
+            'options' => operational_steps_fill_order_valid_sources(),
+            'default' => 'pool,station,priority,system',
+        ],
+        [
+            'key' => 'current_station',
+            'label' => 'Car station',
+            'type' => 'station',
+            'options_from' => 'stations',
+            'allow_custom' => true,
+            'default' => '',
+        ],
+        [
+            'key' => 'current_location',
+            'label' => 'Car location',
+            'type' => 'location',
+            'options_from' => 'locations',
+            'allow_custom' => true,
+            'default' => '',
+        ],
+        [
+            'key' => 'car_code',
+            'label' => 'Eligible car type',
+            'type' => 'car_code',
+            'options_from' => 'car_codes',
+            'allow_custom' => true,
+            'default' => '',
+        ],
+    ];
+}
+
+function operational_steps_fill_order_default_filters()
+{
+    $filters = [];
+    foreach (operational_steps_fill_order_filter_fields() as $field) {
+        $filters[$field['key']] = $field['default'] ?? '';
+    }
+    return $filters;
+}
+
+function operational_steps_fill_order_car_default_filters()
+{
+    $filters = [];
+    foreach (operational_steps_fill_order_car_filter_fields() as $field) {
+        $filters[$field['key']] = $field['default'] ?? '';
+    }
+    return $filters;
+}
+
+function operational_steps_normalize_fill_order_filters(array $params)
+{
+    $filters = is_array($params['order_filters'] ?? null) ? $params['order_filters'] : [];
+    return array_merge(operational_steps_fill_order_default_filters(), $filters);
+}
+
+function operational_steps_normalize_fill_car_filters(array $params)
+{
+    $filters = is_array($params['car_filters'] ?? null) ? $params['car_filters'] : [];
+    $merged = array_merge(operational_steps_fill_order_car_default_filters(), $filters);
+    if (is_array($merged['categories'] ?? null)) {
+        $merged['categories'] = implode(',', array_filter(array_map('trim', $merged['categories'])));
+    }
+    if (($merged['categories'] ?? '') === '') {
+        $merged['categories'] = operational_steps_fill_order_car_default_filters()['categories'];
+    }
+    return $merged;
+}
+
+function operational_steps_fill_car_filters_runtime(array $storage)
+{
+    require_once __DIR__ . '/fill_order_helpers.php';
+    $categories = $storage['categories'] ?? '';
+    if (is_array($categories)) {
+        $categories = array_values(array_filter(array_map('trim', $categories)));
+    } else {
+        $categories = array_values(array_filter(array_map('trim', explode(',', (string) $categories))));
+    }
+    return fill_order_parse_car_filters([
+        'categories' => $categories,
+        'current_station' => $storage['current_station'] ?? '',
+        'current_location' => $storage['current_location'] ?? '',
+        'car_code' => $storage['car_code'] ?? '',
+    ]);
+}
+
+function operational_steps_parse_fill_orders_suffix($text)
+{
+    $order = operational_steps_fill_order_default_filters();
+    $car = operational_steps_fill_order_car_default_filters();
+    $text = trim((string) $text);
+    if ($text === '') {
+        return ['order_filters' => $order, 'car_filters' => $car];
+    }
+    $order_aliases = [
+        'load' => 'loading_location',
+        'loading' => 'loading_location',
+        'loading_location' => 'loading_location',
+        'unload' => 'unloading_location',
+        'unloading' => 'unloading_location',
+        'unloading_location' => 'unloading_location',
+        'commodity' => 'consignment',
+        'consignment' => 'consignment',
+        'car' => 'car_code',
+        'car_code' => 'car_code',
+        'car_type' => 'car_code',
+    ];
+    $car_aliases = [
+        'src' => 'categories',
+        'sources' => 'categories',
+        'categories' => 'categories',
+        'car_station' => 'current_station',
+        'current_station' => 'current_station',
+        'car_loc' => 'current_location',
+        'car_location' => 'current_location',
+        'current_location' => 'current_location',
+        'eligible_car' => 'car_code',
+        'car_type' => 'car_code',
+    ];
+    foreach (preg_split('/\s*;\s*/', $text) as $part) {
+        $part = trim($part);
+        if ($part === '' || strpos($part, '=') === false) {
+            continue;
+        }
+        [$key, $value] = array_map('trim', explode('=', $part, 2));
+        $key = strtolower($key);
+        if (isset($order_aliases[$key])) {
+            $order[$order_aliases[$key]] = $value;
+        } elseif (isset($car_aliases[$key])) {
+            $car[$car_aliases[$key]] = $value;
+        }
+    }
+    return ['order_filters' => $order, 'car_filters' => $car];
+}
+
+function operational_steps_compile_fill_orders_gui(array $params)
+{
+    $parts = [];
+    $order = array_filter(operational_steps_normalize_fill_order_filters($params));
+    $order_labels = [
+        'loading_location' => 'load',
+        'unloading_location' => 'unload',
+        'consignment' => 'commodity',
+        'car_code' => 'car',
+    ];
+    foreach ($order as $key => $value) {
+        if ($value === '' || $value === null) {
+            continue;
+        }
+        $parts[] = ($order_labels[$key] ?? $key) . '=' . $value;
+    }
+    $car = operational_steps_normalize_fill_car_filters($params);
+    $default_sources = operational_steps_fill_order_car_default_filters()['categories'];
+    if (($car['categories'] ?? '') !== '' && ($car['categories'] ?? '') !== $default_sources) {
+        $parts[] = 'src=' . $car['categories'];
+    }
+    if (!empty($car['current_station'])) {
+        $parts[] = 'car_station=' . $car['current_station'];
+    }
+    if (!empty($car['current_location'])) {
+        $parts[] = 'car_loc=' . $car['current_location'];
+    }
+    if (!empty($car['car_code'])) {
+        $parts[] = 'car_type=' . $car['car_code'];
+    }
+    if (empty($parts)) {
+        return 'Fill Orders';
+    }
+    return 'Fill Orders ' . implode('; ', $parts);
+}
+
+function operational_steps_reposition_filter_fields()
+{
+    return [
+        [
+            'key' => 'car_code',
+            'label' => 'Car code',
+            'type' => 'car_code',
+            'options_from' => 'car_codes',
+            'allow_custom' => true,
+            'default' => '',
+        ],
+        [
+            'key' => 'current_station',
+            'label' => 'Current station',
+            'type' => 'station',
+            'options_from' => 'stations',
+            'allow_custom' => true,
+            'default' => '',
+            'group' => 'current',
+        ],
+        [
+            'key' => 'current_location',
+            'label' => 'Current location',
+            'type' => 'location',
+            'options_from' => 'locations',
+            'allow_custom' => true,
+            'default' => '',
+            'group' => 'current',
+        ],
+        [
+            'key' => 'home_station',
+            'label' => 'Home station',
+            'type' => 'station',
+            'options_from' => 'stations',
+            'allow_custom' => true,
+            'default' => '',
+            'group' => 'home',
+        ],
+        [
+            'key' => 'home_location',
+            'label' => 'Home location',
+            'type' => 'location',
+            'options_from' => 'locations',
+            'allow_custom' => true,
+            'default' => '',
+            'group' => 'home',
+        ],
+        [
+            'key' => 'off_home_only',
+            'label' => 'Not at home',
+            'type' => 'select',
+            'options' => ['', '1'],
+            'default' => '',
+        ],
+    ];
+}
+
+function operational_steps_reposition_default_filters()
+{
+    $filters = [];
+    foreach (operational_steps_reposition_filter_fields() as $field) {
+        $filters[$field['key']] = $field['default'] ?? '';
+    }
+    return $filters;
+}
+
+function operational_steps_normalize_reposition_filters(array $params)
+{
+    $filters = is_array($params['filters'] ?? null) ? $params['filters'] : [];
+    return array_merge(operational_steps_reposition_default_filters(), $filters);
+}
+
+function operational_steps_parse_reposition_filters($text)
+{
+    $filters = operational_steps_reposition_default_filters();
+    $text = trim((string) $text);
+    if ($text === '') {
+        return $filters;
+    }
+    $aliases = [
+        'car' => 'car_code',
+        'car_code' => 'car_code',
+        'current' => 'current_station',
+        'current_station' => 'current_station',
+        'current_loc' => 'current_location',
+        'current_location' => 'current_location',
+        'home' => 'home_station',
+        'home_station' => 'home_station',
+        'home_loc' => 'home_location',
+        'home_location' => 'home_location',
+        'off_home' => 'off_home_only',
+        'not_at_home' => 'off_home_only',
+    ];
+    foreach (preg_split('/\s*;\s*/', $text) as $part) {
+        $part = trim($part);
+        if ($part === '' || strpos($part, '=') === false) {
+            continue;
+        }
+        [$key, $value] = array_map('trim', explode('=', $part, 2));
+        $key = strtolower($key);
+        if ($key === 'dest' || $key === 'destination') {
+            continue;
+        }
+        if (isset($aliases[$key])) {
+            $filters[$aliases[$key]] = $value;
+        }
+    }
+    return $filters;
+}
+
+function operational_steps_compile_reposition_gui(array $params)
+{
+    $mode = trim((string) ($params['mode'] ?? 'reposition_to_home'));
+    if ($mode === '') {
+        $mode = 'reposition_to_home';
+    }
+    $title = $mode === 'update' ? 'Reposition Empties update' : 'Reposition Empties to home';
+    $parts = [];
+    if ($mode === 'update') {
+        $dest = trim((string) ($params['destination'] ?? ''));
+        if ($dest !== '') {
+            $parts[] = 'dest=' . $dest;
+        }
+    }
+    $filters = array_filter(operational_steps_normalize_reposition_filters($params), static function ($value, $key) {
+        if ($key === 'off_home_only') {
+            return $value === '1' || $value === 1 || $value === true;
+        }
+        return $value !== '' && $value !== null;
+    }, ARRAY_FILTER_USE_BOTH);
+    $labels = [
+        'car_code' => 'car',
+        'current_station' => 'current',
+        'current_location' => 'current_loc',
+        'home_station' => 'home',
+        'home_location' => 'home_loc',
+        'off_home_only' => 'off_home',
+    ];
+    foreach ($filters as $key => $value) {
+        if ($key === 'off_home_only') {
+            $parts[] = 'off_home=1';
+            continue;
+        }
+        $parts[] = ($labels[$key] ?? $key) . '=' . $value;
+    }
+    if (empty($parts)) {
+        return $title;
+    }
+    return $title . ' ' . implode('; ', $parts);
+}
+
+function operational_steps_normalize_percent(array $params, $default_percent = 100)
+{
+    if (isset($params['percent']) && $params['percent'] !== '' && $params['percent'] !== null) {
+        return max(0, min(100, (float) $params['percent']));
+    }
+    if (isset($params['fraction']) && $params['fraction'] !== '' && $params['fraction'] !== null) {
+        $fraction = (float) $params['fraction'];
+        return max(0, min(100, $fraction <= 1 ? $fraction * 100 : $fraction));
+    }
+    return max(0, min(100, (float) $default_percent));
+}
+
+function operational_steps_percent_to_fraction($percent)
+{
+    return max(0.0, min(1.0, (float) $percent / 100.0));
+}
+
+function operational_steps_normalize_generate_orders_params(array $params)
+{
+    $normalized = [
+        'shipment' => trim((string) ($params['shipment'] ?? '')),
+        'increment_session' => trim((string) ($params['increment_session'] ?? '')),
+        'max_unfilled' => trim((string) ($params['max_unfilled'] ?? '')),
+    ];
+    if ($normalized['increment_session'] !== '1') {
+        $normalized['increment_session'] = '';
+    }
+    if ($normalized['max_unfilled'] !== '' && !ctype_digit($normalized['max_unfilled'])) {
+        $normalized['max_unfilled'] = '';
+    }
+    return $normalized;
+}
+
+function operational_steps_compile_generate_orders_gui(array $params)
+{
+    $params = operational_steps_normalize_generate_orders_params($params);
+    $parts = [];
+    if ($params['shipment'] !== '') {
+        $parts[] = $params['shipment'];
+    }
+    if ($params['increment_session'] === '1') {
+        $parts[] = 'increment session';
+    }
+    if ($params['max_unfilled'] !== '') {
+        $parts[] = 'max_unfilled=' . $params['max_unfilled'];
+    }
+    if (empty($parts)) {
+        return 'Generate Orders';
+    }
+    return 'Generate Orders ' . implode('; ', $parts);
 }
 
 function operational_steps_fetch_dynamic_options($dbc)
@@ -165,20 +916,7 @@ function operational_steps_fetch_dynamic_options($dbc)
         $scopes[] = ['value' => $job['name'], 'label' => $job['name']];
     }
 
-    $backups = [];
-    $backup_dir = __DIR__ . '/backups';
-    if (is_dir($backup_dir)) {
-        foreach (scandir($backup_dir) ?: [] as $entry) {
-            if ($entry === '.' || $entry === '..' || is_dir($backup_dir . '/' . $entry)) {
-                continue;
-            }
-            if (preg_match('/_photos$/', $entry)) {
-                continue;
-            }
-            $backups[] = $entry;
-        }
-        sort($backups);
-    }
+    $backups = operational_steps_list_backup_files();
 
     $setout_extras = [
         ['value' => 'remainder', 'label' => 'remainder (clear train)'],
@@ -228,12 +966,31 @@ function operational_steps_fetch_dynamic_options($dbc)
         ];
     }
 
+    $stations = [['id' => 0, 'name' => 'all', 'label' => 'All Stations']];
+    $rs = mysqli_query($dbc, 'SELECT id, station FROM routing ORDER BY sort_seq, station');
+    while ($row = mysqli_fetch_array($rs)) {
+        $name = (string) ($row['station'] ?? '');
+        if ($name === '') {
+            continue;
+        }
+        $stations[] = [
+            'id' => (int) $row['id'],
+            'name' => $name,
+            'label' => $name,
+        ];
+    }
+
     require_once __DIR__ . '/session_helpers.php';
+
+    $config = warm_start_default_config();
+    $staging_jobs = warm_start_staging_job_names($dbc, $config);
 
     return [
         'jobs' => $jobs,
         'locations' => $locations,
+        'stations' => $stations,
         'scopes' => $scopes,
+        'staging_jobs' => $staging_jobs,
         'backups' => $backups,
         'setout_extras' => $setout_extras,
         'setout_locations' => $setout_locations,
@@ -451,6 +1208,19 @@ function operational_steps_catalog_definitions()
             ],
         ],
         [
+            'id' => 'text_instruction',
+            'category' => 'workflow',
+            'adder' => true,
+            'adder_group' => 'workflow',
+            'label' => 'Text instruction',
+            'gui_template' => '{instruction}',
+            'description' => 'Free-text STS GUI instruction (imported or legacy steps). Not runnable.',
+            'runnable' => false,
+            'params' => [
+                operational_steps_catalog_text_param('instruction', 'Instruction', '', true, 'STS GUI instruction text'),
+            ],
+        ],
+        [
             'id' => 'stop',
             'category' => 'workflow',
             'adder' => true,
@@ -467,13 +1237,15 @@ function operational_steps_catalog_definitions()
             'category' => 'workflow',
             'adder' => true,
             'adder_group' => 'workflow',
-            'label' => 'Goto step',
-            'gui_template' => 'Goto step {step}',
-            'description' => 'Jump to another step number in this recipe.',
+            'label' => 'Goto section',
+            'gui_template' => 'Goto {section_label}',
+            'description' => 'Skip forward to a later section (steps between here and the section are not run). Use simulator Repeat to run a section multiple times — backward gotos are not allowed.',
             'runnable' => true,
             'dispatch' => 'goto',
             'params' => [
-                ['key' => 'step', 'label' => 'Target step #', 'type' => 'number', 'default' => '1', 'required' => true, 'min' => 1],
+                ['key' => 'section', 'label' => 'Section', 'type' => 'workflow_section', 'default' => '', 'required' => true],
+                ['key' => 'section_label', 'label' => 'Section label', 'type' => 'text', 'default' => ''],
+                ['key' => 'step', 'label' => 'Step #', 'type' => 'number', 'default' => ''],
             ],
         ],
         [
@@ -483,7 +1255,7 @@ function operational_steps_catalog_definitions()
             'adder_group' => 'workflow',
             'label' => 'If … then',
             'gui_template' => 'If {variable} {operator} {value}',
-            'description' => 'When false, skip the next step. Variables: session #, unfilled count, STG backlog, cars on job, cars at location.',
+            'description' => 'When false, skips the next step. When true, runs it (e.g. Goto section). Variables: session #, unfilled count, STG backlog, cars on job, cars at location.',
             'runnable' => true,
             'dispatch' => 'if_then',
             'params' => [
@@ -505,8 +1277,6 @@ function operational_steps_catalog_definitions()
                     'default' => '>=',
                 ],
                 ['key' => 'value', 'label' => 'Value', 'type' => 'text', 'default' => '1', 'required' => true],
-                operational_steps_catalog_job_param(false, 'Job (for cars_on_job)'),
-                operational_steps_catalog_location_param(false, 'Location (for cars_at_location)', true),
             ],
         ],
         [
@@ -546,24 +1316,13 @@ function operational_steps_catalog_definitions()
             'params' => [],
         ],
         [
-            'id' => 'defer_stg_scully',
-            'category' => 'session',
-            'label' => 'Defer STG-SCULLY',
-            'gui_template' => 'Defer STG-SCULLY leave backlog {location}',
-            'description' => 'Leave cars at Scully eligible; do not run STG-SCULLY.',
-            'runnable' => false,
-            'params' => [
-                ['key' => 'location', 'label' => 'Location', 'type' => 'select', 'options' => ['Scully'], 'default' => 'Scully'],
-            ],
-        ],
-        [
             'id' => 'generate_orders',
             'category' => 'operations',
             'adder' => true,
             'adder_group' => 'before',
             'label' => 'Generate Car Orders',
             'gui_template' => 'Generate Orders {shipment}',
-            'description' => 'Manual generate for one shipment (all loads for that shipment, no session increment). Leave shipment blank for auto-generate all.',
+            'description' => 'Auto-generate car orders for due shipments, or one shipment when Shipment is set.',
             'runnable' => true,
             'dispatch' => 'generate_orders',
             'params' => [
@@ -575,6 +1334,26 @@ function operational_steps_catalog_definitions()
                     'allow_custom' => true,
                     'required' => false,
                     'default' => '',
+                ],
+                [
+                    'key' => 'increment_session',
+                    'label' => 'Increment session',
+                    'type' => 'select',
+                    'options' => [
+                        ['value' => '', 'label' => 'No'],
+                        ['value' => '1', 'label' => 'Yes'],
+                    ],
+                    'default' => '',
+                ],
+                [
+                    'key' => 'max_unfilled',
+                    'label' => 'Max unfilled orders',
+                    'type' => 'number',
+                    'default' => '',
+                    'required' => false,
+                    'min' => 0,
+                    'step' => 1,
+                    'visible_label' => true,
                 ],
             ],
         ],
@@ -601,7 +1380,21 @@ function operational_steps_catalog_definitions()
             'runnable' => true,
             'dispatch' => 'fill_orders',
             'params' => [
-                ['key' => 'fraction', 'label' => 'Fraction', 'type' => 'number', 'default' => '1', 'required' => false, 'min' => 0, 'max' => 1, 'step' => 0.05],
+                ['key' => 'percent', 'label' => 'Percent', 'type' => 'percent', 'default' => '100', 'required' => false, 'min' => 0, 'max' => 100, 'step' => 1],
+                [
+                    'key' => 'order_filters',
+                    'label' => 'Order filters',
+                    'type' => 'filter_group',
+                    'layout' => 'fill_order',
+                    'fields' => operational_steps_fill_order_filter_fields(),
+                ],
+                [
+                    'key' => 'car_filters',
+                    'label' => 'Auto assign',
+                    'type' => 'filter_group',
+                    'layout' => 'fill_car',
+                    'fields' => operational_steps_fill_order_car_filter_fields(),
+                ],
             ],
         ],
         [
@@ -611,11 +1404,37 @@ function operational_steps_catalog_definitions()
             'adder_group' => 'before',
             'label' => 'Reposition Empty Cars',
             'gui_template' => 'Reposition Empties',
-            'description' => 'Create/fill reposition (E) orders for off-home empties.',
+            'description' => 'Reposition empty cars: send off-home cars home, or update with a chosen destination.',
             'runnable' => true,
             'dispatch' => 'reposition_empties',
+            'gui_path' => '/sts/reposition.php',
             'params' => [
-                ['key' => 'fraction', 'label' => 'Fraction', 'type' => 'number', 'default' => '0.65', 'required' => false, 'min' => 0, 'max' => 1, 'step' => 0.05],
+                [
+                    'key' => 'mode',
+                    'label' => 'Action',
+                    'type' => 'select',
+                    'options' => [
+                        ['value' => 'reposition_to_home', 'label' => 'Reposition to Home'],
+                        ['value' => 'update', 'label' => 'Update'],
+                    ],
+                    'default' => 'reposition_to_home',
+                ],
+                ['key' => 'percent', 'label' => 'Percent', 'type' => 'percent', 'default' => '65', 'required' => false, 'min' => 0, 'max' => 100, 'step' => 1],
+                [
+                    'key' => 'destination',
+                    'label' => 'Destination',
+                    'type' => 'location',
+                    'options_from' => 'locations',
+                    'allow_custom' => true,
+                    'default' => '',
+                ],
+                [
+                    'key' => 'filters',
+                    'label' => 'Filters',
+                    'type' => 'filter_group',
+                    'layout' => 'reposition',
+                    'fields' => operational_steps_reposition_filter_fields(),
+                ],
             ],
         ],
         [
@@ -624,27 +1443,12 @@ function operational_steps_catalog_definitions()
             'adder' => true,
             'adder_group' => 'during',
             'label' => 'Auto-Assign Cars',
-            'gui_template' => 'Auto-Assign Cars {scope}',
-            'description' => 'Auto-assign cars to jobs. Use scope "locals" or a specific job name.',
+            'gui_template' => 'Auto-Assign Cars {jobs}',
+            'description' => 'Auto-assign eligible cars to one or more jobs (Ctrl/Cmd+click to select multiple).',
             'runnable' => true,
             'dispatch' => 'auto_assign_locals',
             'params' => [
-                operational_steps_catalog_scope_param(),
-            ],
-        ],
-        [
-            'id' => 'assign_cars',
-            'category' => 'operations',
-            'adder' => true,
-            'adder_group' => 'during',
-            'label' => 'Assign Cars',
-            'gui_template' => 'Assign Cars {job} {location}',
-            'description' => 'Assign eligible/ordered cars at a location to a job.',
-            'runnable' => true,
-            'dispatch' => 'assign_cars',
-            'params' => [
-                operational_steps_catalog_job_param(true),
-                operational_steps_catalog_location_param(true),
+                operational_steps_catalog_auto_assign_jobs_param(),
             ],
         ],
         [
@@ -654,11 +1458,11 @@ function operational_steps_catalog_definitions()
             'adder_group' => 'during',
             'label' => 'Pick Up Cars',
             'gui_template' => 'Pick Up Cars {job} {location_suffix}',
-            'description' => 'Pick up assigned cars onto a job train.',
+            'description' => 'Pick up assigned cars onto a job train. Leave job blank for all locals (staging excluded).',
             'runnable' => true,
             'dispatch' => 'pick_up_cars',
             'params' => [
-                operational_steps_catalog_job_param(true),
+                operational_steps_catalog_job_param(false),
                 operational_steps_catalog_location_param(false, 'Location (optional)', true),
             ],
         ],
@@ -669,45 +1473,21 @@ function operational_steps_catalog_definitions()
             'adder_group' => 'during',
             'label' => 'Set Out Cars',
             'gui_template' => 'Set Out Cars {job} {location}',
-            'description' => 'Set out cars from a job train at a location or destination.',
+            'description' => 'Set out cars from a job train at a location or destination. Leave job and location blank for all locals.',
             'runnable' => true,
             'dispatch' => 'set_out_cars',
             'params' => [
-                operational_steps_catalog_job_param(true),
+                operational_steps_catalog_job_param(false),
                 [
                     'key' => 'location',
                     'label' => 'Location',
                     'type' => 'setout_location',
                     'options_from' => 'setout_locations',
                     'allow_custom' => true,
-                    'required' => true,
+                    'required' => false,
                     'default' => '',
                 ],
             ],
-        ],
-        [
-            'id' => 'pick_up_locals',
-            'category' => 'operations',
-            'adder' => true,
-            'adder_group' => 'during',
-            'label' => 'Pick Up Cars (all jobs)',
-            'gui_template' => 'Pick Up Cars locals',
-            'description' => 'Pick up all assigned local jobs (staging excluded).',
-            'runnable' => true,
-            'dispatch' => 'pick_up_locals',
-            'params' => [],
-        ],
-        [
-            'id' => 'set_out_locals',
-            'category' => 'operations',
-            'adder' => true,
-            'adder_group' => 'during',
-            'label' => 'Set Out Cars (all jobs)',
-            'gui_template' => 'Set Out Cars locals',
-            'description' => 'Set out all local jobs per criteria.',
-            'runnable' => true,
-            'dispatch' => 'set_out_locals',
-            'params' => [],
         ],
         [
             'id' => 'load_unload',
@@ -715,29 +1495,17 @@ function operational_steps_catalog_definitions()
             'adder' => true,
             'adder_group' => 'after',
             'label' => 'Load / Unload Cars',
-            'gui_template' => 'Load/Unload {location} {car_code} {commodity}',
-            'description' => 'Complete offline load/unload transitions. Optional filters narrow scope when supported.',
+            'gui_template' => 'Load/Unload offline',
+            'description' => 'Complete offline load/unload transitions. Optional filters mirror the STS load/unload page.',
             'runnable' => true,
             'dispatch' => 'load_unload',
+            'gui_path' => '/sts/load_unload.php',
             'params' => [
-                operational_steps_catalog_location_param(false, 'Location (optional)', true),
                 [
-                    'key' => 'car_code',
-                    'label' => 'Car type (optional)',
-                    'type' => 'car_code',
-                    'options_from' => 'car_codes',
-                    'allow_custom' => true,
-                    'required' => false,
-                    'default' => '',
-                ],
-                [
-                    'key' => 'commodity',
-                    'label' => 'Commodity (optional)',
-                    'type' => 'commodity',
-                    'options_from' => 'commodities',
-                    'allow_custom' => true,
-                    'required' => false,
-                    'default' => '',
+                    'key' => 'filters',
+                    'label' => 'Filters',
+                    'type' => 'filter_group',
+                    'fields' => operational_steps_load_unload_filter_fields(),
                 ],
             ],
         ],
@@ -803,19 +1571,6 @@ function operational_steps_catalog_definitions()
             'dispatch' => 'staging_job',
             'params' => [
                 operational_steps_catalog_job_param(true, 'Staging job'),
-            ],
-        ],
-        [
-            'id' => 'defer_staging',
-            'category' => 'session',
-            'adder' => false,
-            'label' => 'Defer Staging Job',
-            'gui_template' => 'Defer {job} leave backlog {location}',
-            'description' => 'Leave cars eligible for a staging job without running it.',
-            'runnable' => false,
-            'params' => [
-                operational_steps_catalog_job_param(false, 'Job'),
-                operational_steps_catalog_location_param(false, 'Location', true),
             ],
         ],
         [
@@ -913,19 +1668,11 @@ function operational_steps_catalog_definitions()
             'adder_group' => 'switchlists',
             'label' => 'Generate Switch Lists',
             'gui_template' => 'Generate Switch Lists {jobs}',
-            'description' => 'One phase per command. Job = single train (e.g. D749) or all for D749, NVL, CK1.',
+            'description' => 'Dry-run and write switch list HTML for one job/train or all (D749, NVL, CK1). Format: phased.',
             'runnable' => true,
             'dispatch' => 'generate_switchlists',
             'params' => [
-                ['key' => 'format', 'label' => 'Format', 'type' => 'select', 'options' => ['phased', 'halfsheet', 'mobile', 'phased-mobile'], 'default' => 'phased'],
-                [
-                    'key' => 'jobs',
-                    'label' => 'Train(s)',
-                    'type' => 'text',
-                    'default' => 'all',
-                    'required' => false,
-                    'placeholder' => 'all, D749, or D749,NVL',
-                ],
+                operational_steps_catalog_job_or_all_param('jobs', 'Job / train'),
             ],
         ],
         [
@@ -935,7 +1682,7 @@ function operational_steps_catalog_definitions()
             'adder_group' => 'switchlists',
             'label' => 'Generate Waybill List',
             'gui_template' => 'Generate Waybill List',
-            'description' => 'Build browsable waybill HTML for the current phase.',
+            'description' => 'Render printable waybill HTML (same layout as STS printable_waybill.php) for every open waybill in the current session.',
             'runnable' => true,
             'dispatch' => 'generate_waybills',
             'params' => [],
@@ -980,38 +1727,29 @@ function operational_steps_catalog_definitions()
         ],
         [
             'id' => 'build_switchlists_sts',
-            'category' => 'switchlists',
+            'category' => 'operations',
             'adder' => true,
-            'adder_group' => 'switchlists',
+            'adder_group' => 'during',
             'label' => 'Build Switch Lists',
-            'gui_template' => 'Build Switch Lists',
-            'description' => 'STS Operations → Build Switch Lists for operating jobs.',
-            'runnable' => false,
+            'gui_template' => 'Build Switch Lists {station} {job}',
+            'description' => 'Assign eligible/ordered cars at a station to a job (STS Build Switch Lists).',
+            'runnable' => true,
+            'dispatch' => 'build_switchlists_sts',
             'gui_path' => '/sts/build_switchlists.php',
-            'params' => [],
+            'params' => [
+                operational_steps_catalog_station_param(false),
+                operational_steps_catalog_job_param(false, 'Job / train'),
+            ],
         ],
         [
             'id' => 'display_switchlists_sts',
             'category' => 'switchlists',
-            'adder' => true,
-            'adder_group' => 'switchlists',
+            'adder' => false,
             'label' => 'Display Switch Lists',
             'gui_template' => 'Display Switch Lists',
             'description' => 'Reports → Switch Lists for current job assignments.',
             'runnable' => false,
             'gui_path' => '/sts/display_switchlist.php',
-            'params' => [],
-        ],
-        [
-            'id' => 'organize_cars',
-            'category' => 'operations',
-            'adder' => true,
-            'adder_group' => 'during',
-            'label' => 'Organize Cars',
-            'gui_template' => 'Organize Cars',
-            'description' => 'Reorder cars on a job train. GUI: organize_cars.php.',
-            'runnable' => false,
-            'gui_path' => '/sts/organize_cars.php',
             'params' => [],
         ],
         [
@@ -1193,7 +1931,7 @@ function operational_steps_catalog_definitions()
 function operational_steps_restore_backup($dbc, $backup_name)
 {
     $name = basename((string) $backup_name);
-    $path = __DIR__ . '/backups/' . $name;
+    $path = operational_steps_backups_dir() . '/' . $name;
     if (!is_file($path)) {
         return [false, 'Backup not found: ' . $name];
     }
@@ -1285,8 +2023,160 @@ function operational_steps_location_station_id($dbc, $location_key)
     return 0;
 }
 
+function operational_steps_workflow_sections(array $recipe)
+{
+    $steps = $recipe['steps'] ?? [];
+    $total = count($steps);
+    $sections = [];
+    foreach ($steps as $i => $step) {
+        if (!is_array($step) || ($step['function'] ?? '') !== 'section_label') {
+            continue;
+        }
+        $label = trim($step['params']['label'] ?? '');
+        if ($label === '') {
+            $label = 'Section at step ' . ($i + 1);
+        }
+        $start = $i + 1;
+        $stop = $total;
+        for ($j = $i + 1; $j < $total; $j++) {
+            $fid = $steps[$j]['function'] ?? '';
+            if ($fid === 'section_label') {
+                $stop = $j;
+                break;
+            }
+            if ($fid === 'goto') {
+                $stop = $j + 1;
+                break;
+            }
+        }
+        $sections[] = [
+            'id' => 'step-' . $start,
+            'label' => $label,
+            'start' => $start,
+            'stop' => $stop,
+        ];
+    }
+    return $sections;
+}
+
+function operational_steps_find_workflow_section(array $recipe, $id = '', $start = 0, $label = '')
+{
+    foreach (operational_steps_workflow_sections($recipe) as $sec) {
+        if ($id !== '' && $sec['id'] === $id) {
+            return $sec;
+        }
+        if ($start > 0 && (int) $sec['start'] === (int) $start) {
+            return $sec;
+        }
+        if ($label !== '') {
+            $want = trim($label);
+            if ($sec['label'] === $want || stripos($sec['label'], $want) !== false || stripos($want, $sec['label']) !== false) {
+                return $sec;
+            }
+        }
+    }
+    return null;
+}
+
+function operational_steps_goto_resolve_step(array $recipe, array $params)
+{
+    $section = trim((string) ($params['section'] ?? ''));
+    if ($section !== '') {
+        $sec = operational_steps_find_workflow_section($recipe, $section);
+        if ($sec) {
+            return (int) $sec['start'];
+        }
+    }
+    $section_label = trim((string) ($params['section_label'] ?? ''));
+    if ($section_label !== '') {
+        $sec = operational_steps_find_workflow_section($recipe, '', 0, $section_label);
+        if ($sec) {
+            return (int) $sec['start'];
+        }
+    }
+    return (int) ($params['step'] ?? 0);
+}
+
+/** Goto may only skip forward (target step must be after the goto step). */
+function operational_steps_goto_target_allowed($from_step, $target, $total_steps)
+{
+    $from_step = (int) $from_step;
+    $target = (int) $target;
+    $total_steps = (int) $total_steps;
+    return $target > $from_step && $target >= 1 && $target <= $total_steps;
+}
+
+function operational_steps_normalize_goto_sections(array $recipe)
+{
+    $steps = $recipe['steps'] ?? [];
+    foreach ($steps as $i => $step) {
+        if (!is_array($step) || ($step['function'] ?? '') !== 'goto') {
+            continue;
+        }
+        $params = is_array($step['params'] ?? null) ? $step['params'] : [];
+        $sec = null;
+        if (!empty($params['section'])) {
+            $sec = operational_steps_find_workflow_section($recipe, (string) $params['section']);
+        } elseif (!empty($params['section_label'])) {
+            $sec = operational_steps_find_workflow_section($recipe, '', 0, (string) $params['section_label']);
+        } elseif (!empty($params['step'])) {
+            $sec = operational_steps_find_workflow_section($recipe, '', (int) $params['step']);
+        }
+        if ($sec) {
+            $params['section'] = $sec['id'];
+            $params['section_label'] = $sec['label'];
+            $params['step'] = (string) $sec['start'];
+        }
+        $steps[$i]['params'] = $params;
+    }
+    $recipe['steps'] = $steps;
+    return $recipe;
+}
+
 function operational_steps_compile_gui(array $def, array $params)
 {
+    if (($def['id'] ?? '') === 'goto') {
+        if (!empty($params['section_label'])) {
+            return 'Goto ' . trim((string) $params['section_label']);
+        }
+        if (!empty($params['step'])) {
+            return 'Goto step ' . trim((string) $params['step']);
+        }
+        return 'Goto';
+    }
+    if (($def['id'] ?? '') === 'if_then') {
+        $var = (string) ($params['variable'] ?? 'session_nbr');
+        if ($var === 'session_nbr') {
+            $var = 'session #';
+        }
+        return trim('If ' . $var . ' ' . ($params['operator'] ?? '') . ' ' . ($params['value'] ?? ''));
+    }
+    if (($def['id'] ?? '') === 'text_instruction') {
+        return trim((string) ($params['instruction'] ?? ''));
+    }
+    if (($def['id'] ?? '') === 'load_unload') {
+        return operational_steps_compile_load_unload_gui($params['filters'] ?? []);
+    }
+    if (($def['id'] ?? '') === 'fill_orders') {
+        return operational_steps_compile_fill_orders_gui($params);
+    }
+    if (($def['id'] ?? '') === 'reposition_empties') {
+        return operational_steps_compile_reposition_gui($params);
+    }
+    if (($def['id'] ?? '') === 'generate_orders') {
+        return operational_steps_compile_generate_orders_gui($params);
+    }
+    if (($def['id'] ?? '') === 'auto_assign_locals') {
+        return operational_steps_compile_auto_assign_gui($params);
+    }
+    if (($def['id'] ?? '') === 'pick_up_cars' && trim((string) ($params['job'] ?? '')) === '') {
+        return 'Pick Up Cars locals';
+    }
+    if (($def['id'] ?? '') === 'set_out_cars'
+        && trim((string) ($params['job'] ?? '')) === ''
+        && trim((string) ($params['location'] ?? '')) === '') {
+        return 'Set Out Cars locals';
+    }
     $template = $def['gui_template'] ?? $def['label'];
     $merged = $params;
     if (($def['id'] ?? '') === 'pick_up_cars' && empty($merged['location'])) {
@@ -1294,17 +2184,18 @@ function operational_steps_compile_gui(array $def, array $params)
     } else {
         $merged['location_suffix'] = !empty($merged['location']) ? $merged['location'] : '';
     }
-    if (($def['id'] ?? '') === 'auto_assign_locals') {
-        $merged['scope'] = $params['scope'] ?? 'locals';
-    }
     if (($def['id'] ?? '') === 'track_scale') {
         $job = trim($params['job'] ?? '');
         $merged['job'] = $job !== '' ? $job : 'train';
     }
-    if (($def['id'] ?? '') === 'run_staging_job') {
-        $merged['job'] = $params['job'] ?? '';
+    if (($def['id'] ?? '') === 'generate_switchlists') {
+        $jobs = trim((string) ($params['jobs'] ?? 'all'));
+        if ($jobs === '') {
+            $jobs = 'all';
+        }
+        $merged['jobs'] = $jobs;
     }
-    if (($def['id'] ?? '') === 'defer_staging') {
+    if (($def['id'] ?? '') === 'run_staging_job') {
         $merged['job'] = $params['job'] ?? '';
     }
     return preg_replace_callback('/\{(\w+)\}/', function ($m) use ($merged) {
@@ -1328,6 +2219,15 @@ function operational_steps_compile_description(array $def, array $params, $custo
     $parts = [];
     foreach ($params as $k => $v) {
         if ($v === '' || $v === null) {
+            continue;
+        }
+        if (is_array($v)) {
+            $flat = array_filter($v, static function ($item) {
+                return $item !== '' && $item !== null;
+            });
+            if (!empty($flat)) {
+                $parts[] = $k . '=' . json_encode($flat, JSON_UNESCAPED_SLASHES);
+            }
             continue;
         }
         $parts[] = $k . '=' . $v;
@@ -1467,14 +2367,108 @@ function operational_steps_parse_csv($text)
     return $steps;
 }
 
+function operational_steps_gui_template_to_regex($template)
+{
+    $out = '/^';
+    $len = strlen($template);
+    $i = 0;
+    while ($i < $len) {
+        if ($template[$i] === '{') {
+            $end = strpos($template, '}', $i);
+            if ($end === false) {
+                break;
+            }
+            $key = substr($template, $i + 1, $end - $i - 1);
+            switch ($key) {
+                case 'steps':
+                    $out .= '([\d,\s]+)';
+                    break;
+                case 'add_replace':
+                    $out .= '(append|replace)';
+                    break;
+                case 'scope':
+                    $out .= '(locals|\S+)';
+                    break;
+                case 'context':
+                    $out .= '(?:\S+(?:\s+\S+)*)?';
+                    break;
+                case 'location':
+                case 'location_suffix':
+                    $out .= '(?:\s+(.+))?';
+                    break;
+                case 'shipment':
+                case 'jobs':
+                    $out .= '(?:.*)?';
+                    break;
+                default:
+                    $out .= '(?:\S+(?:-\S+)?(?:\s+\S+)*)?';
+            }
+            $i = $end + 1;
+            continue;
+        }
+        $next = strpos($template, '{', $i);
+        if ($next === false) {
+            $next = $len;
+        }
+        $out .= preg_quote(substr($template, $i, $next - $i), '/');
+        $i = $next;
+    }
+    $out .= '\s*$/i';
+    return $out;
+}
+
+function operational_steps_guess_catalog_function($instruction)
+{
+    static $patterns = null;
+    if ($patterns === null) {
+        $patterns = [];
+        $defs = operational_steps_catalog_definitions();
+        usort($defs, static function ($a, $b) {
+            $la = strlen($a['gui_template'] ?? $a['label'] ?? '');
+            $lb = strlen($b['gui_template'] ?? $b['label'] ?? '');
+            return $lb <=> $la;
+        });
+        foreach ($defs as $def) {
+            $id = $def['id'] ?? '';
+            if (in_array($id, ['section_label', 'marker', 'text_instruction', 'goto', 'if_then'], true)) {
+                continue;
+            }
+            $template = trim($def['gui_template'] ?? '');
+            if ($template === '' || $template === '{label}' || $template === '{note}') {
+                continue;
+            }
+            $patterns[] = [
+                'id' => $id,
+                'regex' => operational_steps_gui_template_to_regex($template),
+            ];
+        }
+    }
+    $s = trim($instruction);
+    foreach ($patterns as $p) {
+        if (preg_match($p['regex'], $s)) {
+            return $p['id'];
+        }
+    }
+    return null;
+}
+
 function operational_steps_guess_function($instruction)
 {
     $s = trim($instruction);
     if ($s === '') {
-        return 'marker';
+        return 'text_instruction';
     }
-    if (stripos($s, '[Setup once]') !== false || stripos($s, 'Restore Database') !== false) {
+    if (preg_match('/^Goto step\s+\d+/i', $s) || preg_match('/^Goto\s+\[/i', $s)) {
+        return 'goto';
+    }
+    if (preg_match('/^If\s+/i', $s)) {
+        return 'if_then';
+    }
+    if (stripos($s, 'Restore Database') !== false) {
         return 'restore_database';
+    }
+    if (preg_match('/^\[Setup once\]\s*$/i', $s)) {
+        return 'marker';
     }
     if (stripos($s, 'repeat steps') !== false && stripos($s, 'Assign Cars') === false && stripos($s, 'Warm start') !== false) {
         return 'marker';
@@ -1482,14 +2476,11 @@ function operational_steps_guess_function($instruction)
     if (preg_match('/^\[[^\]]+\]\s*$/', $s)) {
         return 'marker';
     }
-    if (preg_match('/^\[(Warm start|Each operating session|Setup once|Session end)/i', $s) && stripos($s, 'Assign Cars') === false && stripos($s, 'Run STG') === false) {
+    if (preg_match('/^\[(Warm start end|Session end|Setup end)/i', $s)) {
         return 'marker';
     }
-    if (stripos($s, 'Warm start end') !== false || (stripos($s, 'Session end') !== false && stripos($s, 'Defer') !== false)) {
-        return 'defer_staging';
-    }
-    if (stripos($s, 'Warm start end') !== false || stripos($s, 'Session end') !== false) {
-        return 'defer_stg_scully';
+    if (preg_match('/^\[(Warm start|Each operating session|Setup once|Session end)/i', $s) && stripos($s, 'Assign Cars') === false && stripos($s, 'Run STG') === false) {
+        return 'marker';
     }
     if (stripos($s, 'Generate Switch Lists') !== false) {
         return 'generate_switchlists';
@@ -1522,10 +2513,7 @@ function operational_steps_guess_function($instruction)
         return 'run_stg_demmler';
     }
     if (stripos($s, 'Run STG-SCULLY') !== false) {
-        return stripos($s, 'Defer') !== false ? 'defer_stg_scully' : 'run_stg_scully';
-    }
-    if (stripos($s, 'Defer') !== false && stripos($s, 'backlog') !== false) {
-        return 'defer_stg_scully';
+        return 'run_stg_scully';
     }
     if (preg_match('/^Run (\S+)/i', $s)) {
         return 'run_staging_job';
@@ -1555,24 +2543,28 @@ function operational_steps_guess_function($instruction)
         return 'secure_nvl_scully';
     }
     if (preg_match('/Assign Cars/i', $s, $m)) {
-        return 'assign_cars';
+        return 'build_switchlists_sts';
     }
     if (stripos($s, 'Pick Up Cars locals') !== false) {
-        return 'pick_up_locals';
+        return 'pick_up_cars';
     }
     if (stripos($s, 'Set Out Cars locals') !== false) {
-        return 'set_out_locals';
+        return 'set_out_cars';
     }
     if (stripos($s, 'Pick Up Cars') !== false) {
         return 'pick_up_cars';
     }
-    if (stripos($s, 'Set Out Cars') !== false) {
-        return 'set_out_cars';
-    }
     if (stripos($s, 'criterion') !== false) {
         return 'run_job_criterion';
     }
-    return 'marker';
+    if (stripos($s, 'Set Out Cars') !== false) {
+        return 'set_out_cars';
+    }
+    $fromCatalog = operational_steps_guess_catalog_function($s);
+    if ($fromCatalog !== null) {
+        return $fromCatalog;
+    }
+    return 'text_instruction';
 }
 
 function operational_steps_guess_params($instruction)
@@ -1580,25 +2572,65 @@ function operational_steps_guess_params($instruction)
     $params = [];
     $s = trim($instruction);
 
+    if (preg_match('/^Goto step\s+(\d+)/i', $s, $m)) {
+        $params['step'] = $m[1];
+    }
+    if (preg_match('/^Goto\s+(\[.+\])\s*$/i', $s, $m)) {
+        $params['section_label'] = trim($m[1]);
+    }
+    if (preg_match('/^If\s+session(?:\s*#|_nbr)?\s*(>=|<=|!=|>|<|=)\s*(.+)$/i', $s, $m)) {
+        $params['variable'] = 'session_nbr';
+        $params['operator'] = trim($m[1]);
+        $params['value'] = trim($m[2]);
+    } elseif (preg_match('/^If\s+(\w+)\s*(>=|<=|!=|>|<|=)\s*(.+)$/i', $s, $m)) {
+        $params['variable'] = $m[1];
+        $params['operator'] = trim($m[2]);
+        $params['value'] = trim($m[3]);
+    }
     if (preg_match('/Restore Database (\S+)/i', $s, $m)) {
         $params['backup'] = $m[1];
+    }
+    if (preg_match('/^Build Switch Lists(?:\s+(.+))?$/i', $s, $m)) {
+        $rest = trim($m[1] ?? '');
+        if ($rest !== '') {
+            $parts = preg_split('/\s+/', $rest, 2);
+            $params['station'] = trim($parts[0] ?? '');
+            if (!empty($parts[1])) {
+                $params['job'] = trim($parts[1]);
+            }
+        }
+    }
+    if (preg_match('/^Generate Switch Lists(?:\s+(.+))?$/i', $s, $m)) {
+        $job = trim($m[1] ?? '');
+        if ($job !== '') {
+            $params['jobs'] = $job;
+        }
     }
     if (preg_match('/^Run (\S+(?:-\S+)?)/i', $s, $m)) {
         $params['job'] = $m[1];
     }
     if (preg_match('/Assign Cars (\S+(?:-\S+)?)\s+(.+)$/i', $s, $m)) {
         $params['job'] = trim($m[1]);
-        $params['location'] = trim(preg_replace('/^\[.+?\]\s*/', '', $m[2]));
+        $location = trim(preg_replace('/^\[.+?\]\s*/', '', $m[2]));
+        if (stripos($location, 'reload/outbound') === false) {
+            $params['station'] = $location;
+        }
     } elseif (preg_match('/Assign Cars (\S+(?:-\S+)?)/i', $s, $m)) {
         $params['job'] = $m[1];
     }
-    if (preg_match('/Pick Up Cars (\S+(?:-\S+)?)(?:\s+(.+))?$/i', $s, $m)) {
+    if (preg_match('/^Pick Up Cars\s+locals\s*$/i', $s)) {
+        $params['job'] = '';
+        $params['location'] = '';
+    } elseif (preg_match('/Pick Up Cars (\S+(?:-\S+)?)(?:\s+(.+))?$/i', $s, $m)) {
         $params['job'] = trim($m[1]);
         if (!empty(trim($m[2] ?? ''))) {
             $params['location'] = trim($m[2]);
         }
     }
-    if (preg_match('/Set Out Cars (\S+(?:-\S+)?)\s+(.+)$/i', $s, $m)) {
+    if (preg_match('/^Set Out Cars\s+locals\s*$/i', $s)) {
+        $params['job'] = '';
+        $params['location'] = '';
+    } elseif (preg_match('/Set Out Cars (\S+(?:-\S+)?)\s+(.+)$/i', $s, $m)) {
         $params['job'] = trim($m[1]);
         $params['location'] = trim($m[2]);
     }
@@ -1615,11 +2647,72 @@ function operational_steps_guess_params($instruction)
         && empty($params['location'])) {
         $params['location'] = $m[1];
     }
-    if (preg_match('/^\[(.+)\]$/', $s) || (preg_match('/^\[/', $s) && stripos($s, 'Assign Cars') === false && stripos($s, 'Restore Database') === false)) {
+    if (stripos($s, 'Generate Orders') !== false) {
+        if (preg_match('/increment session/i', $s)) {
+            $params['increment_session'] = '1';
+        }
+        if (preg_match('/max_unfilled=(\d+)/i', $s, $m)) {
+            $params['max_unfilled'] = $m[1];
+        }
+    }
+    if (stripos($s, 'Load/Unload') !== false) {
+        if (preg_match('/^Load\/Unload\s+offline\s*$/i', $s)) {
+            $params['filters'] = operational_steps_load_unload_default_filters();
+        } elseif (preg_match('/^Load\/Unload\s+(.+)$/i', $s, $m)) {
+            $params['filters'] = operational_steps_parse_load_unload_filters($m[1]);
+        } else {
+            $params['filters'] = operational_steps_load_unload_default_filters();
+        }
+    }
+    if (stripos($s, 'Fill Orders') !== false) {
+        if (preg_match('/^Fill Orders\s*$/i', $s)) {
+            $params['order_filters'] = operational_steps_fill_order_default_filters();
+            $params['car_filters'] = operational_steps_fill_order_car_default_filters();
+        } elseif (preg_match('/^Fill Orders\s+(.+)$/i', $s, $m)) {
+            $parsed = operational_steps_parse_fill_orders_suffix($m[1]);
+            $params['order_filters'] = $parsed['order_filters'];
+            $params['car_filters'] = $parsed['car_filters'];
+        } else {
+            $params['order_filters'] = operational_steps_fill_order_default_filters();
+            $params['car_filters'] = operational_steps_fill_order_car_default_filters();
+        }
+    }
+    if (stripos($s, 'Reposition Empties') !== false) {
+        $params['mode'] = 'reposition_to_home';
+        $params['filters'] = operational_steps_reposition_default_filters();
+        if (preg_match('/\bupdate\b/i', $s)) {
+            $params['mode'] = 'update';
+        } elseif (preg_match('/\bto home\b/i', $s)) {
+            $params['mode'] = 'reposition_to_home';
+        }
+        if (preg_match('/(?:^|[;\s])dest(?:ination)?=([^;]+)/i', $s, $m)) {
+            $params['destination'] = trim($m[1]);
+            $params['mode'] = 'update';
+        }
+        $suffix = preg_replace('/^Reposition Empties/i', '', $s);
+        $suffix = preg_replace('/^\s*(?:to home|update)\s*/i', '', $suffix);
+        if (preg_match('/(?:^|[;\s])dest(?:ination)?=([^;]+)/i', $suffix, $m)) {
+            $suffix = trim(str_replace($m[0], '', $suffix), " \t;");
+        }
+        $suffix = trim($suffix, " \t;");
+        if ($suffix !== '') {
+            $params['filters'] = operational_steps_parse_reposition_filters($suffix);
+        }
+    }
+    if (preg_match('/^\[(Warm start end|Session end|Setup end)\]/i', $s, $m)) {
+        $params['note'] = '[' . $m[1] . ']';
+    } elseif (preg_match('/^\[(.+)\]$/', $s) || (preg_match('/^\[/', $s) && stripos($s, 'Assign Cars') === false && stripos($s, 'Restore Database') === false)) {
         $params['note'] = $s;
     }
     if (stripos($s, 'locals') !== false && stripos($s, 'Auto-Assign') !== false) {
-        $params['scope'] = 'locals';
+        $params['jobs'] = '';
+    } elseif (preg_match('/^Auto-Assign Cars\s+(.+)$/i', $s, $m)) {
+        $rest = trim($m[1]);
+        if (strtolower($rest) === 'locals') {
+            $params['jobs'] = '';
+        } else {
+            $params['jobs'] = preg_replace('/\s*,\s*/', ',', $rest);
+        }
     }
     if (stripos($s, 'Weigh Cars') !== false && preg_match('/Weigh Cars (\S+)/i', $s, $m)) {
         $params['job'] = $m[1];
@@ -1640,22 +2733,56 @@ function operational_steps_normalize_step(array $step)
         }
     }
     if ($fid === 'marker') {
-        if (empty($step['params']['label']) && !empty($step['params']['note'])) {
-            $step['params']['label'] = $step['params']['note'];
+        $isSectionLabel = preg_match('/^\[[^\]]+\]\s*$/', $instruction)
+            || (preg_match('/^\[(Warm start|Each operating session|Setup once|Session end)/i', $instruction)
+                && stripos($instruction, 'Assign Cars') === false
+                && stripos($instruction, 'Run STG') === false)
+            || (stripos($instruction, 'repeat steps') !== false && stripos($instruction, 'Warm start') !== false);
+        if ($isSectionLabel) {
+            if (empty($step['params']['label']) && !empty($step['params']['note'])) {
+                $step['params']['label'] = $step['params']['note'];
+            } elseif ($instruction !== '' && empty($step['params']['label'])) {
+                $step['params']['label'] = $instruction;
+            }
+            $fid = 'section_label';
+        } else {
+            $fid = 'text_instruction';
+            if ($instruction !== '') {
+                $step['params']['instruction'] = $instruction;
+            } elseif (!empty($step['params']['note'])) {
+                $step['params']['instruction'] = $step['params']['note'];
+            }
         }
-        $fid = 'section_label';
     }
 
     if ($fid === 'restore_database' && empty($step['params']['backup'])) {
         $step['params']['backup'] = 'hart_seed';
     }
-    if ($fid === 'defer_stg_scully') {
-        $fid = 'defer_staging';
-        if (empty($step['params']['job'])) {
-            $step['params']['job'] = 'STG-SCULLY';
+    if ($fid === 'assign_cars') {
+        $fid = 'build_switchlists_sts';
+        if (!empty($step['params']['location']) && empty($step['params']['station'])) {
+            $step['params']['station'] = $step['params']['location'];
         }
-        if (empty($step['params']['location'])) {
-            $step['params']['location'] = 'Scully';
+        unset($step['params']['location']);
+    }
+    if ($fid === 'pick_up_locals') {
+        $fid = 'pick_up_cars';
+        $step['params']['job'] = '';
+        $step['params']['location'] = '';
+    }
+    if ($fid === 'set_out_locals') {
+        $fid = 'set_out_cars';
+        $step['params']['job'] = '';
+        $step['params']['location'] = '';
+    }
+    if ($fid === 'defer_stg_scully' || $fid === 'defer_staging') {
+        $fid = 'section_label';
+        if (stripos($instruction, 'Warm start end') !== false) {
+            $step['params']['label'] = '[Warm start end]';
+        } elseif (stripos($instruction, 'Session end') !== false) {
+            $step['params']['label'] = '[Session end]';
+        } elseif ($instruction !== '') {
+            $step['params']['label'] = trim(preg_replace('/\s*Defer\b.*/i', '', $instruction));
         }
     }
     if ($fid === 'run_stg_scully' || $fid === 'run_stg_demmler') {
@@ -1675,11 +2802,70 @@ function operational_steps_normalize_step(array $step)
     }
 
     $params = is_array($step['params'] ?? null) ? $step['params'] : [];
+    if ($fid === 'text_instruction' && empty($params['instruction'])) {
+        if ($instruction !== '') {
+            $params['instruction'] = $instruction;
+        } elseif (!empty($params['note'])) {
+            $params['instruction'] = $params['note'];
+        }
+    }
+    if ($fid === 'load_unload') {
+        $params['filters'] = operational_steps_normalize_load_unload_filters($params);
+    }
+    if ($fid === 'fill_orders') {
+        $params['order_filters'] = operational_steps_normalize_fill_order_filters($params);
+        $params['car_filters'] = operational_steps_normalize_fill_car_filters($params);
+    }
+    if ($fid === 'reposition_empties') {
+        $params['mode'] = trim((string) ($params['mode'] ?? 'reposition_to_home'));
+        if ($params['mode'] === '') {
+            $params['mode'] = 'reposition_to_home';
+        }
+        $params['filters'] = operational_steps_normalize_reposition_filters($params);
+    }
     $guessed = $instruction !== '' ? operational_steps_guess_params($instruction) : [];
     foreach ($guessed as $k => $v) {
+        if ($k === 'filters' && is_array($v)) {
+            if ($fid === 'reposition_empties') {
+                $params['filters'] = operational_steps_normalize_reposition_filters(array_merge($params, ['filters' => $v]));
+            } else {
+                $params['filters'] = operational_steps_normalize_load_unload_filters(array_merge($params, ['filters' => $v]));
+            }
+            continue;
+        }
+        if ($k === 'order_filters' && is_array($v)) {
+            $params['order_filters'] = operational_steps_normalize_fill_order_filters(array_merge($params, ['order_filters' => $v]));
+            continue;
+        }
+        if ($k === 'car_filters' && is_array($v)) {
+            $params['car_filters'] = operational_steps_normalize_fill_car_filters(array_merge($params, ['car_filters' => $v]));
+            continue;
+        }
         if ($v !== '' && (empty($params[$k]) || $params[$k] === 'note')) {
             $params[$k] = $v;
         }
+    }
+    if ($fid === 'load_unload') {
+        $params['filters'] = operational_steps_normalize_load_unload_filters($params);
+    }
+    if ($fid === 'fill_orders') {
+        $params['order_filters'] = operational_steps_normalize_fill_order_filters($params);
+        $params['car_filters'] = operational_steps_normalize_fill_car_filters($params);
+        $params['percent'] = (string) (int) operational_steps_normalize_percent($params, 100);
+    }
+    if ($fid === 'reposition_empties') {
+        $params['mode'] = trim((string) ($params['mode'] ?? 'reposition_to_home'));
+        if ($params['mode'] === '') {
+            $params['mode'] = 'reposition_to_home';
+        }
+        $params['filters'] = operational_steps_normalize_reposition_filters($params);
+        $params['percent'] = (string) (int) operational_steps_normalize_percent($params, 65);
+    }
+    if ($fid === 'generate_orders') {
+        $params = array_merge($params, operational_steps_normalize_generate_orders_params($params));
+    }
+    if ($fid === 'auto_assign_locals') {
+        $params['jobs'] = operational_steps_normalize_auto_assign_jobs($params);
     }
 
     if (isset($catalog[$fid])) {
@@ -1715,6 +2901,9 @@ function operational_steps_normalize_step(array $step)
     if ($instruction !== '' && ($normalized['function'] ?? '') === 'marker') {
         $normalized['params']['note'] = $instruction;
     }
+    if (($normalized['function'] ?? '') === 'text_instruction' && empty($normalized['params']['instruction']) && $instruction !== '') {
+        $normalized['params']['instruction'] = $instruction;
+    }
     return $normalized;
 }
 
@@ -1731,7 +2920,7 @@ function operational_steps_normalize_recipe(array $recipe)
     if (!isset($recipe['version'])) {
         $recipe['version'] = 1;
     }
-    return $recipe;
+    return operational_steps_normalize_goto_sections($recipe);
 }
 
 function operational_steps_default_recipe_from_csv_file($path)
@@ -1752,46 +2941,153 @@ function operational_steps_recipe_paths($switchlists_dir)
     ];
 }
 
-function operational_steps_load_recipe($switchlists_dir)
+function operational_steps_sanitize_csv_name($name)
 {
-    $paths = operational_steps_recipe_paths($switchlists_dir);
-    if (is_file($paths['recipe'])) {
-        $data = json_decode(file_get_contents($paths['recipe']), true);
-        if (is_array($data) && isset($data['steps'])) {
-            return operational_steps_normalize_recipe($data);
-        }
+    $name = trim((string) $name);
+    $name = str_replace('\\', '/', $name);
+    $name = basename($name);
+    if ($name === '' || $name === '.' || $name === '..') {
+        return 'STS_OPERATIONAL_STEPS.csv';
     }
-    $backup = dirname(__DIR__) . '/sts/backups/STS_OPERATIONAL_RECIPE.json';
-    if (is_file($backup)) {
-        $data = json_decode(file_get_contents($backup), true);
-        if (is_array($data) && isset($data['steps'])) {
+    if (!preg_match('/\.csv$/i', $name)) {
+        $name .= '.csv';
+    }
+    if (!preg_match('/^[A-Za-z0-9][A-Za-z0-9._\-]*\.csv$/', $name)) {
+        throw new InvalidArgumentException('Invalid CSV filename');
+    }
+    return $name;
+}
+
+function operational_steps_recipe_paths_for_csv($switchlists_dir, $csv_name = null)
+{
+    $switchlists_dir = rtrim($switchlists_dir, '/');
+    if ($csv_name === null || $csv_name === '') {
+        return operational_steps_recipe_paths($switchlists_dir);
+    }
+    $csv_name = operational_steps_sanitize_csv_name($csv_name);
+    $csv_path = $switchlists_dir . '/' . $csv_name;
+    if (strcasecmp($csv_name, 'STS_OPERATIONAL_STEPS.csv') === 0) {
+        return [
+            'csv' => $csv_path,
+            'recipe' => $switchlists_dir . '/STS_OPERATIONAL_RECIPE.json',
+        ];
+    }
+    $stem = preg_replace('/\.csv$/i', '', $csv_name);
+    return [
+        'csv' => $csv_path,
+        'recipe' => $switchlists_dir . '/' . $stem . '.recipe.json',
+    ];
+}
+
+function operational_steps_editor_state_path($switchlists_dir)
+{
+    return rtrim(operational_steps_editor_dir(), '/') . '/.session_editor.json';
+}
+
+function operational_steps_load_editor_state($switchlists_dir)
+{
+    $path = operational_steps_editor_state_path($switchlists_dir);
+    if (is_file($path)) {
+        $data = json_decode(file_get_contents($path), true);
+        if (is_array($data)) {
             return $data;
         }
     }
-    if (is_file($paths['csv'])) {
-        return operational_steps_default_recipe_from_csv_file($paths['csv']);
-    }
-    $docs = dirname(__DIR__) . '/docs/STS_OPERATIONAL_STEPS.csv';
-    if (is_file($docs)) {
-        return operational_steps_default_recipe_from_csv_file($docs);
-    }
-    return ['version' => 1, 'name' => 'empty', 'steps' => []];
+    return ['active_csv' => ''];
 }
 
-function operational_steps_save_recipe($switchlists_dir, array $recipe)
+function operational_steps_save_editor_state($switchlists_dir, array $state)
 {
-    $paths = operational_steps_recipe_paths($switchlists_dir);
-    $backup_dir = dirname(__DIR__) . '/sts/backups';
+    $path = operational_steps_editor_state_path($switchlists_dir);
+    $dir = dirname($path);
+    if (!is_dir($dir) && !@mkdir($dir, 0755, true)) {
+        return false;
+    }
+    $json = json_encode($state, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n";
+    return @file_put_contents($path, $json) !== false;
+}
+
+function operational_steps_active_csv($switchlists_dir, $requested = null)
+{
+    if ($requested !== null && $requested !== '') {
+        return operational_steps_sanitize_csv_name($requested);
+    }
+    return operational_steps_resolve_active_csv($switchlists_dir);
+}
+
+function operational_steps_list_csv_files($switchlists_dir = null)
+{
+    $switchlists_dir = rtrim($switchlists_dir ?? operational_steps_editor_dir(), '/');
+    $files = [];
+    if (is_dir($switchlists_dir)) {
+        foreach (glob($switchlists_dir . '/*.csv') ?: [] as $path) {
+            if (is_file($path)) {
+                $files[] = basename($path);
+            }
+        }
+    }
+    sort($files, SORT_NATURAL | SORT_FLAG_CASE);
+    return array_values(array_unique($files));
+}
+
+function operational_steps_resolve_active_csv($switchlists_dir, $requested = null)
+{
+    $editor_dir = operational_steps_editor_dir();
+    $files = operational_steps_list_csv_files($editor_dir);
+    if ($requested !== null && $requested !== '') {
+        $name = operational_steps_sanitize_csv_name($requested);
+        return in_array($name, $files, true) ? $name : '';
+    }
+    if (count($files) === 1) {
+        return $files[0];
+    }
+    return '';
+}
+
+function operational_steps_set_active_csv($switchlists_dir, $csv_name)
+{
+    $csv_name = operational_steps_sanitize_csv_name($csv_name);
+    operational_steps_save_editor_state(operational_steps_editor_dir(), ['active_csv' => $csv_name]);
+    return $csv_name;
+}
+
+function operational_steps_load_recipe($switchlists_dir, $csv_name = null)
+{
+    $editor_dir = operational_steps_editor_dir();
+    if ($csv_name === null || $csv_name === '') {
+        $csv_name = operational_steps_resolve_active_csv($editor_dir);
+        if ($csv_name === '') {
+            return ['version' => 1, 'name' => 'empty', 'steps' => [], 'source_csv' => ''];
+        }
+    } else {
+        $csv_name = operational_steps_sanitize_csv_name($csv_name);
+        if (!in_array($csv_name, operational_steps_list_csv_files($editor_dir), true)) {
+            return ['version' => 1, 'name' => 'empty', 'steps' => [], 'source_csv' => ''];
+        }
+    }
+
+    $paths = operational_steps_recipe_paths_for_csv($editor_dir, $csv_name);
+    if (!is_file($paths['csv'])) {
+        return ['version' => 1, 'name' => 'empty', 'steps' => [], 'source_csv' => $csv_name];
+    }
+    $recipe = operational_steps_default_recipe_from_csv_file($paths['csv']);
+    $recipe['source_csv'] = basename($paths['csv']);
+    return $recipe;
+}
+
+function operational_steps_save_recipe($switchlists_dir, array $recipe, $csv_name = null)
+{
+    $editor_dir = operational_steps_editor_dir();
+    $paths = operational_steps_recipe_paths_for_csv($editor_dir, $csv_name);
     $json = json_encode($recipe, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n";
     $csv = operational_steps_recipe_to_csv($recipe);
     $written = [];
     $errors = [];
-    foreach ([
-        'recipe_switchlists' => $paths['recipe'],
-        'csv_switchlists' => $paths['csv'],
-        'recipe_backups' => $backup_dir . '/STS_OPERATIONAL_RECIPE.json',
-        'csv_backups' => $backup_dir . '/STS_OPERATIONAL_STEPS.csv',
-    ] as $label => $path) {
+    $targets = [
+        'recipe' => $paths['recipe'],
+        'csv' => $paths['csv'],
+    ];
+    foreach ($targets as $label => $path) {
         $dir = dirname($path);
         if (!is_dir($dir) && !@mkdir($dir, 0755, true)) {
             $errors[] = "mkdir failed: {$dir}";
@@ -1804,7 +3100,8 @@ function operational_steps_save_recipe($switchlists_dir, array $recipe)
         }
         $written[$label] = $path;
     }
-    return ['written' => $written, 'errors' => $errors, 'compiled' => operational_steps_compile_recipe($recipe)];
+    operational_steps_set_active_csv($editor_dir, basename($paths['csv']));
+    return ['written' => $written, 'errors' => $errors, 'compiled' => operational_steps_compile_recipe($recipe), 'csv_file' => basename($paths['csv'])];
 }
 
 function operational_steps_dispatch_step($dbc, array $step, array $config = [])
@@ -1835,13 +3132,26 @@ function operational_steps_dispatch_step($dbc, array $step, array $config = [])
             break;
         case 'generate_orders':
             $shipment = trim($params['shipment'] ?? '');
+            $gen_params = operational_steps_normalize_generate_orders_params($params);
             if ($shipment !== '') {
                 require_once __DIR__ . '/session_helpers.php';
                 $result = array_merge($result, session_manual_generate_shipment($dbc, $shipment));
             } else {
                 $session = warm_start_get_session($dbc);
-                $counter = warm_start_get_next_auto_waybill_counter($dbc, $session);
-                $result['generated'] = warm_start_generate_orders($dbc, $session, $counter);
+                if ($gen_params['increment_session'] === '1') {
+                    $session = warm_start_set_session($dbc, $session + 1);
+                    $result['session'] = $session;
+                }
+                $unfilled = warm_start_count_unfilled($dbc);
+                $result['unfilled_before'] = $unfilled;
+                if ($gen_params['max_unfilled'] !== '' && $unfilled > (int) $gen_params['max_unfilled']) {
+                    $result['generated'] = 0;
+                    $result['skipped'] = true;
+                    $result['reason'] = 'Unfilled count ' . $unfilled . ' exceeds max ' . $gen_params['max_unfilled'];
+                } else {
+                    $counter = warm_start_get_next_auto_waybill_counter($dbc, $session);
+                    $result['generated'] = warm_start_generate_orders($dbc, $session, $counter);
+                }
             }
             break;
         case 'increment_session':
@@ -1849,50 +3159,77 @@ function operational_steps_dispatch_step($dbc, array $step, array $config = [])
             $result['session'] = warm_start_set_session($dbc, $prev + 1);
             break;
         case 'fill_orders':
-            $frac = (float) ($params['fraction'] ?? 1.0);
-            $result['filled'] = warm_start_auto_fill($dbc, $frac);
+            $frac = operational_steps_percent_to_fraction(
+                operational_steps_normalize_percent($params, 100)
+            );
+            require_once __DIR__ . '/fill_order_helpers.php';
+            $result['filled'] = warm_start_auto_fill($dbc, $frac, [
+                'order_filters' => fill_order_parse_filters(
+                    operational_steps_normalize_fill_order_filters($params)
+                ),
+                'car_filters' => operational_steps_fill_car_filters_runtime(
+                    operational_steps_normalize_fill_car_filters($params)
+                ),
+            ]);
             break;
         case 'reposition_empties':
-            $frac = (float) ($params['fraction'] ?? ($config['reposition_fraction'] ?? 0.65));
-            $result['repositioned'] = warm_start_create_reposition_orders($dbc, $frac);
+            $frac = operational_steps_percent_to_fraction(
+                operational_steps_normalize_percent($params, 65)
+            );
+            $mode = trim((string) ($params['mode'] ?? 'reposition_to_home'));
+            if ($mode === '') {
+                $mode = 'reposition_to_home';
+            }
+            $destination = trim((string) ($params['destination'] ?? ''));
+            $result['repositioned'] = warm_start_create_reposition_orders($dbc, $frac, [
+                'mode' => $mode,
+                'destination' => $destination,
+                'filters' => operational_steps_normalize_reposition_filters($params),
+            ]);
             break;
         case 'auto_assign_locals':
-            $staging = warm_start_staging_job_names($dbc, $config);
-            $scope = $params['scope'] ?? 'locals';
-            if ($scope === 'locals') {
-                $result['assigned'] = warm_start_auto_assign_all($dbc, 1.0, $staging, true);
-            } else {
-                $ids = array_keys(auto_assign_eligible_car_ids_for_job($dbc, $scope, true));
-                $result['assigned'] = warm_start_assign_cars_to_job($dbc, $scope, $ids);
-            }
+            $job_names = operational_steps_resolve_auto_assign_jobs($dbc, $params, $config);
+            $result['jobs'] = $job_names;
+            $result['assigned'] = warm_start_auto_assign_jobs($dbc, $job_names);
             break;
-        case 'assign_cars':
-            $job = $params['job'] ?? 'D749';
-            $station = operational_steps_location_station_id($dbc, $params['location'] ?? 'Demmler');
-            if ($station > 0) {
-                $result['assigned'] = warm_start_assign_all_ordered_cars_at_station($dbc, $job, $station);
+        case 'build_switchlists_sts':
+            $job = trim($params['job'] ?? '');
+            $station_key = trim($params['station'] ?? '');
+            if ($job !== '' && $station_key !== '' && $station_key !== 'all') {
+                $station = operational_steps_location_station_id($dbc, $station_key);
+                if ($station > 0) {
+                    $result['assigned'] = warm_start_assign_all_ordered_cars_at_station($dbc, $job, $station);
+                }
             }
             break;
         case 'pick_up_cars':
-            $job = $params['job'] ?? 'D749';
-            $station = operational_steps_location_station_id($dbc, $params['location'] ?? '');
-            if ($station > 0) {
-                $result['picked_up'] = warm_start_pickup_job_at_station($dbc, $job, $station);
+            $job = trim($params['job'] ?? '');
+            if ($job === '') {
+                $staging = warm_start_staging_job_names($dbc, $config);
+                $result['picked_up'] = warm_start_pickup_cars($dbc, 1.0, $staging, true);
             } else {
-                $result['picked_up'] = warm_start_pickup_job($dbc, $job);
+                $station = operational_steps_location_station_id($dbc, $params['location'] ?? '');
+                if ($station > 0) {
+                    $result['picked_up'] = warm_start_pickup_job_at_station($dbc, $job, $station);
+                } else {
+                    $result['picked_up'] = warm_start_pickup_job($dbc, $job);
+                }
             }
             break;
         case 'set_out_cars':
-            $job = $params['job'] ?? 'D749';
-            $loc = $params['location'] ?? 'South-Yard';
-            if ($loc === 'remainder') {
+            $job = trim($params['job'] ?? '');
+            $loc = trim($params['location'] ?? '');
+            if ($job === '' && $loc === '') {
+                $staging = warm_start_staging_job_names($dbc, $config);
+                $result['set_out'] = warm_start_setout_cars($dbc, 1.0, $staging, true);
+            } elseif ($loc === 'remainder') {
                 $result['set_out'] = warm_start_setout_all_job_train($dbc, $job);
             } elseif ($loc === 'Demmler/Scully') {
                 $result['set_out'] = warm_start_setout_job_cars_for_destinations($dbc, $job, [10, 14])
                     + warm_start_setout_job_cars_for_destinations($dbc, $job, [9, 15]);
             } elseif ($loc === 'Island/Shenango') {
                 $result['set_out'] = warm_start_setout_job_cars_for_destinations($dbc, $job, [3, 12]);
-            } else {
+            } elseif ($loc !== '') {
                 $loc_id = operational_steps_resolve_location_id($dbc, $loc);
                 if ($loc_id > 0) {
                     $result['set_out'] = warm_start_setout_job_at_location($dbc, $job, $loc_id);
@@ -1908,21 +3245,10 @@ function operational_steps_dispatch_step($dbc, array $step, array $config = [])
                 $result['reason'] = 'No track-scale handler for job ' . $job;
             }
             break;
-        case 'pick_up_locals':
-            $staging = warm_start_staging_job_names($dbc, $config);
-            $result['picked_up'] = warm_start_pickup_cars($dbc, 1.0, $staging, true);
-            break;
-        case 'set_out_locals':
-            $staging = warm_start_staging_job_names($dbc, $config);
-            $result['set_out'] = warm_start_setout_cars($dbc, 1.0, $staging, true);
-            break;
         case 'load_unload':
-            $result['load_unload'] = warm_start_load_unload($dbc, 1.0);
-            $result['filters'] = array_filter([
-                'location' => $params['location'] ?? '',
-                'car_code' => $params['car_code'] ?? '',
-                'commodity' => $params['commodity'] ?? '',
-            ]);
+            $filters = operational_steps_normalize_load_unload_filters($params);
+            $result['load_unload'] = warm_start_load_unload($dbc, 1.0, array_filter($filters));
+            $result['filters'] = array_filter($filters);
             break;
         case 'weigh_ck1':
             $result['weigh'] = warm_start_run_ck1_scale_ops($dbc);
@@ -2094,14 +3420,20 @@ function operational_steps_recipe_indices(array $recipe)
         $n = $i + 1;
         $fid = $step['function'] ?? '';
         $instr = $step['instruction'] ?? '';
-        if (stripos($instr, 'Each operating session') !== false) {
-            $indices['operating_start'] = $n;
+        if ($fid === 'section_label') {
+            $label = $step['params']['label'] ?? $instr;
+            if (stripos($label, 'Session end') !== false) {
+                $indices['session_end'] = $n;
+            }
+            if (stripos($label, 'Each operating session') !== false) {
+                $indices['operating_start'] = $n;
+            }
         }
         if ($indices['operating_start'] === null) {
             $desc = $step['description'] ?? '';
             if (stripos($desc, 'Begin session') !== false || stripos($instr, 'Begin session') !== false) {
                 $indices['operating_start'] = $n;
-            } elseif ($fid === 'assign_cars'
+            } elseif ($fid === 'build_switchlists_sts'
                 && stripos($instr, 'STG-SCULLY') !== false
                 && $n >= 40) {
                 $indices['operating_start'] = $n;
@@ -2114,7 +3446,7 @@ function operational_steps_recipe_indices(array $recipe)
                 'label' => 'Generate Switch Lists (capture)',
                 'function' => $fid,
             ];
-        } elseif ($fid !== 'section_label' && $fid !== 'marker' && $fid !== 'restore_database') {
+        } elseif ($fid !== 'section_label' && $fid !== 'text_instruction' && $fid !== 'marker' && $fid !== 'restore_database') {
             $compiled = operational_steps_compile_recipe(['steps' => [$step]]);
             $label = $compiled[0]['instruction'] ?? $fid;
             $indices['breakpoints'][] = [
@@ -2123,15 +3455,15 @@ function operational_steps_recipe_indices(array $recipe)
                 'function' => $fid,
             ];
         }
-        if ($fid === 'defer_stg_scully' && stripos($instr, 'Session end') !== false) {
-            $indices['session_end'] = $n;
+        if ($fid === 'goto' && $indices['session_end'] !== null && $n === $indices['session_end'] + 1) {
+            $indices['session_loop_goto'] = $n;
         }
     }
     if ($indices['operating_start'] === null) {
-        $indices['operating_start'] = 42;
+        $indices['operating_start'] = 45;
     }
     if ($indices['generate_step'] === null) {
-        $indices['generate_step'] = 50;
+        $indices['generate_step'] = 54;
     }
     if ($indices['session_end'] === null) {
         $indices['session_end'] = $total;
@@ -2151,7 +3483,7 @@ function operational_steps_run_recipe_steps($dbc, array $recipe, $from_step, $to
             continue;
         }
         $fid = $step['function'] ?? '';
-        if (in_array($fid, ['generate_switchlists', 'section_label', 'marker', 'stop', 'goto', 'if_then', 'generate_waybills'], true)) {
+        if (in_array($fid, ['generate_switchlists', 'section_label', 'text_instruction', 'marker', 'stop', 'goto', 'if_then', 'generate_waybills'], true)) {
             continue;
         }
         $log[] = array_merge(
@@ -2232,10 +3564,10 @@ function operational_steps_run_generator_web($dbc, array $options = [])
     $start_step = (int) ($options['start_step'] ?? 0);
     $stop_step = (int) ($options['stop_step'] ?? 0);
     if ($stop_step <= 0) {
-        $stop_step = $breakpoint;
+        $stop_step = $total_steps > 0 ? $total_steps : $breakpoint;
     }
     if ($start_step <= 0) {
-        $start_step = (int) ($indices['operating_start'] ?: 1);
+        $start_step = 1;
     }
     $from_step = max(1, min($start_step, $total_steps));
     $to_step = max($from_step, min($stop_step, $total_steps));

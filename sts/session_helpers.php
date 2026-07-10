@@ -206,50 +206,98 @@ function session_register_phase(array &$manifest, $phase_num, array $meta)
     }
 }
 
-function session_generate_waybills_for_phase($dbc, $session_nbr, $phase_num, $root = null)
+function session_waybill_dir_for($session_nbr, $phase_num = null, $root = null)
 {
     $root = $root ?? session_web_root();
-    $out_dir = session_phase_output_dir($session_nbr, $phase_num, $root) . '/waybills';
+    if ($phase_num === null) {
+        return session_dir_for($session_nbr, $root) . '/waybills';
+    }
+    return session_phase_output_dir($session_nbr, $phase_num, $root) . '/waybills';
+}
+
+function session_write_waybill_bundle($dbc, $out_dir, array $waybill_numbers, array $options = [])
+{
     if (!is_dir($out_dir)) {
         mkdir($out_dir, 0755, true);
     }
+    $settings = waybill_print_settings($dbc);
+    $written = [];
+    $list_items = '';
+    $bundle_sheets = '';
 
-    $session = (int) $session_nbr;
-    $rs = mysqli_query(
-        $dbc,
-        'SELECT car_orders.waybill_number, car_orders.car, shipments.code AS shipment_code,
-                shipments.description, commodities.description AS commodity
-         FROM car_orders
-         INNER JOIN shipments ON shipments.id = car_orders.shipment
-         LEFT JOIN commodities ON commodities.id = shipments.commodity
-         WHERE car_orders.waybill_number LIKE "' . str_pad($session, 3, '0', STR_PAD_LEFT) . '-%"
-         ORDER BY car_orders.waybill_number'
-    );
-
-    $rows = [];
-    while ($row = mysqli_fetch_array($rs)) {
-        $rows[] = $row;
+    foreach ($waybill_numbers as $waybill_number) {
+        $safe = waybill_print_safe_filename($waybill_number);
+        $file = $safe . '.html';
+        $page = waybill_print_render_page($dbc, $waybill_number, [
+            'settings' => $settings,
+            'show_controls' => true,
+            'nav_html' => '<a href="index.html">Waybill list</a>',
+        ]);
+        if ($page === '') {
+            continue;
+        }
+        file_put_contents($out_dir . '/' . $file, $page);
+        $written[] = $waybill_number;
+        $body = waybill_print_render_body($dbc, $waybill_number, $settings);
+        $bundle_sheets .= '<div class="waybill-sheet">' . $body . '</div>';
+        $list_items .= '<li><a href="' . htmlspecialchars($file) . '">' . htmlspecialchars($waybill_number) . '</a></li>';
     }
 
-    $cards = '';
-    foreach ($rows as $row) {
-        $wb = htmlspecialchars($row['waybill_number']);
-        $cards .= '<div class="card"><h3>' . $wb . '</h3>'
-            . '<p><strong>Shipment:</strong> ' . htmlspecialchars($row['shipment_code']) . '</p>'
-            . '<p>' . htmlspecialchars($row['description'] ?? '') . '</p>'
-            . '<p><em>' . htmlspecialchars($row['commodity'] ?? '') . '</em></p>'
-            . '<p>Car: ' . htmlspecialchars($row['car'] ?: 'unassigned') . '</p>'
-            . '<a href="/sts/printable_waybill.php" target="_blank">Print in STS</a></div>';
-    }
-
-    $html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Waybills session ' . $session . ' phase ' . (int) $phase_num . '</title>'
-        . '<style>body{font-family:sans-serif;max-width:960px;margin:0 auto;padding:16px}.card{border:1px solid #ccc;border-radius:8px;padding:12px;margin:12px 0}</style></head><body>'
-        . '<nav><a href="../index.php">← Phase</a> · <a href="../../index.php">Session</a> · <a href="/session/index.php">All sessions</a></nav>'
-        . '<h1>Waybills — session ' . $session . ', phase ' . (int) $phase_num . '</h1>'
-        . ($cards !== '' ? $cards : '<p>No waybills for this session.</p>')
+    $title = $options['title'] ?? 'Waybills';
+    $back = $options['back_href'] ?? '../index.php';
+    $index_html = '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>' . htmlspecialchars($title) . '</title>'
+        . '<style>body{font-family:sans-serif;max-width:960px;margin:0 auto;padding:16px}'
+        . 'a{color:#1f4d2e}.card{border:1px solid #d8dee4;border-radius:10px;padding:14px;margin:12px 0}'
+        . 'ul{line-height:1.8}</style></head><body>'
+        . '<nav><a href="' . htmlspecialchars($back) . '">← Back</a></nav>'
+        . '<h1>' . htmlspecialchars($title) . '</h1>'
+        . '<div class="card"><p>' . count($written) . ' printable waybill(s) generated from the current database.</p>'
+        . ($written ? '<p><a href="print_all.html"><strong>Print all waybills</strong></a></p>' : '')
+        . '<ul>' . ($list_items !== '' ? $list_items : '<li>No waybills available.</li>') . '</ul></div>'
         . '</body></html>';
-    file_put_contents($out_dir . '/index.html', $html);
-    return ['path' => $out_dir . '/index.html', 'count' => count($rows)];
+    file_put_contents($out_dir . '/index.html', $index_html);
+
+    $print_all = waybill_print_render_bundle_page(
+        $title . ' — print all',
+        $bundle_sheets,
+        ['back_href' => 'index.html']
+    );
+    file_put_contents($out_dir . '/print_all.html', $print_all);
+
+    return [
+        'path' => $out_dir . '/index.html',
+        'print_all' => $out_dir . '/print_all.html',
+        'count' => count($written),
+        'waybills' => $written,
+    ];
+}
+
+function session_refresh_session_waybills($dbc, $session_nbr, $root = null)
+{
+    require_once __DIR__ . '/waybill_print_helpers.php';
+    $root = $root ?? session_web_root();
+    $numbers = waybill_print_session_numbers($dbc, $session_nbr);
+    return session_write_waybill_bundle($dbc, session_waybill_dir_for($session_nbr, null, $root), $numbers, [
+        'title' => 'Waybills — session ' . (int) $session_nbr,
+        'back_href' => '../index.php',
+    ]);
+}
+
+function session_generate_waybills_for_phase($dbc, $session_nbr, $phase_num, $root = null)
+{
+    require_once __DIR__ . '/waybill_print_helpers.php';
+    $root = $root ?? session_web_root();
+    $out_dir = session_waybill_dir_for($session_nbr, $phase_num, $root);
+    $numbers = waybill_print_session_numbers($dbc, $session_nbr);
+    $phase_back = '../index.html';
+    $result = session_write_waybill_bundle($dbc, $out_dir, $numbers, [
+        'title' => 'Waybills — session ' . (int) $session_nbr . ', phase ' . (int) $phase_num,
+        'back_href' => $phase_back,
+    ]);
+    $session_bundle = session_refresh_session_waybills($dbc, $session_nbr, $root);
+    $result['session_print_all'] = $session_bundle['print_all'] ?? null;
+    $result['session_count'] = $session_bundle['count'] ?? 0;
+    return $result;
 }
 
 function session_run_recipe($dbc, array $recipe, array $options = [])
@@ -267,10 +315,24 @@ function session_run_recipe($dbc, array $recipe, array $options = [])
     $ctx = session_evaluate_context($dbc, $config);
     $log = [];
     $stopped = false;
+    $loop_error = null;
+    $step_span = max(1, $to_step - $from_step + 1);
+    $max_iterations = max(500, $step_span * 100);
+    $iterations = 0;
+    $pc = $from_step - 1;
 
-    for ($pc = $from_step - 1; $pc < $to_step; $pc++) {
+    while ($pc >= 0 && $pc < $to_step) {
+        $iterations++;
+        if ($iterations > $max_iterations) {
+            $stopped = true;
+            $loop_error = 'Possible infinite goto loop (exceeded ' . $max_iterations . ' step executions).';
+            $log[] = ['step' => $pc + 1, 'action' => 'loop_guard', 'error' => $loop_error];
+            break;
+        }
+
         $step = $recipe['steps'][$pc] ?? null;
         if (!is_array($step)) {
+            $pc++;
             continue;
         }
         $n = $pc + 1;
@@ -282,10 +344,17 @@ function session_run_recipe($dbc, array $recipe, array $options = [])
             break;
         }
         if ($fid === 'goto') {
-            $target = (int) ($step['params']['step'] ?? 0);
-            if ($target >= 1 && $target <= count($recipe['steps'])) {
-                $pc = $target - 2;
+            $target = operational_steps_goto_resolve_step($recipe, $step['params'] ?? []);
+            $total = count($recipe['steps']);
+            if (operational_steps_goto_target_allowed($n, $target, $total)) {
+                $pc = $target - 1;
                 $log[] = ['step' => $n, 'action' => 'goto', 'target' => $target];
+            } else {
+                $reason = ($target > 0 && $target <= $n)
+                    ? 'backward goto not allowed (use Repeat to loop a section)'
+                    : 'invalid target';
+                $log[] = ['step' => $n, 'action' => 'goto', 'target' => $target, 'error' => $reason];
+                $pc++;
             }
             continue;
         }
@@ -299,6 +368,7 @@ function session_run_recipe($dbc, array $recipe, array $options = [])
                 $p
             );
             $log[] = ['step' => $n, 'action' => 'if_then', 'result' => $ok];
+            $pc++;
             if (!$ok) {
                 $pc++;
             }
@@ -306,6 +376,7 @@ function session_run_recipe($dbc, array $recipe, array $options = [])
         }
         if ($fid === 'section_label') {
             $log[] = ['step' => $n, 'action' => 'section_label', 'label' => $step['params']['label'] ?? ''];
+            $pc++;
             continue;
         }
 
@@ -323,6 +394,7 @@ function session_run_recipe($dbc, array $recipe, array $options = [])
                 'output' => $phase_dir,
             ]);
             $log[] = ['step' => $n, 'phase' => $phase_num, 'written' => $written];
+            $pc++;
             continue;
         }
         if ($fid === 'generate_waybills') {
@@ -330,7 +402,25 @@ function session_run_recipe($dbc, array $recipe, array $options = [])
                 $phase_num = 1;
             }
             $wb = session_generate_waybills_for_phase($dbc, $session_nbr, $phase_num, $root);
+            foreach ($manifest['phases'] as &$phase_entry) {
+                if ((int) ($phase_entry['phase'] ?? 0) === (int) $phase_num) {
+                    $phase_entry['waybills'] = [
+                        'count' => $wb['count'] ?? 0,
+                        'index' => 'waybills/index.html',
+                        'print_all' => 'waybills/print_all.html',
+                    ];
+                    break;
+                }
+            }
+            unset($phase_entry);
+            $manifest['waybills'] = [
+                'count' => $wb['session_count'] ?? ($wb['count'] ?? 0),
+                'index' => 'waybills/index.html',
+                'print_all' => 'waybills/print_all.html',
+                'updated' => date('c'),
+            ];
             $log[] = ['step' => $n, 'phase' => $phase_num, 'waybills' => $wb];
+            $pc++;
             continue;
         }
 
@@ -338,6 +428,7 @@ function session_run_recipe($dbc, array $recipe, array $options = [])
         $result = operational_steps_dispatch_step($dbc, $step, $dispatch_opts);
         $log[] = array_merge(['step' => $n], $result);
         $ctx = session_evaluate_context($dbc, $config);
+        $pc++;
     }
 
     session_save_manifest($session_nbr, $manifest, $root);
@@ -345,6 +436,7 @@ function session_run_recipe($dbc, array $recipe, array $options = [])
         'session' => (string) $session_nbr,
         'phases' => $phase_num,
         'stopped' => $stopped,
+        'error' => $loop_error,
         'log' => $log,
         'manifest' => $manifest,
     ];

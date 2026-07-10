@@ -2315,10 +2315,23 @@ function warm_start_generate_orders($dbc, $session_number, $waybill_counter = 0)
     return $orders_created;
 }
 
-function warm_start_auto_fill($dbc, $fraction = 1.0)
+function warm_start_auto_fill($dbc, $fraction = 1.0, array $options = [])
 {
     $filled = 0;
+    $order_filters = fill_order_parse_filters($options['order_filters'] ?? null);
+    $car_filters = $options['car_filters'] ?? null;
+    if ($car_filters !== null && !is_array($car_filters)) {
+        $car_filters = null;
+    }
+
     $waybills = fill_order_get_unfilled_waybills($dbc);
+    if (!empty($order_filters)) {
+        $waybills = array_values(array_filter($waybills, function ($waybill_number) use ($dbc, $order_filters) {
+            $order_row = fill_order_get_details($dbc, $waybill_number);
+            return $order_row !== null && fill_order_matches_filters($order_row, $order_filters);
+        }));
+    }
+
     shuffle($waybills);
     $limit = (int) ceil(count($waybills) * max(0.0, min(1.0, $fraction)));
 
@@ -2333,7 +2346,11 @@ function warm_start_auto_fill($dbc, $fraction = 1.0)
         }
 
         $available_cars = fill_order_get_available_cars($dbc, $order_row);
-        $selected_car = fill_order_pick_car_for_categories($available_cars, fill_order_valid_categories());
+        $selected_car = fill_order_pick_car_for_categories(
+            $available_cars,
+            fill_order_valid_categories(),
+            $car_filters
+        );
         if ($selected_car === null) {
             continue;
         }
@@ -2362,17 +2379,49 @@ function warm_start_next_e_waybill_counter($dbc, $session_number)
     return 1;
 }
 
-function warm_start_create_reposition_orders($dbc, $fraction = 1.0)
+function warm_start_reposition_row_matches(array $row, array $filters)
 {
-    $session_number = warm_start_get_session($dbc);
-    $waybill_counter = warm_start_next_e_waybill_counter($dbc, $session_number);
-    $created = 0;
+    if (!empty($filters['car_code'])
+        && (string) ($row['car_code'] ?? '') !== (string) $filters['car_code']) {
+        return false;
+    }
+    if (!empty($filters['current_station'])
+        && (string) ($row['current_station'] ?? '') !== (string) $filters['current_station']) {
+        return false;
+    }
+    if (!empty($filters['current_location'])
+        && (string) ($row['current_location'] ?? '') !== (string) $filters['current_location']) {
+        return false;
+    }
+    if (!empty($filters['home_station'])
+        && (string) ($row['home_station'] ?? '') !== (string) $filters['home_station']) {
+        return false;
+    }
+    if (!empty($filters['home_location'])
+        && (string) ($row['home_location'] ?? '') !== (string) $filters['home_location']) {
+        return false;
+    }
+    if (!empty($filters['off_home_only'])
+        && (string) $filters['off_home_only'] !== '0'
+        && empty($row['off_home'])) {
+        return false;
+    }
+    return true;
+}
 
+function warm_start_reposition_candidates($dbc)
+{
     $sql = 'SELECT cars.id AS car_id,
                    cars.current_location_id,
-                   cars.home_location,
+                   cars.home_location AS home_location_id,
+                   car_codes.code AS car_code,
                    loc.code AS current_code,
                    home.code AS home_code,
+                   loc01.code AS current_location,
+                   loc02.code AS home_location,
+                   sta01.station AS current_station,
+                   sta02.station AS home_station,
+                   (cars.current_location_id != cars.home_location) AS off_home,
                    CASE
                      WHEN cars.current_location_id IN (
                        SELECT unloading_location FROM shipments WHERE unloading_location > 0
@@ -2380,12 +2429,16 @@ function warm_start_create_reposition_orders($dbc, $fraction = 1.0)
                      ELSE 1
                    END AS sort_key
             FROM cars
+            LEFT JOIN car_codes ON car_codes.id = cars.car_code_id
             LEFT JOIN locations loc ON loc.id = cars.current_location_id
             LEFT JOIN locations home ON home.id = cars.home_location
+            LEFT JOIN locations loc01 ON loc01.id = cars.current_location_id
+            LEFT JOIN locations loc02 ON loc02.id = cars.home_location
+            LEFT JOIN routing sta01 ON sta01.id = loc01.station
+            LEFT JOIN routing sta02 ON sta02.id = loc02.station
             WHERE cars.status = "Empty"
               AND cars.current_location_id > 0
               AND cars.home_location > 0
-              AND cars.current_location_id != cars.home_location
               AND cars.id NOT IN (
                     SELECT car FROM car_orders WHERE car IS NOT NULL AND car != "" AND car != "0"
               )
@@ -2396,39 +2449,156 @@ function warm_start_create_reposition_orders($dbc, $fraction = 1.0)
     while ($row = mysqli_fetch_array($rs)) {
         $candidates[] = $row;
     }
+    return $candidates;
+}
+
+function warm_start_reposition_create_order($dbc, $session_number, &$waybill_counter, array $row, $destination_id, $destination_code)
+{
+    $car_id = (int) $row['car_id'];
+    $destination_id = (int) $destination_id;
+    if ($car_id <= 0 || $destination_id <= 0) {
+        return false;
+    }
+
+    $wb_nbr = str_pad($session_number, 3, '0', STR_PAD_LEFT) . '-E' . str_pad($waybill_counter, 2, '0', STR_PAD_LEFT);
+    if (!mysqli_query(
+        $dbc,
+        'INSERT INTO car_orders (waybill_number, shipment, car) VALUES ("' . $wb_nbr . '", "' . $destination_id . '", "' . $car_id . '")'
+    )) {
+        return false;
+    }
+
+    mysqli_query($dbc, 'UPDATE cars SET status = "Ordered" WHERE id = "' . $car_id . '"');
+    mysqli_query(
+        $dbc,
+        'INSERT INTO history(car_id, session_nbr, event_date, event, location)
+         VALUES ("' . $car_id . '",
+                 "' . $session_number . '",
+                 "' . date('Y-m-d H:i:s') . '",
+                 "Repositioned to ' . mysqli_real_escape_string($dbc, $destination_code) . '",
+                 "' . (int) $row['current_location_id'] . '")'
+    );
+
+    $waybill_counter++;
+    return true;
+}
+
+function warm_start_reposition_to_home($dbc, $fraction = 1.0, array $filters = [])
+{
+    $session_number = warm_start_get_session($dbc);
+    $waybill_counter = warm_start_next_e_waybill_counter($dbc, $session_number);
+    $created = 0;
+
+    $candidates = array_values(array_filter(warm_start_reposition_candidates($dbc), function ($row) use ($filters) {
+        if (empty($row['off_home'])) {
+            return false;
+        }
+        return warm_start_reposition_row_matches($row, $filters);
+    }));
+
     shuffle($candidates);
     $limit = (int) ceil(count($candidates) * max(0.0, min(1.0, $fraction)));
 
     for ($i = 0; $i < $limit; $i++) {
         $row = $candidates[$i];
-        $car_id = (int) $row['car_id'];
-        $destination_id = (int) $row['home_location'];
-        $wb_nbr = str_pad($session_number, 3, '0', STR_PAD_LEFT) . '-E' . str_pad($waybill_counter, 2, '0', STR_PAD_LEFT);
-
-        if (!mysqli_query(
+        if (warm_start_reposition_create_order(
             $dbc,
-            'INSERT INTO car_orders (waybill_number, shipment, car) VALUES ("' . $wb_nbr . '", "' . $destination_id . '", "' . $car_id . '")'
+            $session_number,
+            $waybill_counter,
+            $row,
+            (int) $row['home_location_id'],
+            (string) $row['home_code']
         )) {
-            continue;
+            $created++;
         }
-
-        mysqli_query($dbc, 'UPDATE cars SET status = "Ordered" WHERE id = "' . $car_id . '"');
-
-        mysqli_query(
-            $dbc,
-            'INSERT INTO history(car_id, session_nbr, event_date, event, location)
-             VALUES ("' . $car_id . '",
-                     "' . $session_number . '",
-                     "' . date('Y-m-d H:i:s') . '",
-                     "Repositioned to ' . mysqli_real_escape_string($dbc, $row['home_code']) . '",
-                     "' . (int) $row['current_location_id'] . '")'
-        );
-
-        $waybill_counter++;
-        $created++;
     }
 
     return $created;
+}
+
+function warm_start_reposition_update($dbc, $fraction = 1.0, array $filters = [], $destination = '')
+{
+    $destination = trim((string) $destination);
+    if ($destination === '') {
+        return 0;
+    }
+    $destination_id = warm_start_location_id_by_code($dbc, strtoupper(str_replace(' ', '-', $destination)));
+    if ($destination_id <= 0) {
+        return 0;
+    }
+
+    $destination_code = '';
+    $rs = mysqli_query($dbc, 'SELECT code FROM locations WHERE id = "' . (int) $destination_id . '" LIMIT 1');
+    if ($rs && ($row = mysqli_fetch_array($rs))) {
+        $destination_code = (string) ($row['code'] ?? '');
+    }
+    if ($destination_code === '') {
+        return 0;
+    }
+
+    $session_number = warm_start_get_session($dbc);
+    $waybill_counter = warm_start_next_e_waybill_counter($dbc, $session_number);
+    $created = 0;
+
+    $candidates = array_values(array_filter(warm_start_reposition_candidates($dbc), function ($row) use ($filters) {
+        return warm_start_reposition_row_matches($row, $filters);
+    }));
+
+    shuffle($candidates);
+    $limit = (int) ceil(count($candidates) * max(0.0, min(1.0, $fraction)));
+
+    for ($i = 0; $i < $limit; $i++) {
+        $row = $candidates[$i];
+        if ((int) $row['current_location_id'] === $destination_id) {
+            continue;
+        }
+        if (warm_start_reposition_create_order(
+            $dbc,
+            $session_number,
+            $waybill_counter,
+            $row,
+            $destination_id,
+            $destination_code
+        )) {
+            $created++;
+        }
+    }
+
+    return $created;
+}
+
+function warm_start_create_reposition_orders($dbc, $fraction = 1.0, array $options = [])
+{
+    $mode = trim((string) ($options['mode'] ?? 'reposition_to_home'));
+    if ($mode === '') {
+        $mode = 'reposition_to_home';
+    }
+    $filters = is_array($options['filters'] ?? null) ? $options['filters'] : [];
+
+    if ($mode === 'update') {
+        return warm_start_reposition_update(
+            $dbc,
+            $fraction,
+            $filters,
+            trim((string) ($options['destination'] ?? ''))
+        );
+    }
+
+    return warm_start_reposition_to_home($dbc, $fraction, $filters);
+}
+
+function warm_start_auto_assign_jobs($dbc, array $job_names)
+{
+    $assigned = 0;
+    foreach ($job_names as $job_name) {
+        $job_name = trim((string) $job_name);
+        if ($job_name === '') {
+            continue;
+        }
+        $ids = array_keys(auto_assign_eligible_car_ids_for_job($dbc, $job_name, true));
+        $assigned += warm_start_assign_cars_to_job($dbc, $job_name, $ids);
+    }
+    return $assigned;
 }
 
 function warm_start_auto_assign_all($dbc, $fraction = 1.0, $staging_jobs = [], $skip_staging = false, $skip_jobs = [])
@@ -2718,22 +2888,128 @@ function warm_start_setout_cars($dbc, $fraction = 1.0, $staging_jobs = [], $skip
     return $set_out;
 }
 
-function warm_start_load_unload($dbc, $fraction = 1.0)
+function warm_start_load_unload_filter_token_match($needle, $station, $code)
+{
+    $needle = trim((string) $needle);
+    if ($needle === '') {
+        return true;
+    }
+    $needles = [$needle];
+    $hyphen = strpos($needle, ' - ');
+    if ($hyphen !== false) {
+        $needles[] = substr($needle, 0, $hyphen) . "\n" . substr($needle, $hyphen + 3);
+    }
+    $station = trim((string) $station);
+    $code = trim((string) $code);
+    $candidates = array_values(array_unique(array_filter([
+        $code,
+        $station,
+        ($station !== '' && $code !== '') ? $station . ' / ' . $code : '',
+        ($station !== '' && $code !== '') ? $station . "\n" . $code : '',
+    ])));
+    foreach ($needles as $n) {
+        $n = trim((string) $n);
+        if ($n === '') {
+            continue;
+        }
+        foreach ($candidates as $candidate) {
+            if (strcasecmp($candidate, $n) === 0) {
+                return true;
+            }
+            if ($code !== '' && strcasecmp($code, $n) === 0) {
+                return true;
+            }
+            $haystack_len = strlen($candidate);
+            $needle_len = strlen($n);
+            if ($needle_len > 0 && $haystack_len >= $needle_len
+                && substr($candidate, $haystack_len - $needle_len) === $n) {
+                return true;
+            }
+            if (stripos($candidate, $n) !== false) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+function warm_start_load_unload_row_matches(array $row, array $filters)
+{
+    $checks = [
+        'current_location' => ['current_station', 'current_location'],
+        'loading_location' => ['loading_station', 'loading_location'],
+        'unloading_location' => ['unloading_station', 'unloading_location'],
+    ];
+    foreach ($checks as $filter_key => $cols) {
+        $needle = trim((string) ($filters[$filter_key] ?? ''));
+        if ($needle === '') {
+            continue;
+        }
+        if (!warm_start_load_unload_filter_token_match(
+            $needle,
+            $row[$cols[0]] ?? '',
+            $row[$cols[1]] ?? ''
+        )) {
+            return false;
+        }
+    }
+    if (($filters['car_code'] ?? '') !== ''
+        && strcasecmp(trim((string) ($row['car_code'] ?? '')), trim((string) $filters['car_code'])) !== 0) {
+        return false;
+    }
+    if (($filters['status'] ?? '') !== ''
+        && strcasecmp(trim((string) ($row['status'] ?? '')), trim((string) $filters['status'])) !== 0) {
+        return false;
+    }
+    if (($filters['commodity'] ?? '') !== '') {
+        $commodity = trim((string) ($row['consignment'] ?? $row['commodity'] ?? ''));
+        $needle = trim((string) $filters['commodity']);
+        if ($commodity === '' && substr((string) ($row['waybill_number'] ?? ''), 4, 1) === 'E') {
+            $commodity = 'Non-Revenue';
+        }
+        if (strcasecmp($commodity, $needle) !== 0 && stripos($commodity, $needle) === false) {
+            return false;
+        }
+    }
+    return true;
+}
+
+function warm_start_load_unload($dbc, $fraction = 1.0, array $filters = [])
 {
     $session_number = warm_start_get_session($dbc);
     $updated = 0;
+    $filters = array_filter($filters, static function ($value) {
+        return trim((string) $value) !== '';
+    });
 
     $sql = 'SELECT cars.id AS car_id,
                    cars.status,
                    cars.last_spotted,
                    car_orders.shipment,
+                   car_orders.waybill_number,
                    shipments.min_load_time,
                    shipments.max_load_time,
                    shipments.min_unload_time,
-                   shipments.max_unload_time
+                   shipments.max_unload_time,
+                   car_codes.code AS car_code,
+                   sta01.station AS current_station,
+                   loc01.code AS current_location,
+                   sta02.station AS loading_station,
+                   loc02.code AS loading_location,
+                   sta03.station AS unloading_station,
+                   loc03.code AS unloading_location,
+                   commodities.code AS consignment
             FROM cars
             LEFT JOIN car_orders ON car_orders.car = cars.id
             LEFT JOIN shipments ON shipments.id = car_orders.shipment
+            LEFT JOIN car_codes ON car_codes.id = cars.car_code_id
+            LEFT JOIN locations loc01 ON loc01.id = cars.current_location_id
+            LEFT JOIN locations loc02 ON loc02.id = shipments.loading_location
+            LEFT JOIN locations loc03 ON loc03.id = shipments.unloading_location
+            LEFT JOIN routing sta01 ON sta01.id = loc01.station
+            LEFT JOIN routing sta02 ON sta02.id = loc02.station
+            LEFT JOIN routing sta03 ON sta03.id = loc03.station
+            LEFT JOIN commodities ON commodities.id = shipments.consignment
             WHERE cars.status IN ("Loading", "Unloading")
                OR (cars.status = "Empty"
                    AND car_orders.waybill_number LIKE "%E%"
@@ -2759,7 +3035,9 @@ function warm_start_load_unload($dbc, $fraction = 1.0)
         }
 
         if ($ready) {
-            $cars[] = $row;
+            if (empty($filters) || warm_start_load_unload_row_matches($row, $filters)) {
+                $cars[] = $row;
+            }
         }
     }
 

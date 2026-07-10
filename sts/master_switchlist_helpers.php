@@ -1650,7 +1650,24 @@ function master_sw_render_mobile_car_block($dbc, array $section, $page_width, &$
     }
 }
 
-function master_sw_render_nav_styles()
+function master_sw_waybills_href_for_job_dir($job_dir)
+{
+    $waybill_index = dirname(rtrim($job_dir, '/')) . '/waybills/index.html';
+    return is_file($waybill_index) ? '../waybills/index.html' : '';
+}
+
+function master_sw_waybills_card_html($href, $title = 'Waybills')
+{
+    if ($href === '') {
+        return '';
+    }
+    return '<div class="card">
+      <h2>' . htmlspecialchars($title) . '</h2>
+      <p>View or print freight waybills generated for this session phase.</p>
+      <a class="button" href="' . htmlspecialchars($href) . '">Open waybills</a>
+      <p style="margin-top:10px;font-size:14px;"><a href="' . htmlspecialchars(dirname($href) . '/print_all.html') . '">Print all waybills</a></p>
+    </div>';
+}
 {
     return <<<'CSS'
     body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; margin: 0; background: #f4f6f8; color: #1a1a1a; }
@@ -1716,6 +1733,10 @@ function master_sw_build_phase_nav($job_dir, $phase_index, $phase_total, $layout
         'phase_index' => $phase_index,
         'phase_total' => $phase_total,
     ];
+    $waybills_href = master_sw_waybills_href_for_job_dir($job_dir);
+    if ($waybills_href !== '') {
+        $nav['waybills_href'] = $waybills_href;
+    }
     if ($phase_index > 1) {
         $nav['prev'] = basename(master_sw_phase_output_path($job_dir, $phase_index - 1, $layout));
     }
@@ -1745,6 +1766,9 @@ function master_sw_render_phase_nav_bar($table_name, $session_nbr, array $nav)
     if (!empty($nav['sessions_index'])) {
         echo '<a href="' . htmlspecialchars($nav['sessions_index']) . '">All Sessions</a>';
     }
+    if (!empty($nav['waybills_href'])) {
+        echo '<a href="' . htmlspecialchars($nav['waybills_href']) . '">Waybills</a>';
+    }
     echo '<span class="spacer"></span>';
     if ($phase_index > 0) {
         echo '<span>Phase ' . $phase_index . ' / ' . $phase_total . '</span>';
@@ -1769,6 +1793,7 @@ function master_sw_render_job_index($dbc, $job_name, array $sections, $job_dir, 
     $table_name = $meta['table_name'];
     $job_desc = nl2br(htmlspecialchars($meta['description']));
     $phase_items = master_sw_build_phase_list_html($sections, 'mobile');
+    $waybills_href = master_sw_waybills_href_for_job_dir($job_dir);
 
     $html = '<!DOCTYPE html>
 <html lang="en">
@@ -1797,6 +1822,7 @@ function master_sw_render_job_index($dbc, $job_name, array $sections, $job_dir, 
       <p>Open each leg in order. Choose mobile or half sheet on the switch list page. Mark pickups and setouts as you work.</p>
       <ul class="phase-list">' . $phase_items . '</ul>
     </div>
+    ' . master_sw_waybills_card_html($waybills_href) . '
   </div>
 </body>
 </html>';
@@ -1834,6 +1860,11 @@ function master_sw_render_session_index($dbc, array $job_summaries, $output_dir,
       <p>' . count($job_summaries) . ' trains, ' . $total_phases . ' phases, ' . $total_cars . ' car rows total</p>
       <a class="button" href="print_all.html">Open print-all switch lists</a>
     </div>';
+
+    $waybills_href = is_file(rtrim($output_dir, '/') . '/waybills/index.html') ? 'waybills/index.html' : '';
+    if ($waybills_href !== '') {
+        $cards .= master_sw_waybills_card_html($waybills_href, 'Waybills');
+    }
 
     $html = '<!DOCTYPE html>
 <html lang="en">
