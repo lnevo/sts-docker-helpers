@@ -2260,81 +2260,14 @@ class SeedBuilder:
                 }
             )
 
-    def build_default_pickup_criteria(self) -> list[dict]:
-        """Pickup criteria for Auto-Assign: one dest_station per row (STS demo pattern)."""
-        south_yard = 8
-        scully = 9
-        demmler = 10
-        north_yard = 11
-        east_yard = 13
-        offline = self.config.get("offline_stations", {})
-        demmler_offline = int(offline.get("csx_offline_station_id", 14))
-        scully_offline = int(offline.get("pohc_offline_station_id", 15))
-        shenango = int(self.config.get("shenango_coke", {}).get("station_id", 12))
-        island = int(self.config["island_local_station"])
-        rows: list[dict] = []
-
-        def add(job: str, step: int, dest: int, car_status: str = "") -> None:
-            rows.append(
-                {
-                    "job": job,
-                    "step_nbr": step,
-                    "car_status": car_status,
-                    "commodity_id": None,
-                    "car_code_id": None,
-                    "dest_station_id": dest,
-                }
-            )
-
-        # D749 — Demmler pick-ups by destination
-        add("D749", 10, scully)
-        add("D749", 20, island)
-        add("D749", 30, demmler)
-        add("D749", 40, demmler)
-
-        # NVL — Scully pick-ups by destination
-        add("NVL", 10, island)
-        add("NVL", 20, demmler)
-        add("NVL", 30, scully)
-        add("NVL", 40, island)
-        for dest in (island, scully, demmler):
-            add("NVL", 50, dest)
-        add("NVL", 60, scully)
-
-        # CK1 — coke moves (dest only; Shenango setout is step 60, no pickup criteria)
-        add("CK1", 10, south_yard)
-        add("CK1", 20, demmler)
-        add("CK1", 30, scully)
-        add("CK1", 40, north_yard)
-
-        # STG-SCULLY — Scully yard shuffle to Scully Offline, then block staging
-        add("STG-SCULLY", 10, scully_offline)
-        add("STG-SCULLY", 12, scully_offline)
-        add("STG-SCULLY", 20, scully)
-        add("STG-SCULLY", 30, shenango)
-        add("STG-SCULLY", 40, island)
-        add("STG-SCULLY", 45, demmler_offline)
-        add("STG-SCULLY", 50, demmler)
-        add("STG-SCULLY", 60, scully)
-
-        # STG-DEMMLER — Demmler yard shuffle to Demmler Offline, then block staging
-        add("STG-DEMMLER", 10, demmler_offline)
-        add("STG-DEMMLER", 12, demmler_offline)
-        add("STG-DEMMLER", 20, scully)
-        add("STG-DEMMLER", 30, shenango)
-        add("STG-DEMMLER", 40, island)
-        add("STG-DEMMLER", 45, scully_offline)
-        add("STG-DEMMLER", 50, demmler)
-        add("STG-DEMMLER", 60, demmler)
-
-        return rows
-
     def add_pickup_criteria(self) -> None:
         configured = self.config.get("pickup_criteria")
-        if configured:
-            self.pu_criteria_rows = configured
-            return
-        self.pu_criteria_rows = self.build_default_pickup_criteria()
+        if not configured:
+            raise ValueError(
+                "hart_seed_config.json must define pickup_criteria "
+                "(including STG-SCULLY and STG-DEMMLER staging rows)."
+            )
+        self.pu_criteria_rows = configured
 
     def add_club_ops(self) -> None:
         """Populate owners and per-car ownership for STS Club Ops."""

@@ -260,16 +260,10 @@
             "params": {
                 "variable": "session_nbr",
                 "operator": ">",
-                "value": "0"
+                "value": "0",
+                "step": "35"
             },
-            "description": "Test: If \u2026 then"
-        },
-        {
-            "function": "goto",
-            "params": {
-                "step": "36"
-            },
-            "description": "Test: Goto step (forward to Stop)"
+            "description": "Test: If \u2026 then goto Stop"
         },
         {
             "function": "stop",

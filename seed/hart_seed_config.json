@@ -342,8 +342,8 @@
       "loading_location": "SHEN-COKE-SHIPPING",
       "unloading_location": "USSTEELE-COKE",
       "special_instructions": "All loads to be weighed in South Yard.",
-      "min_interval": 1.1,
-      "max_interval": 1.1,
+      "min_interval": 99,
+      "max_interval": 99,
       "min_amount": 4,
       "max_amount": 4
     },
@@ -355,8 +355,8 @@
       "loading_location": "SHEN-COKE-SHIPPING",
       "unloading_location": "CLEVWORK-COKE",
       "special_instructions": "All loads to be weighed in South Yard.",
-      "min_interval": 1.1,
-      "max_interval": 1.1,
+      "min_interval": 99,
+      "max_interval": 99,
       "min_amount": 4,
       "max_amount": 4
     },
@@ -409,49 +409,56 @@
           "remarks": "South Yard \u2014 Pick up for Demmler Yard"
         },
         {
-          "step_number": 15,
+          "step_number": 20,
           "station": 8,
           "pickup": true,
           "setout": false,
           "remarks": "South Yard \u2014 Pick up for Mckeesport-PA"
         },
         {
-          "step_number": 20,
+          "step_number": 30,
           "station": 8,
           "pickup": false,
           "setout": true,
           "remarks": "South Yard \u2014 Set out at South Yard"
         },
         {
-          "step_number": 30,
+          "step_number": 40,
           "station": 10,
           "pickup": true,
           "setout": false,
           "remarks": "Demmler Yard \u2014 Pick up for Scully Yard"
         },
         {
-          "step_number": 35,
+          "step_number": 50,
           "station": 10,
           "pickup": true,
           "setout": false,
           "remarks": "Demmler Yard \u2014 Pick up for McKees Rocks-PA"
         },
         {
-          "step_number": 40,
+          "step_number": 60,
           "station": 10,
           "pickup": true,
           "setout": false,
           "remarks": "Demmler Yard \u2014 Pick up for Shenango Coke Works"
         },
         {
-          "step_number": 50,
+          "step_number": 70,
           "station": 10,
           "pickup": true,
           "setout": false,
           "remarks": "Demmler Yard \u2014 Pick up for Neville Island"
         },
         {
-          "step_number": 60,
+          "step_number": 80,
+          "station": 10,
+          "pickup": true,
+          "setout": false,
+          "remarks": "Demmler Yard \u2014 Pick up for South Yard"
+        },
+        {
+          "step_number": 90,
           "station": 10,
           "pickup": true,
           "setout": true,
@@ -486,91 +493,105 @@
           "remarks": "Scully Yard \u2014 Pick up for Neville Island"
         },
         {
-          "step_number": 35,
+          "step_number": 40,
           "station": 9,
           "pickup": true,
           "setout": false,
           "remarks": "Scully Yard \u2014 Pick up for Mckeesport-PA"
         },
         {
-          "step_number": 40,
+          "step_number": 50,
           "station": 9,
           "pickup": true,
           "setout": false,
           "remarks": "Scully Yard \u2014 Pick up for Demmler Yard"
         },
         {
-          "step_number": 50,
+          "step_number": 60,
+          "station": 9,
+          "pickup": true,
+          "setout": false,
+          "remarks": "Scully Yard \u2014 Pick up for South Yard"
+        },
+        {
+          "step_number": 70,
           "station": 3,
           "pickup": true,
           "setout": false,
           "remarks": "Neville Island \u2014 Pick up for Scully Yard"
         },
         {
-          "step_number": 60,
+          "step_number": 80,
           "station": 3,
           "pickup": true,
           "setout": false,
           "remarks": "Neville Island \u2014 Pick up for Shenango Coke Works"
         },
         {
-          "step_number": 65,
+          "step_number": 90,
           "station": 12,
           "pickup": false,
           "setout": true,
           "remarks": "Shenango Coke Works \u2014 Set out at Shenango Coke Works"
         },
         {
-          "step_number": 70,
+          "step_number": 100,
           "station": 3,
           "pickup": true,
           "setout": true,
           "remarks": "Neville Island \u2014 Pick up for Neville Island; Set out at Neville Island"
         },
         {
-          "step_number": 75,
+          "step_number": 110,
           "station": 3,
           "pickup": true,
           "setout": false,
           "remarks": "Neville Island \u2014 Pick up for Mckeesport-PA"
         },
         {
-          "step_number": 80,
+          "step_number": 120,
           "station": 3,
           "pickup": true,
           "setout": false,
           "remarks": "Neville Island \u2014 Pick up for Demmler Yard"
         },
         {
-          "step_number": 85,
+          "step_number": 130,
           "station": 3,
           "pickup": true,
           "setout": false,
           "remarks": "Neville Island \u2014 Pick up for McKees Rocks-PA"
         },
         {
-          "step_number": 90,
+          "step_number": 140,
+          "station": 3,
+          "pickup": true,
+          "setout": false,
+          "remarks": "Neville Island \u2014 Pick up for South Yard"
+        },
+        {
+          "step_number": 150,
           "station": 8,
           "pickup": true,
           "setout": false,
           "remarks": "South Yard \u2014 Pick up for Scully Yard"
         },
         {
-          "step_number": 95,
+          "step_number": 160,
           "station": 8,
           "pickup": true,
           "setout": false,
           "remarks": "South Yard \u2014 Pick up for McKees Rocks-PA"
         },
         {
-          "step_number": 100,
+          "step_number": 170,
           "station": 8,
           "pickup": true,
           "setout": false,
           "remarks": "South Yard \u2014 Pick up for Neville Island"
         },
         {
-          "step_number": 110,
+          "step_number": 180,
           "station": 8,
           "pickup": false,
           "setout": true,
@@ -696,56 +717,63 @@
           "remarks": "Scully Yard \u2014 Pick up for McKees Rocks-PA"
         },
         {
-          "step_number": 11,
+          "step_number": 20,
           "station": 15,
           "pickup": false,
           "setout": true,
           "remarks": "McKees Rocks-PA \u2014 Set out at McKees Rocks-PA"
         },
         {
-          "step_number": 12,
+          "step_number": 30,
           "station": 15,
           "pickup": true,
           "setout": true,
           "remarks": "McKees Rocks-PA \u2014 Pick up for McKees Rocks-PA; Set out at McKees Rocks-PA"
         },
         {
-          "step_number": 20,
+          "step_number": 40,
           "station": 15,
           "pickup": true,
           "setout": true,
           "remarks": "McKees Rocks-PA \u2014 Pick up for Scully Yard; Set out at McKees Rocks-PA"
         },
         {
-          "step_number": 30,
+          "step_number": 50,
           "station": 15,
           "pickup": true,
           "setout": true,
           "remarks": "McKees Rocks-PA \u2014 Pick up for Shenango Coke Works; Set out at McKees Rocks-PA"
         },
         {
-          "step_number": 40,
+          "step_number": 60,
           "station": 15,
           "pickup": true,
           "setout": true,
           "remarks": "McKees Rocks-PA \u2014 Pick up for Neville Island; Set out at McKees Rocks-PA"
         },
         {
-          "step_number": 45,
+          "step_number": 70,
           "station": 15,
           "pickup": true,
           "setout": true,
           "remarks": "McKees Rocks-PA \u2014 Pick up for Mckeesport-PA; Set out at McKees Rocks-PA"
         },
         {
-          "step_number": 50,
+          "step_number": 80,
           "station": 15,
           "pickup": true,
           "setout": true,
           "remarks": "McKees Rocks-PA \u2014 Pick up for Demmler Yard; Set out at McKees Rocks-PA"
         },
         {
-          "step_number": 60,
+          "step_number": 90,
+          "station": 15,
+          "pickup": true,
+          "setout": true,
+          "remarks": "McKees Rocks-PA \u2014 Pick up for South Yard; Set out at McKees Rocks-PA"
+        },
+        {
+          "step_number": 100,
           "station": 9,
           "pickup": true,
           "setout": true,
@@ -766,56 +794,63 @@
           "remarks": "Demmler Yard \u2014 Pick up for Mckeesport-PA"
         },
         {
-          "step_number": 11,
+          "step_number": 20,
           "station": 14,
           "pickup": false,
           "setout": true,
           "remarks": "Mckeesport-PA \u2014 Set out at Mckeesport-PA"
         },
         {
-          "step_number": 12,
+          "step_number": 30,
           "station": 14,
           "pickup": true,
           "setout": true,
           "remarks": "Mckeesport-PA \u2014 Pick up for Mckeesport-PA; Set out at Mckeesport-PA"
         },
         {
-          "step_number": 20,
+          "step_number": 40,
           "station": 14,
           "pickup": true,
           "setout": true,
           "remarks": "Mckeesport-PA \u2014 Pick up for Scully Yard; Set out at Mckeesport-PA"
         },
         {
-          "step_number": 30,
+          "step_number": 50,
           "station": 14,
           "pickup": true,
           "setout": true,
           "remarks": "Mckeesport-PA \u2014 Pick up for Shenango Coke Works; Set out at Mckeesport-PA"
         },
         {
-          "step_number": 40,
+          "step_number": 60,
           "station": 14,
           "pickup": true,
           "setout": true,
           "remarks": "Mckeesport-PA \u2014 Pick up for Neville Island; Set out at Mckeesport-PA"
         },
         {
-          "step_number": 45,
+          "step_number": 70,
           "station": 14,
           "pickup": true,
           "setout": true,
           "remarks": "Mckeesport-PA \u2014 Pick up for McKees Rocks-PA; Set out at Mckeesport-PA"
         },
         {
-          "step_number": 50,
+          "step_number": 80,
           "station": 14,
           "pickup": true,
           "setout": true,
           "remarks": "Mckeesport-PA \u2014 Pick up for Demmler Yard; Set out at Mckeesport-PA"
         },
         {
-          "step_number": 60,
+          "step_number": 90,
+          "station": 14,
+          "pickup": true,
+          "setout": true,
+          "remarks": "Mckeesport-PA \u2014 Pick up for South Yard; Set out at Mckeesport-PA"
+        },
+        {
+          "step_number": 100,
           "station": 10,
           "pickup": true,
           "setout": true,
@@ -833,37 +868,43 @@
     },
     {
       "job": "D749",
-      "step_nbr": 15,
+      "step_nbr": 20,
       "car_status": "",
       "dest_station_id": 14
     },
     {
       "job": "D749",
-      "step_nbr": 30,
+      "step_nbr": 40,
       "car_status": "",
       "dest_station_id": 9
     },
     {
       "job": "D749",
-      "step_nbr": 35,
+      "step_nbr": 50,
       "car_status": "",
       "dest_station_id": 15
     },
     {
       "job": "D749",
-      "step_nbr": 40,
+      "step_nbr": 60,
       "car_status": "",
       "dest_station_id": 12
     },
     {
       "job": "D749",
-      "step_nbr": 50,
+      "step_nbr": 70,
       "car_status": "",
       "dest_station_id": 3
     },
     {
       "job": "D749",
-      "step_nbr": 60,
+      "step_nbr": 80,
+      "car_status": "",
+      "dest_station_id": 8
+    },
+    {
+      "job": "D749",
+      "step_nbr": 90,
       "car_status": "",
       "dest_station_id": 10
     },
@@ -887,67 +928,79 @@
     },
     {
       "job": "NVL",
-      "step_nbr": 35,
-      "car_status": "",
-      "dest_station_id": 14
-    },
-    {
-      "job": "NVL",
       "step_nbr": 40,
       "car_status": "",
-      "dest_station_id": 10
+      "dest_station_id": 14
     },
     {
       "job": "NVL",
       "step_nbr": 50,
       "car_status": "",
-      "dest_station_id": 9
+      "dest_station_id": 10
     },
     {
       "job": "NVL",
       "step_nbr": 60,
       "car_status": "",
-      "dest_station_id": 12
+      "dest_station_id": 8
     },
     {
       "job": "NVL",
       "step_nbr": 70,
       "car_status": "",
-      "dest_station_id": 3
-    },
-    {
-      "job": "NVL",
-      "step_nbr": 75,
-      "car_status": "",
-      "dest_station_id": 14
+      "dest_station_id": 9
     },
     {
       "job": "NVL",
       "step_nbr": 80,
       "car_status": "",
+      "dest_station_id": 12
+    },
+    {
+      "job": "NVL",
+      "step_nbr": 100,
+      "car_status": "",
+      "dest_station_id": 3
+    },
+    {
+      "job": "NVL",
+      "step_nbr": 110,
+      "car_status": "",
+      "dest_station_id": 14
+    },
+    {
+      "job": "NVL",
+      "step_nbr": 120,
+      "car_status": "",
       "dest_station_id": 10
     },
     {
       "job": "NVL",
-      "step_nbr": 85,
+      "step_nbr": 130,
       "car_status": "",
       "dest_station_id": 15
     },
     {
       "job": "NVL",
-      "step_nbr": 90,
+      "step_nbr": 140,
+      "car_status": "",
+      "dest_station_id": 8
+    },
+    {
+      "job": "NVL",
+      "step_nbr": 150,
       "car_status": "",
       "dest_station_id": 9
     },
     {
       "job": "NVL",
-      "step_nbr": 95,
+      "step_nbr": 160,
       "car_status": "",
       "dest_station_id": 15
     },
     {
       "job": "NVL",
-      "step_nbr": 100,
+      "step_nbr": 170,
       "car_status": "",
       "dest_station_id": 3
     },
@@ -1037,43 +1090,49 @@
     },
     {
       "job": "STG-SCULLY",
-      "step_nbr": 12,
+      "step_nbr": 30,
       "car_status": "",
       "dest_station_id": 15
     },
     {
       "job": "STG-SCULLY",
-      "step_nbr": 20,
+      "step_nbr": 40,
       "car_status": "",
       "dest_station_id": 9
     },
     {
       "job": "STG-SCULLY",
-      "step_nbr": 30,
+      "step_nbr": 50,
       "car_status": "",
       "dest_station_id": 12
     },
     {
       "job": "STG-SCULLY",
-      "step_nbr": 40,
+      "step_nbr": 60,
       "car_status": "",
       "dest_station_id": 3
     },
     {
       "job": "STG-SCULLY",
-      "step_nbr": 45,
+      "step_nbr": 70,
       "car_status": "",
       "dest_station_id": 14
     },
     {
       "job": "STG-SCULLY",
-      "step_nbr": 50,
+      "step_nbr": 80,
       "car_status": "",
       "dest_station_id": 10
     },
     {
       "job": "STG-SCULLY",
-      "step_nbr": 60,
+      "step_nbr": 90,
+      "car_status": "",
+      "dest_station_id": 8
+    },
+    {
+      "job": "STG-SCULLY",
+      "step_nbr": 100,
       "car_status": "",
       "dest_station_id": 9
     },
@@ -1085,43 +1144,49 @@
     },
     {
       "job": "STG-DEMMLER",
-      "step_nbr": 12,
+      "step_nbr": 30,
       "car_status": "",
       "dest_station_id": 14
     },
     {
       "job": "STG-DEMMLER",
-      "step_nbr": 20,
+      "step_nbr": 40,
       "car_status": "",
       "dest_station_id": 9
     },
     {
       "job": "STG-DEMMLER",
-      "step_nbr": 30,
+      "step_nbr": 50,
       "car_status": "",
       "dest_station_id": 12
     },
     {
       "job": "STG-DEMMLER",
-      "step_nbr": 40,
+      "step_nbr": 60,
       "car_status": "",
       "dest_station_id": 3
     },
     {
       "job": "STG-DEMMLER",
-      "step_nbr": 45,
+      "step_nbr": 70,
       "car_status": "",
       "dest_station_id": 15
     },
     {
       "job": "STG-DEMMLER",
-      "step_nbr": 50,
+      "step_nbr": 80,
       "car_status": "",
       "dest_station_id": 10
     },
     {
       "job": "STG-DEMMLER",
-      "step_nbr": 60,
+      "step_nbr": 90,
+      "car_status": "",
+      "dest_station_id": 8
+    },
+    {
+      "job": "STG-DEMMLER",
+      "step_nbr": 100,
       "car_status": "",
       "dest_station_id": 10
     }
