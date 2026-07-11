@@ -40,8 +40,6 @@ insert into `CK1` values("100","12","T","F","Shenango Coke Works — Pick up for
 #
 insert into `CK1` values("110","8","T","F","South Yard — Pick up reload coke for Shenango Coke Works (after scale weigh)");
 #
-insert into `CK1` values("130","8","T","F","South Yard — Pick up for Shenango Coke Works");
-#
 insert into `CK1` values("150","8","F","T","South Yard — Set out at South Yard");
 #
 
@@ -64,19 +62,21 @@ rename table `D749__sts_restore` to `D749`;
 #
 insert into `D749` values("10","8","T","F","South Yard — Pick up for Demmler Yard");
 #
-insert into `D749` values("15","8","T","F","South Yard — Pick up for Mckeesport-PA");
+insert into `D749` values("20","8","T","F","South Yard — Pick up for Mckeesport-PA");
 #
-insert into `D749` values("20","8","F","T","South Yard — Set out at South Yard");
+insert into `D749` values("30","8","F","T","South Yard — Set out at South Yard");
 #
-insert into `D749` values("30","10","T","F","Demmler Yard — Pick up for Scully Yard");
+insert into `D749` values("40","10","T","F","Demmler Yard — Pick up for Scully Yard");
 #
-insert into `D749` values("35","10","T","F","Demmler Yard — Pick up for McKees Rocks-PA");
+insert into `D749` values("50","10","T","F","Demmler Yard — Pick up for McKees Rocks-PA");
 #
-insert into `D749` values("40","10","T","F","Demmler Yard — Pick up for Shenango Coke Works");
+insert into `D749` values("60","10","T","F","Demmler Yard — Pick up for Shenango Coke Works");
 #
-insert into `D749` values("50","10","T","F","Demmler Yard — Pick up for Neville Island");
+insert into `D749` values("70","10","T","F","Demmler Yard — Pick up for Neville Island");
 #
-insert into `D749` values("60","10","T","T","Demmler Yard — Pick up for Demmler Yard; Set out at Demmler Yard");
+insert into `D749` values("80","10","T","F","Demmler Yard — Pick up for South Yard");
+#
+insert into `D749` values("90","10","T","T","Demmler Yard — Pick up for Demmler Yard; Set out at Demmler Yard");
 #
 
 #
@@ -102,31 +102,35 @@ insert into `NVL` values("20","9","T","F","Scully Yard — Pick up for Shenango 
 #
 insert into `NVL` values("30","9","T","F","Scully Yard — Pick up for Neville Island");
 #
-insert into `NVL` values("35","9","T","F","Scully Yard — Pick up for Mckeesport-PA");
+insert into `NVL` values("40","9","T","F","Scully Yard — Pick up for Mckeesport-PA");
 #
-insert into `NVL` values("40","9","T","F","Scully Yard — Pick up for Demmler Yard");
+insert into `NVL` values("50","9","T","F","Scully Yard — Pick up for Demmler Yard");
 #
-insert into `NVL` values("50","3","T","F","Neville Island — Pick up for Scully Yard");
+insert into `NVL` values("60","9","T","F","Scully Yard — Pick up for South Yard");
 #
-insert into `NVL` values("60","3","T","F","Neville Island — Pick up for Shenango Coke Works");
+insert into `NVL` values("70","3","T","F","Neville Island — Pick up for Scully Yard");
 #
-insert into `NVL` values("65","12","F","T","Shenango Coke Works — Set out at Shenango Coke Works");
+insert into `NVL` values("80","3","T","F","Neville Island — Pick up for Shenango Coke Works");
 #
-insert into `NVL` values("70","3","T","T","Neville Island — Pick up for Neville Island; Set out at Neville Island");
+insert into `NVL` values("90","12","F","T","Shenango Coke Works — Set out at Shenango Coke Works");
 #
-insert into `NVL` values("75","3","T","F","Neville Island — Pick up for Mckeesport-PA");
+insert into `NVL` values("100","3","T","T","Neville Island — Pick up for Neville Island; Set out at Neville Island");
 #
-insert into `NVL` values("80","3","T","F","Neville Island — Pick up for Demmler Yard");
+insert into `NVL` values("110","3","T","F","Neville Island — Pick up for Mckeesport-PA");
 #
-insert into `NVL` values("85","3","T","F","Neville Island — Pick up for McKees Rocks-PA");
+insert into `NVL` values("120","3","T","F","Neville Island — Pick up for Demmler Yard");
 #
-insert into `NVL` values("90","8","T","F","South Yard — Pick up for Scully Yard");
+insert into `NVL` values("130","3","T","F","Neville Island — Pick up for McKees Rocks-PA");
 #
-insert into `NVL` values("95","8","T","F","South Yard — Pick up for McKees Rocks-PA");
+insert into `NVL` values("140","3","T","F","Neville Island — Pick up for South Yard");
 #
-insert into `NVL` values("100","8","T","F","South Yard — Pick up for Neville Island");
+insert into `NVL` values("150","8","T","F","South Yard — Pick up for Scully Yard");
 #
-insert into `NVL` values("110","8","F","T","South Yard — Set out at South Yard");
+insert into `NVL` values("160","8","T","F","South Yard — Pick up for McKees Rocks-PA");
+#
+insert into `NVL` values("170","8","T","F","South Yard — Pick up for Neville Island");
+#
+insert into `NVL` values("180","8","F","T","South Yard — Set out at South Yard");
 #
 
 #
@@ -148,21 +152,23 @@ rename table `STG-DEMMLER__sts_restore` to `STG-DEMMLER`;
 #
 insert into `STG-DEMMLER` values("10","10","T","F","Demmler Yard — Pick up for Mckeesport-PA");
 #
-insert into `STG-DEMMLER` values("11","14","F","T","Mckeesport-PA — Set out at Mckeesport-PA");
+insert into `STG-DEMMLER` values("20","14","F","T","Mckeesport-PA — Set out at Mckeesport-PA");
 #
-insert into `STG-DEMMLER` values("12","14","T","T","Mckeesport-PA — Pick up for Mckeesport-PA; Set out at Mckeesport-PA");
+insert into `STG-DEMMLER` values("30","14","T","T","Mckeesport-PA — Pick up for Mckeesport-PA; Set out at Mckeesport-PA");
 #
-insert into `STG-DEMMLER` values("20","14","T","T","Mckeesport-PA — Pick up for Scully Yard; Set out at Mckeesport-PA");
+insert into `STG-DEMMLER` values("40","14","T","T","Mckeesport-PA — Pick up for Scully Yard; Set out at Mckeesport-PA");
 #
-insert into `STG-DEMMLER` values("30","14","T","T","Mckeesport-PA — Pick up for Shenango Coke Works; Set out at Mckeesport-PA");
+insert into `STG-DEMMLER` values("50","14","T","T","Mckeesport-PA — Pick up for Shenango Coke Works; Set out at Mckeesport-PA");
 #
-insert into `STG-DEMMLER` values("40","14","T","T","Mckeesport-PA — Pick up for Neville Island; Set out at Mckeesport-PA");
+insert into `STG-DEMMLER` values("60","14","T","T","Mckeesport-PA — Pick up for Neville Island; Set out at Mckeesport-PA");
 #
-insert into `STG-DEMMLER` values("45","14","T","T","Mckeesport-PA — Pick up for McKees Rocks-PA; Set out at Mckeesport-PA");
+insert into `STG-DEMMLER` values("70","14","T","T","Mckeesport-PA — Pick up for McKees Rocks-PA; Set out at Mckeesport-PA");
 #
-insert into `STG-DEMMLER` values("50","14","T","T","Mckeesport-PA — Pick up for Demmler Yard; Set out at Mckeesport-PA");
+insert into `STG-DEMMLER` values("80","14","T","T","Mckeesport-PA — Pick up for Demmler Yard; Set out at Mckeesport-PA");
 #
-insert into `STG-DEMMLER` values("60","10","T","T","Demmler Yard — Pick up for Demmler Yard; Set out at Demmler Yard");
+insert into `STG-DEMMLER` values("90","14","T","T","Mckeesport-PA — Pick up for South Yard; Set out at Mckeesport-PA");
+#
+insert into `STG-DEMMLER` values("100","10","T","T","Demmler Yard — Pick up for Demmler Yard; Set out at Demmler Yard");
 #
 
 #
@@ -184,21 +190,23 @@ rename table `STG-SCULLY__sts_restore` to `STG-SCULLY`;
 #
 insert into `STG-SCULLY` values("10","9","T","F","Scully Yard — Pick up for McKees Rocks-PA");
 #
-insert into `STG-SCULLY` values("11","15","F","T","McKees Rocks-PA — Set out at McKees Rocks-PA");
+insert into `STG-SCULLY` values("20","15","F","T","McKees Rocks-PA — Set out at McKees Rocks-PA");
 #
-insert into `STG-SCULLY` values("12","15","T","T","McKees Rocks-PA — Pick up for McKees Rocks-PA; Set out at McKees Rocks-PA");
+insert into `STG-SCULLY` values("30","15","T","T","McKees Rocks-PA — Pick up for McKees Rocks-PA; Set out at McKees Rocks-PA");
 #
-insert into `STG-SCULLY` values("20","15","T","T","McKees Rocks-PA — Pick up for Scully Yard; Set out at McKees Rocks-PA");
+insert into `STG-SCULLY` values("40","15","T","T","McKees Rocks-PA — Pick up for Scully Yard; Set out at McKees Rocks-PA");
 #
-insert into `STG-SCULLY` values("30","15","T","T","McKees Rocks-PA — Pick up for Shenango Coke Works; Set out at McKees Rocks-PA");
+insert into `STG-SCULLY` values("50","15","T","T","McKees Rocks-PA — Pick up for Shenango Coke Works; Set out at McKees Rocks-PA");
 #
-insert into `STG-SCULLY` values("40","15","T","T","McKees Rocks-PA — Pick up for Neville Island; Set out at McKees Rocks-PA");
+insert into `STG-SCULLY` values("60","15","T","T","McKees Rocks-PA — Pick up for Neville Island; Set out at McKees Rocks-PA");
 #
-insert into `STG-SCULLY` values("45","15","T","T","McKees Rocks-PA — Pick up for Mckeesport-PA; Set out at McKees Rocks-PA");
+insert into `STG-SCULLY` values("70","15","T","T","McKees Rocks-PA — Pick up for Mckeesport-PA; Set out at McKees Rocks-PA");
 #
-insert into `STG-SCULLY` values("50","15","T","T","McKees Rocks-PA — Pick up for Demmler Yard; Set out at McKees Rocks-PA");
+insert into `STG-SCULLY` values("80","15","T","T","McKees Rocks-PA — Pick up for Demmler Yard; Set out at McKees Rocks-PA");
 #
-insert into `STG-SCULLY` values("60","9","T","T","Scully Yard — Pick up for Scully Yard; Set out at Scully Yard");
+insert into `STG-SCULLY` values("90","15","T","T","McKees Rocks-PA — Pick up for South Yard; Set out at McKees Rocks-PA");
+#
+insert into `STG-SCULLY` values("100","9","T","T","Scully Yard — Pick up for Scully Yard; Set out at Scully Yard");
 #
 
 #
@@ -1159,107 +1167,115 @@ CREATE TABLE `pu_criteria` (
   `car_code_id` int(11) DEFAULT NULL,
   `dest_station_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=51 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=56 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 #
 insert into `pu_criteria` values("1","D749","10","","","","10");
 #
-insert into `pu_criteria` values("2","D749","15","","","","14");
+insert into `pu_criteria` values("2","D749","20","","","","14");
 #
-insert into `pu_criteria` values("3","D749","30","","","","9");
+insert into `pu_criteria` values("3","D749","40","","","","9");
 #
-insert into `pu_criteria` values("4","D749","35","","","","15");
+insert into `pu_criteria` values("4","D749","50","","","","15");
 #
-insert into `pu_criteria` values("5","D749","40","","","","12");
+insert into `pu_criteria` values("5","D749","60","","","","12");
 #
-insert into `pu_criteria` values("6","D749","50","","","","3");
+insert into `pu_criteria` values("6","D749","70","","","","3");
 #
-insert into `pu_criteria` values("7","D749","60","","","","10");
+insert into `pu_criteria` values("7","D749","80","","","","8");
 #
-insert into `pu_criteria` values("8","NVL","10","","","","9");
+insert into `pu_criteria` values("8","D749","90","","","","10");
 #
-insert into `pu_criteria` values("9","NVL","20","","","","12");
+insert into `pu_criteria` values("9","NVL","10","","","","9");
 #
-insert into `pu_criteria` values("10","NVL","30","","","","3");
+insert into `pu_criteria` values("10","NVL","20","","","","12");
 #
-insert into `pu_criteria` values("11","NVL","35","","","","14");
+insert into `pu_criteria` values("11","NVL","30","","","","3");
 #
-insert into `pu_criteria` values("12","NVL","40","","","","10");
+insert into `pu_criteria` values("12","NVL","40","","","","14");
 #
-insert into `pu_criteria` values("13","NVL","50","","","","9");
+insert into `pu_criteria` values("13","NVL","50","","","","10");
 #
-insert into `pu_criteria` values("14","NVL","60","","","","12");
+insert into `pu_criteria` values("14","NVL","60","","","","8");
 #
-insert into `pu_criteria` values("15","NVL","70","","","","3");
+insert into `pu_criteria` values("15","NVL","70","","","","9");
 #
-insert into `pu_criteria` values("16","NVL","75","","","","14");
+insert into `pu_criteria` values("16","NVL","80","","","","12");
 #
-insert into `pu_criteria` values("17","NVL","80","","","","10");
+insert into `pu_criteria` values("17","NVL","100","","","","3");
 #
-insert into `pu_criteria` values("18","NVL","85","","","","15");
+insert into `pu_criteria` values("18","NVL","110","","","","14");
 #
-insert into `pu_criteria` values("19","NVL","90","","","","9");
+insert into `pu_criteria` values("19","NVL","120","","","","10");
 #
-insert into `pu_criteria` values("20","NVL","95","","","","15");
+insert into `pu_criteria` values("20","NVL","130","","","","15");
 #
-insert into `pu_criteria` values("21","NVL","100","","","","3");
+insert into `pu_criteria` values("21","NVL","140","","","","8");
 #
-insert into `pu_criteria` values("22","CK1","10","","","","11");
+insert into `pu_criteria` values("22","NVL","150","","","","9");
 #
-insert into `pu_criteria` values("23","CK1","20","","","","15");
+insert into `pu_criteria` values("23","NVL","160","","","","15");
 #
-insert into `pu_criteria` values("24","CK1","30","","","","12");
+insert into `pu_criteria` values("24","NVL","170","","","","3");
 #
-insert into `pu_criteria` values("25","CK1","40","","","","8");
+insert into `pu_criteria` values("25","CK1","10","","","","11");
 #
-insert into `pu_criteria` values("26","CK1","50","","","","14");
+insert into `pu_criteria` values("26","CK1","20","","","","15");
 #
-insert into `pu_criteria` values("27","CK1","60","","","","11");
+insert into `pu_criteria` values("27","CK1","30","","","","12");
 #
-insert into `pu_criteria` values("28","CK1","70","","","","15");
+insert into `pu_criteria` values("28","CK1","40","","","","8");
 #
-insert into `pu_criteria` values("29","CK1","80","","","","12");
+insert into `pu_criteria` values("29","CK1","50","","","","14");
 #
-insert into `pu_criteria` values("30","CK1","90","","","","8");
+insert into `pu_criteria` values("30","CK1","60","","","","11");
 #
-insert into `pu_criteria` values("31","CK1","95","","","","8");
+insert into `pu_criteria` values("31","CK1","70","","","","15");
 #
-insert into `pu_criteria` values("32","CK1","100","","","","14");
+insert into `pu_criteria` values("32","CK1","80","","","","12");
 #
-insert into `pu_criteria` values("33","CK1","110","","","","12");
+insert into `pu_criteria` values("33","CK1","90","","","","8");
 #
-insert into `pu_criteria` values("34","CK1","130","","","","12");
+insert into `pu_criteria` values("34","CK1","95","","","","8");
 #
-insert into `pu_criteria` values("35","STG-SCULLY","10","","","","15");
+insert into `pu_criteria` values("35","CK1","100","","","","14");
 #
-insert into `pu_criteria` values("36","STG-SCULLY","12","","","","15");
+insert into `pu_criteria` values("36","CK1","110","","","","12");
 #
-insert into `pu_criteria` values("37","STG-SCULLY","20","","","","9");
+insert into `pu_criteria` values("38","STG-SCULLY","10","","","","15");
 #
-insert into `pu_criteria` values("38","STG-SCULLY","30","","","","12");
+insert into `pu_criteria` values("39","STG-SCULLY","30","","","","15");
 #
-insert into `pu_criteria` values("39","STG-SCULLY","40","","","","3");
+insert into `pu_criteria` values("40","STG-SCULLY","40","","","","9");
 #
-insert into `pu_criteria` values("40","STG-SCULLY","45","","","","14");
+insert into `pu_criteria` values("41","STG-SCULLY","50","","","","12");
 #
-insert into `pu_criteria` values("41","STG-SCULLY","50","","","","10");
+insert into `pu_criteria` values("42","STG-SCULLY","60","","","","3");
 #
-insert into `pu_criteria` values("42","STG-SCULLY","60","","","","9");
+insert into `pu_criteria` values("43","STG-SCULLY","70","","","","14");
 #
-insert into `pu_criteria` values("43","STG-DEMMLER","10","","","","14");
+insert into `pu_criteria` values("44","STG-SCULLY","80","","","","10");
 #
-insert into `pu_criteria` values("44","STG-DEMMLER","12","","","","14");
+insert into `pu_criteria` values("45","STG-SCULLY","90","","","","8");
 #
-insert into `pu_criteria` values("45","STG-DEMMLER","20","","","","9");
+insert into `pu_criteria` values("46","STG-SCULLY","100","","","","9");
 #
-insert into `pu_criteria` values("46","STG-DEMMLER","30","","","","12");
+insert into `pu_criteria` values("47","STG-DEMMLER","10","","","","14");
 #
-insert into `pu_criteria` values("47","STG-DEMMLER","40","","","","3");
+insert into `pu_criteria` values("48","STG-DEMMLER","30","","","","14");
 #
-insert into `pu_criteria` values("48","STG-DEMMLER","45","","","","15");
+insert into `pu_criteria` values("49","STG-DEMMLER","40","","","","9");
 #
-insert into `pu_criteria` values("49","STG-DEMMLER","50","","","","10");
+insert into `pu_criteria` values("50","STG-DEMMLER","50","","","","12");
 #
-insert into `pu_criteria` values("50","STG-DEMMLER","60","","","","10");
+insert into `pu_criteria` values("51","STG-DEMMLER","60","","","","3");
+#
+insert into `pu_criteria` values("52","STG-DEMMLER","70","","","","15");
+#
+insert into `pu_criteria` values("53","STG-DEMMLER","80","","","","10");
+#
+insert into `pu_criteria` values("54","STG-DEMMLER","90","","","","8");
+#
+insert into `pu_criteria` values("55","STG-DEMMLER","100","","","","10");
 #
 
 #
@@ -1498,7 +1514,7 @@ insert into `shipments` values("70","COKE-RELOAD-SHEN","South Yard Scale to Shen
 -- shipments: 70
 -- cars: 70
 -- jobs: 5
--- pu_criteria: 50
+-- pu_criteria: 54
 -- empty_locations: 0
 -- pool: 75
 -- owners: 1

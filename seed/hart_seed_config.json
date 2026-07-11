@@ -142,8 +142,8 @@
     ],
     "during_session": [
       "NVL comes to South Yard, sets out Demmler-bound blocks, picks up D749 blocks for Neville Island, and works the island industries and Shenango Coke Works.",
+      "NVL returns outbound loads and post-unload empties from Neville Island to their next loading or unloading locations, then sets remaining Scully-bound traffic at Scully Yard.",
       "CK1 picks up the coke block from Shenango Coke Works, runs to South Yard scale for weighing, and resorts cars for outgoing trains.",
-      "When NVL finishes island work, it returns to South Yard, sets out remaining Demmler-bound traffic, picks up Scully-bound cars, and returns to Scully Yard.",
       "D749 returns from Demmler with a fresh block and terminates in West Yard for the night."
     ],
     "session_end": [
@@ -242,7 +242,7 @@
     "max_sessions": 12,
     "stop_when_staging_ready": true,
     "run_ck1_test": false,
-    "seed": 42,
+    "seed": 54321,
     "max_unfilled_before_generate": 30,
     "staging_jobs": [
       "STG-SCULLY",
@@ -689,13 +689,6 @@
           "remarks": "South Yard \u2014 Pick up reload coke for Shenango Coke Works (after scale weigh)"
         },
         {
-          "step_number": 130,
-          "station": 8,
-          "pickup": true,
-          "setout": false,
-          "remarks": "South Yard \u2014 Pick up for Shenango Coke Works"
-        },
-        {
           "step_number": 150,
           "station": 8,
           "pickup": false,
@@ -1073,12 +1066,6 @@
     {
       "job": "CK1",
       "step_nbr": 110,
-      "car_status": "",
-      "dest_station_id": 12
-    },
-    {
-      "job": "CK1",
-      "step_nbr": 130,
       "car_status": "",
       "dest_station_id": 12
     },
