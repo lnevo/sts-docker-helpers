@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Hot-deploy sts/ to container. Session editor CSVs live only in sts-backups/session_editor/.
+# Hot-deploy sts/ to container. Session editor workflows live only in sts-backups/session_editor/.
 set -euo pipefail
 
 _script_home="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -16,8 +16,8 @@ usage() {
   cat <<'EOF'
 Usage: sync_operational_steps.sh [--test-catalog]
 
-Hot-deploy sts/ to the web container. Session editor reads/writes CSVs only under
-sts-backups/session_editor/.
+Hot-deploy sts/ to the web container. Session editor reads/writes workflow JSON only under
+sts-backups/session_editor/ (*.workflow.json, *.recipe.json).
 EOF
 }
 

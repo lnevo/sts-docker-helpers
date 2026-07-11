@@ -1,10 +1,10 @@
 #!/usr/bin/env php
 <?php
 /**
- * Generate WORKFLOW_TEST_ALL_TYPES.csv from selectable catalog adder commands.
+ * Generate WORKFLOW_TEST_ALL_TYPES.recipe.json from selectable catalog adder commands.
  *
  * Usage:
- *   php bin/generate_test_workflow_csv.php [output.csv]
+ *   php bin/generate_test_workflow_csv.php [output.recipe.json]
  *   php bin/generate_test_workflow_csv.php --all-outputs
  */
 $root = getenv('STS_HELPERS_ROOT') ?: dirname(__DIR__);
@@ -24,7 +24,12 @@ foreach ($argv as $i => $arg) {
 }
 
 $steps = [];
-foreach (catalog_test_matrix_sections() as $section) {
+$dbc = null;
+if (is_file($root . '/sts/open_db.php')) {
+    require_once $root . '/sts/open_db.php';
+    $dbc = @open_db();
+}
+foreach (catalog_test_matrix_sections($dbc) as $section) {
     $steps[] = [
         'function' => 'section_label',
         'params' => ['label' => $section['label']],
@@ -47,18 +52,17 @@ $recipe = operational_steps_normalize_recipe([
     'steps' => $steps,
 ]);
 
-$csv = operational_steps_recipe_to_csv($recipe);
-$recipeJson = json_encode($recipe, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n";
+$json = operational_steps_encode_recipe_json($recipe);
 
 $outputs = [];
 if ($allOutputs) {
     $backups = dirname($root) . '/sts-backups/session_editor';
     if (is_dir($backups)) {
-        $outputs[] = $backups . '/WORKFLOW_TEST_ALL_TYPES.csv';
+        $outputs[] = $backups . '/WORKFLOW_TEST_ALL_TYPES.recipe.json';
     }
-    $outputs[] = $root . '/docs/WORKFLOW_TEST_ALL_TYPES.csv';
+    $outputs[] = $root . '/docs/WORKFLOW_TEST_ALL_TYPES.recipe.json';
 } else {
-    $outputs[] = $outArg ?? ($root . '/docs/WORKFLOW_TEST_ALL_TYPES.csv');
+    $outputs[] = $outArg ?? ($root . '/docs/WORKFLOW_TEST_ALL_TYPES.recipe.json');
 }
 
 foreach ($outputs as $out) {
@@ -66,15 +70,16 @@ foreach ($outputs as $out) {
     if (!is_dir($dir)) {
         mkdir($dir, 0755, true);
     }
-    file_put_contents($out, $csv);
-    $recipePath = preg_replace('/\.csv$/i', '.recipe.json', $out);
-    file_put_contents($recipePath, $recipeJson);
+    file_put_contents($out, $json);
     echo "Wrote {$out}\n";
-    echo "Wrote {$recipePath}\n";
 }
 
 $selectable = catalog_test_matrix_selectable_commands();
-$covered = catalog_test_matrix_covered_command_ids();
+$covered = catalog_test_matrix_covered_command_ids($dbc);
+if ($dbc) {
+    mysqli_close($dbc);
+    $dbc = null;
+}
 $covered[] = 'section_label';
 $covered[] = 'stop';
 $missing = [];
@@ -88,8 +93,8 @@ foreach ($selectable as $def) {
     }
 }
 
-$lines = substr_count($csv, "\n");
-echo count($recipe['steps']) . " steps, {$lines} CSV lines\n";
+$lines = substr_count($json, "\n");
+echo count($recipe['steps']) . " steps, {$lines} JSON lines\n";
 echo count($selectable) . " selectable adder commands; matrix covers " . count($covered) . " ids\n";
 if ($missing) {
     fwrite(STDERR, "Warning: no matrix step for: " . implode(', ', $missing) . "\n");

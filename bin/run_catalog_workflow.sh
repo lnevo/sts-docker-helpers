@@ -14,14 +14,13 @@ if [[ -z "${WEB_CID}" ]]; then
 fi
 
 EDITOR_DIR="${BACKUPS_DIR}/session_editor"
-RECIPE="${EDITOR_DIR}/WORKFLOW_TEST_ALL_TYPES.recipe.json"
-if [[ ! -f "${RECIPE}" ]]; then
-  echo "Missing ${RECIPE} — run bin/run_catalog_tests.sh first" >&2
+JSON="${EDITOR_DIR}/WORKFLOW_TEST_ALL_TYPES.recipe.json"
+if [[ ! -f "${JSON}" ]]; then
+  echo "Missing ${JSON} — run bin/run_catalog_tests.sh first" >&2
   exit 1
 fi
 
-docker cp "${HELPERS_ROOT}/sts/run_catalog_workflow.php" "${WEB_CID}:/var/www/html/sts/run_catalog_workflow.php"
-docker cp "${RECIPE}" "${WEB_CID}:/var/www/html/sts/backups/session_editor/WORKFLOW_TEST_ALL_TYPES.recipe.json"
-docker cp "${EDITOR_DIR}/WORKFLOW_TEST_ALL_TYPES.csv" "${WEB_CID}:/var/www/html/sts/backups/session_editor/WORKFLOW_TEST_ALL_TYPES.csv"
+docker cp "${STS_DOCKER}/sts/run_catalog_workflow.php" "${WEB_CID}:/var/www/html/sts/run_catalog_workflow.php"
+docker cp "${JSON}" "${WEB_CID}:/var/www/html/sts/backups/session_editor/WORKFLOW_TEST_ALL_TYPES.recipe.json"
 
 docker exec "${WEB_CID}" php /var/www/html/sts/run_catalog_workflow.php

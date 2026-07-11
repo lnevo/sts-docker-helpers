@@ -58,9 +58,8 @@ if [[ -z "${WEB_CID}" ]]; then
   exit 1
 fi
 
-echo "==> Syncing begin_operating_session.php into web container"
-docker cp "${HELPERS_ROOT}/sts/begin_operating_session.php" "${WEB_CID}:/var/www/html/sts/begin_operating_session.php"
-docker cp "${HELPERS_ROOT}/sts/warm_start_helpers.php" "${WEB_CID}:/var/www/html/sts/warm_start_helpers.php"
+echo "==> Syncing legacy begin-session CLI into web container"
+sts_helpers_docker_cp_legacy_cli "${WEB_CID}" begin_operating_session.php
 
 echo "==> Beginning operating session"
 docker exec "${WEB_CID}" php /var/www/html/sts/begin_operating_session.php "${PHP_ARGS[@]}"

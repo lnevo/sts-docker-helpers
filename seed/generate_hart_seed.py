@@ -2053,17 +2053,11 @@ class SeedBuilder:
         return yard_id
 
     def assign_car_home_yards(self) -> None:
-        pohc_yard = self.config["car_home_yard"]["pohc_yard_code"]
-        csx_yard = self.config["car_home_yard"]["csx_yard_code"]
-        scully_id = self.location_code_to_id[pohc_yard]
-        demmler_id = self.location_code_to_id[csx_yard]
-        coke_plant_code = self.config["car_home_yard"].get(
-            "coke_plant_yard_code", "SHEN-COKE-SHIPPING"
-        )
+        home = self.config["car_home_yard"]
+        south_id = self.location_code_to_id[home.get("south_yard_code", "SOUTH-YARD")]
+        coke_plant_code = home.get("coke_plant_yard_code", "SHEN-COKE-SHIPPING")
         coke_plant_id = self.location_code_to_id[coke_plant_code]
-        demand = self.build_home_yard_demand_from_shipments()
 
-        interchange_cars: dict[str, list[dict]] = {}
         for car in self.car_rows:
             if car["id"] not in self.freight_car_ids:
                 continue
@@ -2072,18 +2066,8 @@ class SeedBuilder:
                 car["current_location_id"] = coke_plant_id
                 car["home_location"] = coke_plant_id
                 continue
-            interchange_cars.setdefault(code, []).append(car)
-
-        targets = self.home_yard_targets(
-            demand, {code: len(cars) for code, cars in interchange_cars.items()}
-        )
-        assigned: dict[str, dict[int, int]] = {}
-
-        for code, cars in interchange_cars.items():
-            for car in cars:
-                yard_id = self.pick_home_yard_for_car_code(code, targets, assigned)
-                car["current_location_id"] = yard_id
-                car["home_location"] = yard_id
+            car["current_location_id"] = south_id
+            car["home_location"] = south_id
 
     def assign_coke_fleet_pools(self) -> None:
         """Link Shenango coke hoppers to all coke shipment orders."""
@@ -2140,8 +2124,7 @@ class SeedBuilder:
         final_images_dir: Path,
     ) -> None:
         home_yard = self.config["car_home_yard"]
-        scully_id = self.location_code_to_id[home_yard["pohc_yard_code"]]
-        demmler_id = self.location_code_to_id[home_yard["csx_yard_code"]]
+        south_id = self.location_code_to_id[home_yard.get("south_yard_code", "SOUTH-YARD")]
 
         image_roster_ids = roster_ids_with_final_images(
             metadata_csv, final_images_dir, roster_xml
@@ -2189,13 +2172,13 @@ class SeedBuilder:
                     "id": self._next_car_id,
                     "reporting_marks": marks,
                     "car_code_id": car_code_id,
-                    "current_location_id": scully_id,
+                    "current_location_id": south_id,
                     "position": None,
                     "status": "Empty",
                     "handled_by_job_id": None,
                     "remarks": f"{car_type} {length}ft" if length else car_type,
                     "load_count": 0,
-                    "home_location": scully_id,
+                    "home_location": south_id,
                     "RFID_code": None,
                 }
             )
@@ -2212,8 +2195,8 @@ class SeedBuilder:
         if not entries:
             return
 
-        csx_yard = self.config["car_home_yard"]["csx_yard_code"]
-        demmler_id = self.location_code_to_id[csx_yard]
+        south_yard = self.config["car_home_yard"].get("south_yard_code", "SOUTH-YARD")
+        south_id = self.location_code_to_id[south_yard]
         image_roster_ids = roster_ids_with_final_images(
             metadata_csv, final_images_dir, roster_xml
         )
@@ -2252,13 +2235,13 @@ class SeedBuilder:
                     "id": car_id,
                     "reporting_marks": marks,
                     "car_code_id": car_code_id,
-                    "current_location_id": demmler_id,
+                    "current_location_id": south_id,
                     "position": None,
                     "status": "Empty",
                     "handled_by_job_id": None,
                     "remarks": label,
                     "load_count": 0,
-                    "home_location": demmler_id,
+                    "home_location": south_id,
                     "RFID_code": None,
                 }
             )

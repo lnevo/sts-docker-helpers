@@ -288,15 +288,15 @@ CREATE TABLE `cars` (
   PRIMARY KEY (`Id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=81 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 #
-insert into `cars` values("2","BO8300","1","8","","Empty","0","Coil 55ft","0","8","","","0");
+insert into `cars` values("2","BO8300","1","4","","Empty","0","Coil 55ft","0","4","","","0");
 #
-insert into `cars` values("3","BO8405","2","8","","Empty","0","Flatcar 53ft","0","8","","","0");
+insert into `cars` values("3","BO8405","2","4","","Empty","0","Flatcar 53ft","0","4","","","0");
 #
-insert into `cars` values("4","BO8417","2","7","","Empty","0","Flatcar 53ft","0","7","","","0");
+insert into `cars` values("4","BO8417","2","4","","Empty","0","Flatcar 53ft","0","4","","","0");
 #
-insert into `cars` values("5","BO8451","2","8","","Empty","0","Flatcar 53ft","0","8","","","0");
+insert into `cars` values("5","BO8451","2","4","","Empty","0","Flatcar 53ft","0","4","","","0");
 #
-insert into `cars` values("6","BO8476","2","7","","Empty","0","Flatcar 53ft","0","7","","","0");
+insert into `cars` values("6","BO8476","2","4","","Empty","0","Flatcar 53ft","0","4","","","0");
 #
 insert into `cars` values("9","BO10389","3","6","","Empty","0","Hopper 40ft","0","6","","","0");
 #
@@ -312,33 +312,33 @@ insert into `cars` values("14","BO31000","3","6","","Empty","0","Hopper 34ft","0
 #
 insert into `cars` values("15","BO73133","3","6","","Empty","0","Hopper 45ft","0","6","","","0");
 #
-insert into `cars` values("16","BO132315","4","8","","Unavailable","0","Hopper 50ft","0","8","","","0");
+insert into `cars` values("16","BO132315","4","4","","Unavailable","0","Hopper 50ft","0","4","","","0");
 #
-insert into `cars` values("17","BO132392","4","7","","Empty","0","Hopper 50ft","0","7","","","0");
+insert into `cars` values("17","BO132392","4","4","","Empty","0","Hopper 50ft","0","4","","","0");
 #
 insert into `cars` values("18","BO133007","4","4","","Empty","0","Hopper 50ft","0","4","","","0");
 #
-insert into `cars` values("19","BO283057","5","8","","Empty","0","Boxcar 50ft","0","8","","","0");
+insert into `cars` values("19","BO283057","5","4","","Empty","0","Boxcar 50ft","0","4","","","0");
 #
 insert into `cars` values("20","BO283069","5","4","","Empty","0","Boxcar 50ft","0","4","","","0");
 #
-insert into `cars` values("21","BO371604","6","7","","Empty","0","Gondola 50ft","0","7","","","0");
+insert into `cars` values("21","BO371604","6","4","","Empty","0","Gondola 50ft","0","4","","","0");
 #
-insert into `cars` values("22","BO466063","5","7","","Empty","0","Boxcar 40ft","0","7","","","0");
+insert into `cars` values("22","BO466063","5","4","","Empty","0","Boxcar 40ft","0","4","","","0");
 #
-insert into `cars` values("23","BO467071","5","8","","Empty","0","Boxcar 40ft","0","8","","","0");
+insert into `cars` values("23","BO467071","5","4","","Empty","0","Boxcar 40ft","0","4","","","0");
 #
 insert into `cars` values("24","BO467439","5","4","","Empty","0","Boxcar 40ft","0","4","","","0");
 #
 insert into `cars` values("25","BO551470","6","4","","Empty","0","Gondola 50ft","0","4","","","0");
 #
-insert into `cars` values("26","BO600401","7","8","","Empty","0","Hopper 40ft","0","8","","","0");
+insert into `cars` values("26","BO600401","7","4","","Empty","0","Hopper 40ft","0","4","","","0");
 #
-insert into `cars` values("27","BO600409","7","7","","Empty","0","Hopper 40ft","0","7","","","0");
+insert into `cars` values("27","BO600409","7","4","","Empty","0","Hopper 40ft","0","4","","","0");
 #
 insert into `cars` values("28","BO600421","7","4","","Empty","0","Hopper 40ft","0","4","","","0");
 #
-insert into `cars` values("29","BO625082","3","8","","Unavailable","0","Hopper 40ft","0","8","","","0");
+insert into `cars` values("29","BO625082","3","4","","Unavailable","0","Hopper 40ft","0","4","","","0");
 #
 insert into `cars` values("30","BO625238","3","6","","Empty","0","Hopper 40ft","0","6","","","0");
 #
@@ -346,87 +346,87 @@ insert into `cars` values("31","BO625509","3","6","","Empty","0","Hopper 40ft","
 #
 insert into `cars` values("32","BO625943","3","6","","Empty","0","Hopper 40ft","0","6","","","0");
 #
-insert into `cars` values("33","BO628038","7","8","","Empty","0","Hopper 40ft","0","8","","","0");
+insert into `cars` values("33","BO628038","7","4","","Empty","0","Hopper 40ft","0","4","","","0");
 #
-insert into `cars` values("34","BO631140","7","7","","Empty","0","Hopper 34ft","0","7","","","0");
+insert into `cars` values("34","BO631140","7","4","","Empty","0","Hopper 34ft","0","4","","","0");
 #
-insert into `cars` values("35","CBQ171856","8","8","","Empty","0","Hopper 40ft","0","8","","","0");
+insert into `cars` values("35","CBQ171856","8","4","","Empty","0","Hopper 40ft","0","4","","","0");
 #
-insert into `cars` values("36","CO2052","9","8","","Empty","0","Hopper 40ft","0","8","","","0");
+insert into `cars` values("36","CO2052","9","4","","Empty","0","Hopper 40ft","0","4","","","0");
 #
 insert into `cars` values("37","CO2063","9","4","","Empty","0","Hopper 40ft","0","4","","","0");
 #
-insert into `cars` values("39","CO142374","3","7","","Empty","0","Hopper 40ft","0","7","","","0");
+insert into `cars` values("39","CO142374","3","4","","Empty","0","Hopper 40ft","0","4","","","0");
 #
-insert into `cars` values("40","CO306607","1","7","","Empty","0","Coil 52ft","0","7","","","0");
+insert into `cars` values("40","CO306607","1","4","","Empty","0","Coil 52ft","0","4","","","0");
 #
 insert into `cars` values("41","CR477935","8","4","","Empty","0","Hopper 40ft","0","4","","","0");
 #
 insert into `cars` values("42","EL8063","2","4","","Empty","0","Flatcar 52ft","0","4","","","0");
 #
-insert into `cars` values("43","EL66410","5","7","","Empty","0","Boxcar 50ft","0","7","","","0");
+insert into `cars` values("43","EL66410","5","4","","Empty","0","Boxcar 50ft","0","4","","","0");
 #
-insert into `cars` values("44","GATX31090","10","8","","Empty","0","Tank 40ft","0","8","","","0");
+insert into `cars` values("44","GATX31090","10","4","","Empty","0","Tank 40ft","0","4","","","0");
 #
 insert into `cars` values("46","KSMX101","7","4","","Empty","0","Hopper 34ft","0","4","","","0");
 #
-insert into `cars` values("47","KSMX105","7","8","","Empty","0","Hopper 34ft","0","8","","","0");
+insert into `cars` values("47","KSMX105","7","4","","Empty","0","Hopper 34ft","0","4","","","0");
 #
-insert into `cars` values("48","KSMX110","7","7","","Empty","0","Hopper 34ft","0","7","","","0");
+insert into `cars` values("48","KSMX110","7","4","","Empty","0","Hopper 34ft","0","4","","","0");
 #
-insert into `cars` values("50","MOW0017","10","7","","Unavailable","0","Tank 40ft","0","7","","","0");
+insert into `cars` values("50","MOW0017","10","4","","Unavailable","0","Tank 40ft","0","4","","","0");
 #
-insert into `cars` values("51","MSTL52673","5","8","","Unavailable","0","Boxcar 40ft","0","8","","","0");
+insert into `cars` values("51","MSTL52673","5","4","","Unavailable","0","Boxcar 40ft","0","4","","","0");
 #
 insert into `cars` values("52","NW12986","7","6","","Empty","0","Hopper 40ft","0","6","","","0");
 #
 insert into `cars` values("53","NW12988","3","6","","Empty","0","Hopper 40ft","0","6","","","0");
 #
-insert into `cars` values("54","NW32800","2","8","","Empty","0","Flatcar 52ft","0","8","","","0");
+insert into `cars` values("54","NW32800","2","4","","Empty","0","Flatcar 52ft","0","4","","","0");
 #
 insert into `cars` values("55","NYC47516","5","4","","Empty","0","Boxcar 50ft","0","4","","","0");
 #
-insert into `cars` values("57","PRR474563","2","7","","Empty","0","Flatcar 50ft","0","7","","","0");
+insert into `cars` values("57","PRR474563","2","4","","Empty","0","Flatcar 50ft","0","4","","","0");
 #
 insert into `cars` values("58","PRR498647","10","4","","Empty","0","Tank 40ft","0","4","","","0");
 #
 insert into `cars` values("59","PRR702186","3","4","","Empty","0","Hopper 40ft","0","4","","","0");
 #
-insert into `cars` values("61","PRR728012","3","8","","Empty","0","Hopper 40ft","0","8","","","0");
+insert into `cars` values("61","PRR728012","3","4","","Empty","0","Hopper 40ft","0","4","","","0");
 #
-insert into `cars` values("62","RDG99143","1","8","","Empty","0","Coil 55ft","0","8","","","0");
+insert into `cars` values("62","RDG99143","1","4","","Empty","0","Coil 55ft","0","4","","","0");
 #
-insert into `cars` values("63","RDG107333","5","7","","Unavailable","0","Boxcar 50ft","0","7","","","0");
+insert into `cars` values("63","RDG107333","5","4","","Unavailable","0","Boxcar 50ft","0","4","","","0");
 #
-insert into `cars` values("64","REX350","11","8","","Empty","0","Reefer 50ft","0","8","","","0");
+insert into `cars` values("64","REX350","11","4","","Empty","0","Reefer 50ft","0","4","","","0");
 #
-insert into `cars` values("65","RMLI2018","5","8","","Empty","0","Boxcar 40ft","0","8","","","0");
+insert into `cars` values("65","RMLI2018","5","4","","Empty","0","Boxcar 40ft","0","4","","","0");
 #
 insert into `cars` values("66","RMP50","5","4","","Empty","0","Boxcar 40ft","0","4","","","0");
 #
-insert into `cars` values("67","SHPX22329","10","8","","Empty","0","Tank 40ft","0","8","","","0");
+insert into `cars` values("67","SHPX22329","10","4","","Empty","0","Tank 40ft","0","4","","","0");
 #
 insert into `cars` values("68","URR15003","3","6","","Empty","0","Hopper 50ft","0","6","","","0");
 #
-insert into `cars` values("69","URR15022","3","7","","Unavailable","0","Hopper 50ft","0","7","","","0");
+insert into `cars` values("69","URR15022","3","4","","Unavailable","0","Hopper 50ft","0","4","","","0");
 #
 insert into `cars` values("70","URR15044","3","6","","Empty","0","Hopper 50ft","0","6","","","0");
 #
-insert into `cars` values("71","URTX63627","11","7","","Unavailable","0","Reefer 40ft","0","7","","","0");
+insert into `cars` values("71","URTX63627","11","4","","Unavailable","0","Reefer 40ft","0","4","","","0");
 #
-insert into `cars` values("72","UTLX32642","10","7","","Empty","0","Tank 40ft","0","7","","","0");
+insert into `cars` values("72","UTLX32642","10","4","","Empty","0","Tank 40ft","0","4","","","0");
 #
 insert into `cars` values("74","UTLX36299","10","4","","Empty","0","Tank 40ft","0","4","","","0");
 #
-insert into `cars` values("75","UTLX39042","10","8","","Empty","0","Tank 40ft","0","8","","","0");
+insert into `cars` values("75","UTLX39042","10","4","","Empty","0","Tank 40ft","0","4","","","0");
 #
 insert into `cars` values("76","WLE621","3","6","","Empty","0","Hopper 40ft","0","6","","","0");
 #
 insert into `cars` values("78","COST1","12","5","","Unavailable","0","Scale test car","0","5","","","0");
 #
-insert into `cars` values("79","COW86","12","8","","Unavailable","0","MOW camp car","0","8","","","0");
+insert into `cars` values("79","COW86","12","4","","Unavailable","0","MOW camp car","0","4","","","0");
 #
-insert into `cars` values("80","CO377700","13","8","","Unavailable","0","MOW crane car","0","8","","","0");
+insert into `cars` values("80","CO377700","13","4","","Unavailable","0","MOW crane car","0","4","","","0");
 #
 
 #

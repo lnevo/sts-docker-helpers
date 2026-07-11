@@ -12,13 +12,16 @@ require_once $root . '/sts/catalog_test_matrix.php';
 $errors = [];
 $passed = 0;
 
+require_once $root . '/sts/open_db.php';
+$dbc = open_db();
+
 $catalog = operational_steps_catalog_by_id();
 $selectable = catalog_test_matrix_selectable_commands();
 $disabled = catalog_test_matrix_disabled_adder_commands();
 $roundTripSkip = array_flip(catalog_test_matrix_round_trip_skip());
 $runnerDispatch = array_flip(catalog_test_matrix_runner_dispatch_ids());
 $dispatchCases = catalog_test_api_dispatch_cases();
-$covered = array_flip(catalog_test_matrix_covered_command_ids());
+$covered = array_flip(catalog_test_matrix_covered_command_ids($dbc));
 $covered['section_label'] = true;
 $covered['stop'] = true;
 
@@ -64,16 +67,20 @@ foreach ($disabled as $def) {
     }
 }
 
-if (!in_array('report_waybill_list', array_column($disabled, 'id'), true)) {
-    $errors[] = 'report_waybill_list must be disabled in the adder catalog';
+if (!in_array('generate_switchlists', array_column($disabled, 'id'), true)) {
+    $errors[] = 'generate_switchlists must be disabled in the adder catalog until implemented';
+}
+if (!in_array('generate_waybills', array_column($disabled, 'id'), true)) {
+    $errors[] = 'generate_waybills must be disabled in the adder catalog until implemented';
 }
 
 $matrixSteps = [];
-foreach (catalog_test_matrix_sections() as $section) {
+foreach (catalog_test_matrix_sections($dbc) as $section) {
     foreach ($section['steps'] as $step) {
         $matrixSteps[] = $step;
     }
 }
+mysqli_close($dbc);
 
 foreach ($matrixSteps as $step) {
     $id = $step['function'] ?? '';
@@ -126,7 +133,7 @@ foreach ($matrixSteps as $step) {
 }
 
 $adderIds = array_column(operational_steps_catalog_adder_definitions(), 'id');
-$expectedDisabled = [
+$hiddenReportIds = [
     'report_waybill_list',
     'report_waybill_cars_print',
     'report_waybill_shipments_print',
@@ -138,9 +145,9 @@ $expectedDisabled = [
     'report_car_qr',
     'report_location_qr',
 ];
-foreach ($expectedDisabled as $id) {
-    if (!in_array($id, $adderIds, true)) {
-        $errors[] = "{$id}: missing from adder_definitions()";
+foreach ($hiddenReportIds as $id) {
+    if (in_array($id, $adderIds, true)) {
+        $errors[] = "{$id}: must not appear in adder dropdown (hidden until implemented)";
     }
 }
 

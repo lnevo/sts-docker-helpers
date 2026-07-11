@@ -6,7 +6,7 @@ jobs, pu_criteria, settings, etc.) while replacing car_codes, cars, pool,
 owners, and ownership from a known-good backup such as session10.
 
 Cars are normalized to fresh-seed baseline: Empty at home yard (Unavailable
-cars are kept as-is).
+cars are kept as-is). Scully/Demmler home locations (ids 7/8) remap to South Yard (4).
 """
 
 from __future__ import annotations
@@ -30,6 +30,9 @@ INSERT_RE = re.compile(
     r"insert\s+into\s+[`'\"]?(\w+)[`'\"]?\s+values\s*\((.*)\)\s*;?",
     re.IGNORECASE | re.DOTALL,
 )
+SOUTH_YARD_LOC_ID = "4"
+INTERCHANGE_HOME_LOC_IDS = frozenset({"7", "8"})  # SCULLY-YARD, DEMMLER-YARD
+
 CAR_INSERT_RE = re.compile(
     r'insert\s+into\s+`cars`\s+values\("(\d+)","([^"]*)","(\d+)","([^"]*)","([^"]*)","([^"]*)","([^"]*)","([^"]*)","(\d+)","([^"]*)","([^"]*)","([^"]*)","(\d+)"\)\s*;?',
     re.IGNORECASE,
@@ -136,7 +139,12 @@ def normalize_car_insert(chunk: str) -> str:
     if status == "Unavailable":
         return chunk
 
-    home = home_loc if home_loc else "7"
+    if home_loc in INTERCHANGE_HOME_LOC_IDS:
+        home = SOUTH_YARD_LOC_ID
+    elif home_loc:
+        home = home_loc
+    else:
+        home = SOUTH_YARD_LOC_ID
     return (
         "insert into `cars` values("
         f"{quote_sql(car_id)},"

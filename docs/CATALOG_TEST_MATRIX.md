@@ -14,9 +14,8 @@ bin/run_catalog_tests.sh
 
 Outputs:
 
-- `sts-backups/session_editor/WORKFLOW_TEST_ALL_TYPES.csv`
 - `sts-backups/session_editor/WORKFLOW_TEST_ALL_TYPES.recipe.json`
-- `sts-docker-helpers/docs/WORKFLOW_TEST_ALL_TYPES.csv` (mirror)
+- `sts-docker-helpers/docs/WORKFLOW_TEST_ALL_TYPES.recipe.json` (mirror)
 
 ## Build Switch Lists ↔ STS GUI
 
@@ -92,6 +91,6 @@ Round-trip skipped for: `fill_orders`, `reposition_empties`, `load_unload`, `imp
 | File | Role |
 |------|------|
 | `sts/catalog_test_matrix.php` | Section/step definitions |
-| `bin/generate_test_workflow_csv.php` | Build CSV + recipe JSON |
+| `bin/generate_test_workflow_csv.php` | Build test workflow JSON |
 | `bin/validate_catalog_api.php` | Catalog ↔ compile ↔ import checks |
 | `bin/run_catalog_tests.sh` | Docker runner |

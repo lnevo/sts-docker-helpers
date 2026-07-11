@@ -6,32 +6,27 @@ Step #,STS GUI Instruction,Full Description
 5,Fill Orders car_station=all,Test: Fill Car Orders
 6,Reposition Empties to home current=all; home=all,Test: Reposition Empty Cars
 7,[During Operations],Section: [During Operations]
-8,Build Switch Lists Demmler D749,Test: Build Switch Lists (Demmler D749)
-9,Build Switch Lists Scully NVL,Test: Build Switch Lists (Scully NVL)
-10,"Auto-Assign Cars D749, NVL, CK1",Test: Auto-Assign Cars (explicit jobs)
+8,Build Switch Lists Demmler Yard CK1,Test: Build Switch Lists (Demmler Yard CK1)
+9,Build Switch Lists East Yard D749,Test: Build Switch Lists (East Yard D749)
+10,"Auto-Assign Cars CK1, D749, NVL at Demmler Yard",Test: Auto-Assign Cars (jobs + station filter)
 11,Auto-Assign Cars locals,Test: Auto-Assign Cars (locals default)
-12,Pick Up Cars D749 Demmler,Test: Pick Up Cars (D749 Demmler)
+12,Pick Up Cars CK1 Demmler Yard,Test: Pick Up Cars (CK1 Demmler Yard)
 13,Pick Up Cars locals,Test: Pick Up Cars (all locals)
-14,Set Out Cars D749 South-Yard,Test: Set Out Cars (D749 South-Yard)
+14,Set Out Cars CK1 East Yard,Test: Set Out Cars (CK1 East Yard)
 15,Set Out Cars locals,Test: Set Out Cars (all locals)
-16,"Set Out Cars NVL criterion 10,15,20",Test: Run Job Criterion Steps
-17,Weigh Cars CK1,Test: Track Scale (CK1)
-18,[After Operations],Section: [After Operations]
-19,Load/Unload status=Loading; current=Scully,Test: Load / Unload Cars
-20,[Session],Section: [Session]
-21,Increment Session Number,Test: Increment Session Number
-22,[Switch Lists],Section: [Switch Lists]
-23,Generate Switch Lists all,Test: Generate Switch Lists
-24,Generate Waybill List,Test: Generate Waybill List
-25,[Database],Section: [Database]
-26,Create Backup catalog_test_backup,Test: Create Backup
-27,Validate Database,Test: Validate Database
-28,Import Data shipments (append),Test: Import Data
-29,Restart Session,Test: Restart Session
-30,Reset Session,Test: Reset Session
-31,Remove Backup catalog_test_backup,Test: Remove Backup
-32,[Workflow notes],Section: [Workflow notes]
-33,Sample free-text instruction for catalog test,Test: Text instruction
-34,If session # > 0,Test: If … then
-35,Goto step 36,Test: Goto step (forward to Stop)
-36,Stop execution,Test: Stop
+16,Weigh Cars CK1(ACTIVATEDCARBON),Test: Track Scale (CK1 ACTIVATEDCARBON)
+17,[After Operations],Section: [After Operations]
+18,Load/Unload status=Loading; current=East Yard,Test: Load / Unload Cars
+19,[Database],Section: [Database]
+20,Create Backup catalog_test_backup,Test: Create Backup
+21,Validate Database,Test: Validate Database
+22,Increment Session Number,Test: Increment Session Number
+23,Import Data shipments (append),Test: Import Data
+24,Restart Session,Test: Restart Session
+25,Reset Session,Test: Reset Session
+26,Remove Backup catalog_test_backup,Test: Remove Backup
+27,[Workflow notes],Section: [Workflow notes]
+28,Sample free-text instruction for catalog test,Test: Text instruction
+29,If session # > 0,Test: If … then
+30,Goto step 36,Test: Goto step (forward to Stop)
+31,Stop execution,Test: Stop

@@ -50,11 +50,6 @@ for arg in "$@"; do
   esac
 done
 
-echo "==> Syncing switch list scripts into web container"
-docker cp "${HELPERS_ROOT}/sts/master_switchlist_helpers.php" "${WEB_CID}:/var/www/html/sts/master_switchlist_helpers.php"
-docker cp "${HELPERS_ROOT}/sts/generate_master_switchlists.php" "${WEB_CID}:/var/www/html/sts/generate_master_switchlists.php"
-docker cp "${HELPERS_ROOT}/sts/warm_start_helpers.php" "${WEB_CID}:/var/www/html/sts/warm_start_helpers.php"
-
 "${BIN_DIR}/sync_operational_steps.sh"
 
 echo "==> Generating master switch lists"

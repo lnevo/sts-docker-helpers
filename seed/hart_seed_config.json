@@ -100,6 +100,7 @@
     }
   },
   "car_home_yard": {
+    "_comment": "Freight cars home at south_yard_code. pohc/csx yard codes are interchange routing only (shipments, empty returns, offline mapping).",
     "start_yard_code": "SOUTH-YARD",
     "south_yard_code": "SOUTH-YARD",
     "pohc_yard_code": "SCULLY-YARD",
@@ -373,8 +374,8 @@
     }
   ],
   "shipment_yard_balance": {
-    "_comment": "Auto-balance Demmler vs Scully shipment intervals after cars are placed. Uses available home-yard fleet only (unavailable cars excluded).",
-    "enabled": true,
+    "_comment": "Auto-balance Demmler vs Scully shipment intervals from home-yard fleet at those yards. Disabled while freight homes at South Yard.",
+    "enabled": false,
     "interchange_stations": [
       "Demmler Yard",
       "Scully Yard"

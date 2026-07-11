@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Validate catalog API parity and regenerate WORKFLOW_TEST_ALL_TYPES.csv.
+# Validate catalog API parity and regenerate WORKFLOW_TEST_ALL_TYPES.recipe.json.
 set -euo pipefail
 
 _script_home="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -13,7 +13,11 @@ if [[ -z "${WEB_CID}" ]]; then
   exit 1
 fi
 
-docker cp "${HELPERS_ROOT}/sts/catalog_test_matrix.php" "${WEB_CID}:/var/www/html/sts/catalog_test_matrix.php"
+docker cp "${STS_DOCKER}/sts/operational_steps_catalog.php" "${WEB_CID}:/var/www/html/sts/operational_steps_catalog.php"
+docker cp "${STS_DOCKER}/sts/session_runtime.php" "${WEB_CID}:/var/www/html/sts/session_runtime.php"
+docker cp "${STS_DOCKER}/sts/session_simulator_ops.php" "${WEB_CID}:/var/www/html/sts/session_simulator_ops.php"
+docker cp "${STS_DOCKER}/sts/session_helpers.php" "${WEB_CID}:/var/www/html/sts/session_helpers.php"
+docker cp "${STS_DOCKER}/sts/catalog_test_matrix.php" "${WEB_CID}:/var/www/html/sts/catalog_test_matrix.php"
 docker cp "${HELPERS_ROOT}/bin/validate_catalog_api.php" "${WEB_CID}:/tmp/validate_catalog_api.php"
 docker cp "${HELPERS_ROOT}/bin/generate_test_workflow_csv.php" "${WEB_CID}:/tmp/generate_test_workflow_csv.php"
 
@@ -28,22 +32,15 @@ docker cp "${WEB_CID}:/var/www/html/sts/operational_steps_catalog.openapi.genera
 EDITOR_DIR="${BACKUPS_DIR}/session_editor"
 mkdir -p "${EDITOR_DIR}" "${HELPERS_ROOT}/docs"
 
-docker exec -e STS_HELPERS_ROOT=/var/www/html "${WEB_CID}" php /tmp/generate_test_workflow_csv.php /tmp/WORKFLOW_TEST_ALL_TYPES.csv
+docker exec -e STS_HELPERS_ROOT=/var/www/html "${WEB_CID}" php /tmp/generate_test_workflow_csv.php /tmp/WORKFLOW_TEST_ALL_TYPES.recipe.json
 
-docker cp "${WEB_CID}:/tmp/WORKFLOW_TEST_ALL_TYPES.csv" "${EDITOR_DIR}/WORKFLOW_TEST_ALL_TYPES.csv"
-docker cp "${WEB_CID}:/tmp/WORKFLOW_TEST_ALL_TYPES.recipe.json" "${EDITOR_DIR}/WORKFLOW_TEST_ALL_TYPES.recipe.json" 2>/dev/null || true
+docker cp "${WEB_CID}:/tmp/WORKFLOW_TEST_ALL_TYPES.recipe.json" "${EDITOR_DIR}/WORKFLOW_TEST_ALL_TYPES.recipe.json"
 
-cp -f "${EDITOR_DIR}/WORKFLOW_TEST_ALL_TYPES.csv" "${HELPERS_ROOT}/docs/WORKFLOW_TEST_ALL_TYPES.csv"
-if [[ -f "${EDITOR_DIR}/WORKFLOW_TEST_ALL_TYPES.recipe.json" ]]; then
-  cp -f "${EDITOR_DIR}/WORKFLOW_TEST_ALL_TYPES.recipe.json" "${HELPERS_ROOT}/docs/WORKFLOW_TEST_ALL_TYPES.recipe.json"
-fi
+cp -f "${EDITOR_DIR}/WORKFLOW_TEST_ALL_TYPES.recipe.json" "${HELPERS_ROOT}/docs/WORKFLOW_TEST_ALL_TYPES.recipe.json"
 
-docker cp "${EDITOR_DIR}/WORKFLOW_TEST_ALL_TYPES.csv" "${WEB_CID}:/var/www/html/sts/backups/session_editor/WORKFLOW_TEST_ALL_TYPES.csv"
-if [[ -f "${EDITOR_DIR}/WORKFLOW_TEST_ALL_TYPES.recipe.json" ]]; then
-  docker cp "${EDITOR_DIR}/WORKFLOW_TEST_ALL_TYPES.recipe.json" "${WEB_CID}:/var/www/html/sts/backups/session_editor/WORKFLOW_TEST_ALL_TYPES.recipe.json"
-fi
+docker cp "${EDITOR_DIR}/WORKFLOW_TEST_ALL_TYPES.recipe.json" "${WEB_CID}:/var/www/html/sts/backups/session_editor/WORKFLOW_TEST_ALL_TYPES.recipe.json"
 
-echo "Catalog tests OK — ${EDITOR_DIR}/WORKFLOW_TEST_ALL_TYPES.csv"
+echo "Catalog tests OK — ${EDITOR_DIR}/WORKFLOW_TEST_ALL_TYPES.recipe.json"
 
 if [[ "${RUN_WORKFLOW:-1}" -eq 1 ]]; then
   RUN_WORKFLOW=1 "${BIN_DIR}/run_catalog_workflow.sh"

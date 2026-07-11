@@ -39,10 +39,8 @@ if [[ -z "${WEB_CID}" ]]; then
   exit 1
 fi
 
-echo "==> Syncing warm-start scripts into web container"
-for php in warm_start_helpers.php play_operating_session.php simulate_ck1_weigh.php track_scale_helpers.php; do
-  docker cp "${HELPERS_ROOT}/sts/${php}" "${WEB_CID}:/var/www/html/sts/${php}"
-done
+echo "==> Syncing legacy play-session CLI into web container"
+sts_helpers_docker_cp_legacy_cli "${WEB_CID}" play_operating_session.php
 
 ARGS=()
 if [[ -n "${BACKUP_NAME}" ]]; then

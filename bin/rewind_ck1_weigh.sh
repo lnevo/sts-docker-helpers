@@ -70,8 +70,8 @@ if log_path.exists():
 PY
 
 echo "==> Syncing simulate_ck1_weigh.php into container"
-docker cp "${HELPERS_ROOT}/sts/simulate_ck1_weigh.php" "${WEB_CID}:/var/www/html/sts/simulate_ck1_weigh.php"
-docker cp "${HELPERS_ROOT}/sts/track_scale_helpers.php" "${WEB_CID}:/var/www/html/sts/track_scale_helpers.php"
+echo "==> Syncing legacy CK1 weigh CLI into web container"
+sts_helpers_docker_cp_legacy_cli "${WEB_CID}" simulate_ck1_weigh.php
 
 echo "==> Re-weighing CK1 cars"
 docker exec "${WEB_CID}" php /var/www/html/sts/simulate_ck1_weigh.php --marks="${MARKS}"

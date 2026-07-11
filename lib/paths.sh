@@ -57,4 +57,22 @@ sts_helpers_resolve_paths() {
     BACKUPS_DIR="${HELPERS_ROOT}/backups"
     mkdir -p "${BACKUPS_DIR}"
   fi
+
+  STS_WEB="${STS_DOCKER}/sts"
+  LEGACY_STS="${HELPERS_ROOT}/sts"
+}
+
+# Hot-copy optional legacy CLI scripts from sts-docker-helpers/sts (not baked into the image).
+sts_helpers_docker_cp_legacy_cli() {
+  local web_cid="$1"
+  shift
+  local php
+  for php in "$@"; do
+    if [[ -f "${LEGACY_STS}/${php}" ]]; then
+      docker cp "${LEGACY_STS}/${php}" "${web_cid}:/var/www/html/sts/${php}"
+    else
+      echo "Legacy CLI not found: ${LEGACY_STS}/${php}" >&2
+      return 1
+    fi
+  done
 }

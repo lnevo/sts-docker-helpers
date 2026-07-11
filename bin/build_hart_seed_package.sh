@@ -69,18 +69,6 @@ EOF
 
 echo "Building ${PKG} ..."
 
-# Refresh sts-docker-helpers PHP from the working sts-docker tree when present.
-if [[ -d "${STS_DOCKER}/sts" && -d "${HELPERS_ROOT}/sts" ]]; then
-  for php in warm_start_helpers.php warm_start_session_stats.php simulate_warm_start.php \
-    simulate_ck1_weigh.php begin_operating_session.php track_scale_helpers.php \
-    master_switchlist_helpers.php generate_master_switchlists.php; do
-    if [[ -f "${STS_DOCKER}/sts/${php}" ]]; then
-      cp "${STS_DOCKER}/sts/${php}" "${HELPERS_ROOT}/sts/${php}"
-    fi
-  done
-  echo "  ~ refreshed sts-docker-helpers/sts from sts-docker/sts"
-fi
-
 # Generators and matrix workflow (flat copies for portable package use)
 copy_seed generate_hart_seed.py
 copy_seed balance_shipment_yards.py

@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>STS Workflow Builder</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; margin: 0; background: #f4f6f8; color: #1a1a1a; }
+    .nav-bar { background: #1f4d2e; color: #fff; padding: 12px 16px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    .nav-bar a { color: #fff; text-decoration: none; background: rgba(255,255,255,0.15); padding: 8px 12px; border-radius: 6px; font-size: 14px; }
+    .page { max-width: 1280px; margin: 0 auto; padding: 16px; }
+    h1 { font-size: 22px; margin: 0 0 8px; }
+    .subtitle { color: #555; margin-bottom: 16px; line-height: 1.45; }
+    .panel { background: #fff; border: 1px solid #d8dee4; border-radius: 10px; padding: 14px; box-shadow: 0 1px 2px rgba(0,0,0,0.04); margin-bottom: 16px; }
+    .panel.editing { border-color: #1f4d2e; box-shadow: 0 0 0 2px rgba(31,77,46,0.15); }
+    .panel h2 { margin: 0 0 12px; font-size: 16px; }
+    label { display: block; font-size: 12px; font-weight: 600; color: #444; margin: 0 0 4px; }
+    select, input, textarea { width: 100%; box-sizing: border-box; font: inherit; font-size: 14px; padding: 8px; border: 1px solid #ccd3da; border-radius: 6px; }
+    .toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    button { font: inherit; font-size: 13px; font-weight: 600; border: none; border-radius: 8px; padding: 9px 14px; cursor: pointer; }
+    .primary { background: #1f4d2e; color: #fff; }
+    .secondary { background: #fff; color: #1f4d2e; border: 1px solid #1f4d2e; }
+    .ghost { background: transparent; color: #555; border: 1px solid #ccd3da; }
+    .danger { background: #fff; color: #a33; border: 1px solid #daa; padding: 4px 10px; font-size: 12px; }
+    .linkish { background: none; border: none; color: #1f4d2e; padding: 2px 6px; font-size: 12px; text-decoration: underline; cursor: pointer; }
+    .status { font-size: 13px; padding: 8px 10px; border-radius: 6px; margin-bottom: 12px; }
+    .status.ok { background: #e8f4ea; color: #1f4d2e; }
+    .status.err { background: #fdecea; color: #a33; }
+    .status.info { background: #eef3f8; color: #334; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th { background: #e8f4ea; text-align: left; padding: 8px 6px; position: sticky; top: 0; z-index: 1; }
+    td { border-top: 1px solid #eef1f4; padding: 8px 6px; vertical-align: top; }
+    tr.selected td { background: #f0faf2; }
+    tr.drag-over td { background: #e8f4ea; }
+    tr.dragging { opacity: 0.45; }
+    .handle { cursor: grab; color: #888; text-align: center; width: 28px; }
+    .compiled { font-weight: 600; }
+    .params-mini { font-size: 11px; color: #555; margin-top: 4px; }
+    .gui-link { font-size: 11px; margin-left: 6px; }
+    pre.log { background: #1e1e1e; color: #d4d4d4; padding: 10px; border-radius: 8px; font-size: 12px; max-height: 180px; overflow: auto; white-space: pre-wrap; }
+    .hint { font-size: 11px; color: #666; margin-top: 4px; line-height: 1.35; }
+    .adder-grid { display: grid; grid-template-columns: minmax(200px, 240px) 1fr minmax(160px, 220px) auto; gap: 12px; align-items: end; }
+    @media (max-width: 900px) { .adder-grid { grid-template-columns: 1fr; } }
+    .adder-params { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+    .adder-actions { display: flex; flex-direction: column; gap: 6px; }
+    .actions-bar { display: flex; flex-wrap: wrap; gap: 8px; justify-content: space-between; align-items: center; }
+    .run-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; margin-top: 8px; }
+    .job-chks, .session-chks { display: flex; flex-wrap: wrap; gap: 10px; }
+    .job-chks label, .session-chks label { display: inline-flex; align-items: center; gap: 4px; font-weight: 500; margin: 0; font-size: 13px; }
+    .session-chks { max-height: 100px; overflow: auto; border: 1px solid #eef1f4; border-radius: 6px; padding: 8px; flex-direction: column; align-items: flex-start; }
+    details.run-panel summary { cursor: pointer; font-weight: 600; color: #1f4d2e; padding: 4px 0; }
+    .row-actions { white-space: nowrap; }
+  </style>
+</head>
+<body>
+  <nav class="nav-bar">
+    <a href="index.html">← Switchlists</a>
+    <a href="STS_OPERATIONAL_STEPS.csv" download>CSV</a>
+    <a href="STS_OPERATIONAL_RECIPE.json" download>JSON</a>
+  </nav>
+  <div class="page">
+    <h1>STS Workflow Builder</h1>
+    <p class="subtitle">Build job workflows from standard STS commands. Job and location dropdowns load from your database. Import the HART CSV to convert existing steps into catalog format.</p>
+    <div id="status" class="status info">Loading…</div>
+
+    <div class="panel adder-panel" id="adder-panel">
+      <h2 id="adder-title">Add step</h2>
+      <div class="adder-grid">
+        <div>
+          <label for="fn-select">Command</label>
+          <select id="fn-select"></select>
+        </div>
+        <div id="param-fields" class="adder-params"></div>
+        <div>
+          <label for="step-desc">Notes (optional)</label>
+          <input type="text" id="step-desc" placeholder="Description for this step">
+        </div>
+        <div class="adder-actions">
+          <button type="button" class="primary" id="btn-add">Add step</button>
+          <button type="button" class="ghost hidden" id="btn-cancel-edit">Cancel edit</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="actions-bar">
+        <h2 style="margin:0;">Workflow steps <span id="step-count"></span></h2>
+        <div class="toolbar">
+          <button type="button" class="secondary" id="btn-normalize">Convert to catalog</button>
+          <button type="button" class="secondary" id="btn-compile">Compile</button>
+          <button type="button" class="secondary" id="btn-save">Save</button>
+          <button type="button" class="primary" id="btn-run">Run switch lists</button>
+          <button type="button" class="secondary" id="btn-import">Import CSV</button>
+          <button type="button" class="secondary" id="btn-reload">Reload</button>
+        </div>
+      </div>
+      <div style="max-height:55vh;overflow:auto;margin-top:12px;">
+        <table>
+          <thead>
+            <tr>
+              <th></th>
+              <th>#</th>
+              <th>Command</th>
+              <th>Parameters / notes</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="steps-body"></tbody>
+        </table>
+      </div>
+      <details class="run-panel" style="margin-top:14px;">
+        <summary>Generator options</summary>
+        <div class="run-grid">
+          <div><label for="run-mode">Run mode</label>
+            <select id="run-mode"><option value="current" selected>Current DB</option><option value="simulate">Simulate sessions</option><option value="rerender">Re-render cache</option></select></div>
+          <div><label for="breakpoint-select">Breakpoint</label><select id="breakpoint-select"></select></div>
+          <div><label for="session-count">Session count</label><input id="session-count" type="number" min="1" max="30" value="1"></div>
+          <div><label for="run-format">Format</label><select id="run-format"><option value="phased" selected>phased</option><option value="halfsheet">halfsheet</option><option value="mobile">mobile</option></select></div>
+          <div><label>Jobs</label><div class="job-chks" id="job-chks"></div></div>
+          <div style="grid-column:1/-1;"><label>Sessions (re-render)</label><div class="session-chks" id="session-chks"></div></div>
+          <div style="grid-column:1/-1;">
+            <label><input type="checkbox" id="run-prep" checked> Run begin-session before capture</label>
+            <label style="display:inline;margin-left:16px;"><input type="checkbox" id="play-after" checked> Play between cycles</label>
+          </div>
+        </div>
+      </details>
+      <pre class="log" id="log"></pre>
+    </div>
+  </div>
+  <script>
+(function () {
+  const API = 'operational_steps_api.php';
+  let catalog = { adder_functions: [], functions: [], adder_categories: {} };
+  let catalogMap = {};
+  let dynamicOptions = { jobs: [], locations: [], scopes: [], backups: [], setout_locations: [] };
+  let recipe = { version: 1, name: 'workflow', steps: [] };
+  let runOptions = {};
+  let editingIndex = null;
+  let dragRow = null;
+
+  const el = (id) => document.getElementById(id);
+
+  function setStatus(msg, kind) {
+    el('status').textContent = msg;
+    el('status').className = 'status ' + (kind || 'info');
+  }
+  function log(msg) { el('log').textContent = typeof msg === 'string' ? msg : JSON.stringify(msg, null, 2); }
+  function escapeHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  async function api(action, method, body) {
+    const opts = { method: method || 'GET', cache: 'no-store' };
+    if (body) {
+      opts.method = 'POST';
+      opts.headers = { 'Content-Type': 'application/json' };
+      opts.body = JSON.stringify(Object.assign({ action: action }, body));
+    }
+    const url = body ? API : API + '?action=' + encodeURIComponent(action) + '&t=' + Date.now();
+    const res = await fetch(url, opts);
+    const data = await res.json();
+    if (!res.ok || !data.ok) throw new Error(data.error || 'Request failed');
+    return data;
+  }
+
+  function buildCatalogMap() {
+    catalogMap = {};
+    (catalog.functions || []).concat(catalog.adder_functions || []).forEach((f) => { catalogMap[f.id] = f; });
+    const adder = catalog.adder_functions || [];
+    const sel = el('fn-select');
+    const cats = catalog.adder_categories || {};
+    const byGroup = {};
+    adder.forEach((f) => { const g = f.adder_group || 'during'; (byGroup[g] = byGroup[g] || []).push(f); });
+    const order = Object.keys(cats).length ? Object.keys(cats) : Object.keys(byGroup);
+    sel.innerHTML = order.map((g) => {
+      const items = byGroup[g] || [];
+      if (!items.length) return '';
+      return '<optgroup label="' + escapeHtml(cats[g] || g) + '">' + items.map((f) =>
+        '<option value="' + f.id + '">' + escapeHtml(f.label) + '</option>').join('') + '</optgroup>';
+    }).join('');
+    renderParamFields();
+  }
+
+  function optionsForParam(p) {
+    const from = p.options_from || p.type;
+    if (p.type === 'select' && p.options) return p.options.map((o) => ({ value: o, label: o }));
+    if (from === 'jobs') return (dynamicOptions.jobs || []).map((j) => ({ value: j.name, label: j.name }));
+    if (from === 'locations') return (dynamicOptions.locations || []).map((l) => ({ value: l.code || l.label, label: l.label }));
+    if (from === 'setout_locations') return dynamicOptions.setout_locations || [];
+    if (from === 'scopes') return dynamicOptions.scopes || [];
+    if (from === 'backups') return (dynamicOptions.backups || []).map((b) => ({ value: b, label: b }));
+    return [];
+  }
+
+  function renderParamFields(values, container) {
+    container = container || el('param-fields');
+    const fid = el('fn-select').value;
+    const def = catalogMap[fid];
+    if (!def || !def.params || !def.params.length) { container.innerHTML = ''; return; }
+    values = values || {};
+    container.innerHTML = def.params.map((p) => {
+      const val = values[p.key] != null ? values[p.key] : (p.default != null ? p.default : '');
+      const opts = optionsForParam(p);
+      if (p.type === 'select' && p.options) {
+        return fieldSelect(p, val, p.options.map((o) => ({ value: o, label: o })));
+      }
+      if (['job', 'location', 'backup', 'scope', 'setout_location'].includes(p.type) || opts.length) {
+        return fieldSelect(p, val, opts, p.allow_custom !== false);
+      }
+      if (p.type === 'number') {
+        return '<div><label>' + escapeHtml(p.label) + '</label><input data-param="' + p.key + '" type="number" value="' + escapeHtml(String(val)) + '"></div>';
+      }
+      return '<div><label>' + escapeHtml(p.label) + '</label><input data-param="' + p.key + '" type="text" value="' + escapeHtml(String(val)) + '"></div>';
+    }).join('');
+  }
+
+  function fieldSelect(p, val, opts, allowCustom) {
+    let html = '<div><label>' + escapeHtml(p.label) + '</label><select data-param="' + p.key + '">';
+    if (allowCustom) html += '<option value="">— select or type below —</option>';
+    opts.forEach((o) => {
+      const v = o.value != null ? o.value : o;
+      const lbl = o.label != null ? o.label : o;
+      html += '<option value="' + escapeHtml(String(v)) + '"' + (String(val) === String(v) ? ' selected' : '') + '>' + escapeHtml(String(lbl)) + '</option>';
+    });
+    if (allowCustom && val && !opts.some((o) => String(o.value || o) === String(val))) {
+      html += '<option value="' + escapeHtml(String(val)) + '" selected>' + escapeHtml(String(val)) + ' (custom)</option>';
+    }
+    html += '</select>';
+    if (allowCustom) {
+      html += '<input data-param-custom="' + p.key + '" type="text" placeholder="Custom value" value="' + escapeHtml(String(val)) + '" style="margin-top:4px;">';
+    }
+    html += '</div>';
+    return html;
+  }
+
+  function readParamValues(container) {
+    container = container || el('param-fields');
+    const params = {};
+    container.querySelectorAll('[data-param]').forEach((node) => {
+      params[node.getAttribute('data-param')] = node.value;
+    });
+    container.querySelectorAll('[data-param-custom]').forEach((node) => {
+      const k = node.getAttribute('data-param-custom');
+      if (node.value.trim() !== '') params[k] = node.value.trim();
+    });
+    return params;
+  }
+
+  function compileOne(step) {
+    const def = catalogMap[step.function];
+    if (!def) return step.instruction || step.function || '?';
+    let t = def.gui_template || def.label;
+    const p = step.params || {};
+    if (step.function === 'pick_up_cars') t = t.replace('{location_suffix}', p.location ? p.location : '');
+    return t.replace(/\{(\w+)\}/g, (_, k) => (p[k] != null && p[k] !== '' ? String(p[k]) : '')).replace(/\s+/g, ' ').trim();
+  }
+
+  function stepDetail(step) {
+    const parts = [];
+    Object.keys(step.params || {}).forEach((k) => { if (step.params[k] !== '') parts.push(k + ': ' + step.params[k]); });
+    if (step.description) parts.push(step.description);
+    const def = catalogMap[step.function];
+    if (def && def.gui_path) parts.push('STS: ' + def.gui_path);
+    return parts.join(' · ');
+  }
+
+  function setEditMode(idx) {
+    editingIndex = idx;
+    const panel = el('adder-panel');
+    if (idx === null) {
+      panel.classList.remove('editing');
+      el('adder-title').textContent = 'Add step';
+      el('btn-add').textContent = 'Add step';
+      el('btn-cancel-edit').classList.add('hidden');
+      el('fn-select').value = catalog.adder_functions[0]?.id || '';
+      el('step-desc').value = '';
+      renderParamFields();
+      return;
+    }
+    const step = recipe.steps[idx];
+    panel.classList.add('editing');
+    el('adder-title').textContent = 'Edit step ' + (idx + 1);
+    el('btn-add').textContent = 'Save changes';
+    el('btn-cancel-edit').classList.remove('hidden');
+    el('fn-select').value = step.function || 'marker';
+    el('step-desc').value = step.description || '';
+    renderParamFields(step.params || {});
+    panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function renderSteps() {
+    const tbody = el('steps-body');
+    tbody.innerHTML = '';
+    recipe.steps.forEach((step, idx) => {
+      const tr = document.createElement('tr');
+      tr.draggable = true;
+      if (editingIndex === idx) tr.classList.add('selected');
+      const def = catalogMap[step.function];
+      const guiLink = def && def.gui_path ? '<a class="gui-link" href="' + escapeHtml(def.gui_path) + '" target="_blank" rel="noopener">open STS</a>' : '';
+      tr.innerHTML =
+        '<td class="handle">⋮⋮</td><td>' + (idx + 1) + '</td>' +
+        '<td><div class="compiled">' + escapeHtml(compileOne(step)) + '</div>' + guiLink + '</td>' +
+        '<td><span class="params-mini">' + escapeHtml(stepDetail(step)) + '</span></td>' +
+        '<td class="row-actions"><button type="button" class="linkish" data-edit="' + idx + '">Edit</button> ' +
+        '<button type="button" class="danger" data-del="' + idx + '">×</button></td>';
+      tr.querySelector('[data-edit]').addEventListener('click', () => setEditMode(idx));
+      tr.querySelector('[data-del]').addEventListener('click', () => {
+        if (editingIndex === idx) setEditMode(null);
+        recipe.steps.splice(idx, 1);
+        renderSteps();
+      });
+      tr.addEventListener('dragstart', () => { dragRow = tr; tr.classList.add('dragging'); });
+      tr.addEventListener('dragend', () => { tr.classList.remove('dragging'); dragRow = null; });
+      tr.addEventListener('dragover', (e) => { e.preventDefault(); if (dragRow && dragRow !== tr) tr.classList.add('drag-over'); });
+      tr.addEventListener('dragleave', () => tr.classList.remove('drag-over'));
+      tr.addEventListener('drop', (e) => {
+        e.preventDefault(); tr.classList.remove('drag-over');
+        if (!dragRow || dragRow === tr) return;
+        const from = Array.from(tbody.children).indexOf(dragRow);
+        const to = Array.from(tbody.children).indexOf(tr);
+        const moved = recipe.steps.splice(from, 1)[0];
+        recipe.steps.splice(to, 0, moved);
+        if (editingIndex === from) editingIndex = to;
+        else if (editingIndex !== null && from < editingIndex && to >= editingIndex) editingIndex--;
+        else if (editingIndex !== null && from > editingIndex && to <= editingIndex) editingIndex++;
+        renderSteps();
+      });
+      tbody.appendChild(tr);
+    });
+    el('step-count').textContent = '(' + recipe.steps.length + ')';
+  }
+
+  function buildJobCheckboxes() {
+    const box = el('job-chks');
+    const jobs = dynamicOptions.jobs || [];
+    const defaults = ['D749', 'NVL', 'CK1'];
+    box.innerHTML = jobs.map((j) =>
+      '<label><input type="checkbox" value="' + escapeHtml(j.name) + '"' +
+      (defaults.includes(j.name) ? ' checked' : '') + '> ' + escapeHtml(j.name) + '</label>'
+    ).join('');
+  }
+
+  el('fn-select').addEventListener('change', () => renderParamFields(editingIndex != null ? (recipe.steps[editingIndex]?.params || {}) : {}));
+
+  el('btn-add').addEventListener('click', () => {
+    const step = { function: el('fn-select').value, params: readParamValues() };
+    const desc = el('step-desc').value.trim();
+    if (desc) step.description = desc;
+    if (editingIndex !== null) {
+      recipe.steps[editingIndex] = step;
+      setEditMode(null);
+      setStatus('Updated step ' + (editingIndex + 1), 'ok');
+    } else {
+      recipe.steps.push(step);
+      setStatus('Added step', 'ok');
+    }
+    renderSteps();
+  });
+
+  el('btn-cancel-edit').addEventListener('click', () => { setEditMode(null); renderSteps(); });
+
+  el('btn-normalize').addEventListener('click', async () => {
+    try {
+      const data = await api('normalize_recipe', 'POST', { recipe: recipe });
+      recipe = data.recipe;
+      setEditMode(null);
+      renderSteps();
+      setStatus('Normalized ' + data.rows + ' steps to catalog format', 'ok');
+    } catch (e) { setStatus(e.message, 'err'); }
+  });
+
+  el('btn-compile').addEventListener('click', async () => {
+    try { const d = await api('compile', 'POST', { recipe }); log(d.csv); setStatus('Compiled', 'ok'); } catch (e) { setStatus(e.message, 'err'); }
+  });
+  el('btn-save').addEventListener('click', async () => {
+    try { const d = await api('save', 'POST', { recipe }); log(JSON.stringify(d.written, null, 2)); setStatus('Saved', 'ok'); } catch (e) { setStatus(e.message, 'err'); }
+  });
+  el('btn-import').addEventListener('click', async () => {
+    if (!confirm('Replace workflow from CSV (normalized to catalog)?')) return;
+    try { recipe = (await api('import_csv', 'POST', { use_file: true })).recipe; setEditMode(null); renderSteps(); setStatus('Imported', 'ok'); } catch (e) { setStatus(e.message, 'err'); }
+  });
+  el('btn-reload').addEventListener('click', () => init());
+  el('btn-run').addEventListener('click', async () => {
+    try {
+      const jobs = Array.from(el('job-chks').querySelectorAll('input:checked')).map((n) => n.value);
+      if (!jobs.length) { setStatus('Select jobs', 'err'); return; }
+      const payload = { action: 'run_switchlists', recipe, format: el('run-format').value, jobs: jobs.join(','),
+        mode: el('run-mode').value, breakpoint_step: parseInt(el('breakpoint-select').value, 10) || 0,
+        session_count: parseInt(el('session-count').value, 10) || 1, run_prep: el('run-prep').checked, play_after: el('play-after').checked };
+      if (payload.mode === 'rerender') {
+        payload.render_sessions = Array.from(document.querySelectorAll('.sess-chk:checked')).map((n) => parseInt(n.value, 10));
+        if (!payload.render_sessions.length) { setStatus('Select sessions', 'err'); return; }
+      }
+      const d = await api('run_switchlists', 'POST', payload);
+      log((d.summary || []).join('\n'));
+      setStatus('Generated ' + (d.sessions || []).length + ' session(s)', 'ok');
+    } catch (e) { setStatus(e.message, 'err'); }
+  });
+
+  function buildBreakpointSelect() {
+    const bps = runOptions.breakpoints || [];
+    el('breakpoint-select').innerHTML = bps.map((b) =>
+      '<option value="' + b.step + '"' + (b.step === runOptions.default_breakpoint ? ' selected' : '') + '>' +
+      b.step + ' — ' + escapeHtml(b.label) + '</option>').join('');
+  }
+  function buildSessionCheckboxes() {
+    const s = runOptions.existing_sessions || [];
+    el('session-chks').innerHTML = s.length ? s.map((n) => '<label><input type="checkbox" class="sess-chk" value="' + n + '"> Session ' + n + '</label>').join('') : '<span class="hint">None yet</span>';
+  }
+
+  async function init() {
+    try {
+      catalog = await api('catalog');
+      dynamicOptions = catalog.dynamic_options || {};
+      buildCatalogMap();
+      buildJobCheckboxes();
+      runOptions = await api('run_options');
+      buildBreakpointSelect();
+      buildSessionCheckboxes();
+      recipe = (await api('recipe')).recipe;
+      if (!recipe.steps?.length) recipe = (await api('import_csv', 'POST', { use_file: true })).recipe;
+      setEditMode(null);
+      renderSteps();
+      setStatus('Ready — ' + recipe.steps.length + ' steps · ' + (catalog.adder_functions || []).length + ' commands · ' + (dynamicOptions.jobs || []).length + ' jobs loaded', 'ok');
+    } catch (e) { setStatus(e.message, 'err'); }
+  }
+  init();
+})();
+  </script>
+</body>
+</html>
