@@ -60,6 +60,7 @@ sts_helpers_resolve_paths() {
 
   STS_WEB="${STS_DOCKER}/sts"
   LEGACY_STS="${HELPERS_ROOT}/sts"
+  DIAGNOSTICS_DIR="${HELPERS_ROOT}/diagnostics"
 }
 
 # Run a command in the web container as www-data (matches Apache/PHP web UI ownership).

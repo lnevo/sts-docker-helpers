@@ -22,8 +22,8 @@ if [[ -z "${WEB_CID}" ]]; then
 fi
 
 deploy_runtime() {
-  docker cp "${ROOT}/sts-docker/sts/_track_scale_10x10.php" \
-    "${WEB_CID}:/var/www/html/sts/_track_scale_10x10.php"
+  docker cp "${ROOT}/sts-docker-helpers/diagnostics/track_scale_10x10.php" \
+    "${WEB_CID}:/var/www/html/sts/track_scale_10x10.php"
   docker cp "${ROOT}/sts-docker/sts/track_scale_helpers.php" \
     "${WEB_CID}:/var/www/html/sts/track_scale_helpers.php"
   docker cp "${ROOT}/sts-docker/sts/warm_start_helpers.php" \
@@ -54,7 +54,7 @@ for mult in "${MULTS[@]}"; do
 
   "${ROOT}/sts-docker-helpers/bin/apply_hart_seed.sh" >> "${LOG}" 2>&1
 
-  OUT="$(docker exec "${WEB_CID}" php /var/www/html/sts/_track_scale_10x10.php \
+  OUT="$(docker exec "${WEB_CID}" php /var/www/html/sts/track_scale_10x10.php \
     /var/www/html/sts/backups/session_editor/start_session.workflow.json \
     "${ROUNDS}" "${SESSIONS}" 2>&1)"
   echo "${OUT}" >> "${LOG}"
@@ -66,7 +66,7 @@ for mult in "${MULTS[@]}"; do
     continue
   fi
 
-  # Extract key fields from fixed-width AVG row (matches _track_scale_10x10.php).
+  # Extract key fields from fixed-width AVG row (matches track_scale_10x10.php).
   dem="$(echo "${AVG_LINE}" | awk -F'|' '{gsub(/^ +| +$/,"",$2); print $2}' | awk '{print $1}')"
   scul="$(echo "${AVG_LINE}" | awk -F'|' '{gsub(/^ +| +$/,"",$2); print $2}' | awk '{print $2}')"
   sth="$(echo "${AVG_LINE}" | awk -F'|' '{gsub(/^ +| +$/,"",$2); print $2}' | awk '{print $3}')"

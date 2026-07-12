@@ -30,10 +30,10 @@ for mode in "${MODES[@]}"; do
     --home-split "${mode}" \
     --output "${BACKUP}"
 
-  docker cp "${ROOT}/sts-docker/sts/_home_split_benchmark.php" \
-    "${WEB_CID}:/var/www/html/sts/_home_split_benchmark.php"
+  docker cp "${ROOT}/sts-docker-helpers/diagnostics/home_split_benchmark.php" \
+    "${WEB_CID}:/var/www/html/sts/home_split_benchmark.php"
 
-  docker exec "${WEB_CID}" php /var/www/html/sts/_home_split_benchmark.php \
+  docker exec "${WEB_CID}" php /var/www/html/sts/home_split_benchmark.php \
     /var/www/html/sts/backups/session_editor/start_session.workflow.json \
     "${ROUNDS}" "${SESSIONS}" "${mode}"
   echo

@@ -1242,6 +1242,44 @@ class SeedBuilder:
 
         return {"traffic_mult": traffic_mult, "changed": changed}
 
+    def scale_shipment_intervals_for_lane_profile(
+        self, island_mult: float, ix_mult: float
+    ) -> dict:
+        """Apply extra demand scaling: island (local) vs interchange lanes.
+
+        Values >1 shorten intervals (more orders). IX mult <1 throttles filler
+        traffic while island_mult >1 boosts Neville/Shenango mainstay moves.
+        Coke lanes are left unchanged.
+        """
+        island_mult = float(island_mult)
+        ix_mult = float(ix_mult)
+        if abs(island_mult - 1.0) < 0.001 and abs(ix_mult - 1.0) < 0.001:
+            return {"island_traffic_mult": 1.0, "ix_traffic_mult": 1.0, "changed": 0}
+
+        changed = 0
+        for row in self.shipment_rows:
+            code = str(row.get("code", ""))
+            if code.startswith("COKE-"):
+                continue
+            kind = row.get("_card_kind", "")
+            mult = ix_mult if kind == "interchange" else island_mult
+            if mult <= 0.0 or abs(mult - 1.0) < 0.001:
+                continue
+            for key in ("min_interval", "max_interval"):
+                value = int(row.get(key, 0))
+                if value <= 0:
+                    continue
+                scaled = max(1, int(round(value / mult)))
+                if scaled != value:
+                    row[key] = scaled
+                    changed += 1
+
+        return {
+            "island_traffic_mult": island_mult,
+            "ix_traffic_mult": ix_mult,
+            "changed": changed,
+        }
+
     def add_routing(self) -> None:
         instructions = self.config.get("routing_instructions", {})
         default_setout = self.config.get("default_setout_locations", {})
@@ -1842,6 +1880,7 @@ class SeedBuilder:
                     "max_amount": intervals["max_amount"],
                     "special_instructions": "",
                     "remarks": "",
+                    "_card_kind": kind,
                 }
             )
             self._next_shipment_id += 1
@@ -2813,6 +2852,9 @@ def main() -> None:
     builder.add_coke_shipments()
     builder.apply_config_shipment_overrides()
     traffic_summary = builder.scale_shipment_intervals_for_traffic(traffic_mult)
+    island_mult = float(config.get("island_traffic_mult", 1.0))
+    ix_mult = float(config.get("ix_traffic_mult", 1.0))
+    lane_summary = builder.scale_shipment_intervals_for_lane_profile(island_mult, ix_mult)
     builder.assign_car_home_yards()
     builder.apply_unavailable_car_status()
     yard_summary = builder.balance_interchange_shipment_intervals()
@@ -2849,6 +2891,12 @@ def main() -> None:
         print(
             f"  traffic_mult={traffic_summary.get('traffic_mult')} "
             f"interval_fields_scaled={traffic_summary.get('changed')}"
+        )
+    if lane_summary.get("changed", 0) > 0:
+        print(
+            f"  island_traffic_mult={lane_summary.get('island_traffic_mult')} "
+            f"ix_traffic_mult={lane_summary.get('ix_traffic_mult')} "
+            f"lane_interval_fields_scaled={lane_summary.get('changed')}"
         )
     if yard_summary.get("enabled"):
         print(

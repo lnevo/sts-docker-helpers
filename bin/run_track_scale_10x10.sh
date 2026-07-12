@@ -25,8 +25,8 @@ echo
   echo "==> Restoring hart_seed (moderate home split)"
   "${ROOT}/sts-docker-helpers/bin/apply_hart_seed.sh"
 
-  docker cp "${ROOT}/sts-docker/sts/_track_scale_10x10.php" \
-    "${WEB_CID}:/var/www/html/sts/_track_scale_10x10.php"
+  docker cp "${ROOT}/sts-docker-helpers/diagnostics/track_scale_10x10.php" \
+    "${WEB_CID}:/var/www/html/sts/track_scale_10x10.php"
   # Deploy the edited weigh paths (sts/ is baked into the image, not mounted),
   # so the automated track-scale step applies balance_shift -> reloads route.
   docker cp "${ROOT}/sts-docker/sts/track_scale_helpers.php" \
@@ -39,7 +39,7 @@ echo
   docker cp "${WORKFLOW}" \
     "${WEB_CID}:/var/www/html/sts/backups/session_editor/start_session.workflow.json"
 
-  docker exec "${WEB_CID}" php /var/www/html/sts/_track_scale_10x10.php \
+  docker exec "${WEB_CID}" php /var/www/html/sts/track_scale_10x10.php \
     /var/www/html/sts/backups/session_editor/start_session.workflow.json \
     "${ROUNDS}" "${SESSIONS}"
 } 2>&1 | tee "${LOG}"

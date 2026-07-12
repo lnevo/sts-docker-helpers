@@ -23,8 +23,10 @@ if [[ -z "${WEB_CID}" ]]; then
 fi
 
 deploy_runtime() {
+  docker cp "${ROOT}/sts-docker-helpers/diagnostics/track_scale_10x10.php" \
+    "${WEB_CID}:/var/www/html/sts/track_scale_10x10.php"
   for f in session_helpers.php master_switchlist_helpers.php operational_steps_catalog.php \
-    track_scale_helpers.php warm_start_helpers.php _track_scale_10x10.php; do
+    track_scale_helpers.php warm_start_helpers.php; do
     docker cp "${ROOT}/sts-docker/sts/${f}" "${WEB_CID}:/var/www/html/sts/${f}"
   done
 }
@@ -74,7 +76,7 @@ for gate in "${GATES[@]}"; do
     echo "==> gate=${gate} reposition=${repo}%" | tee -a "${LOG}"
     patch_workflow "${gate}" "${repo}"
 
-    OUT="$(docker exec "${WEB_CID}" php /var/www/html/sts/_track_scale_10x10.php \
+    OUT="$(docker exec "${WEB_CID}" php /var/www/html/sts/track_scale_10x10.php \
       /var/www/html/sts/backups/session_editor/start_session.workflow.json \
       "${ROUNDS}" "${SESSIONS}" 2>&1)"
     echo "${OUT}" >> "${LOG}"

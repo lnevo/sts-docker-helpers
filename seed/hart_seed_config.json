@@ -115,7 +115,9 @@
     "moderate_interchange_pct": 50,
     "enable_yard_balance": true
   },
-  "traffic_mult": 2.5,
+  "traffic_mult": 2.0,
+  "island_traffic_mult": 1.5,
+  "ix_traffic_mult": 0.5,
   "default_setout_locations": {
     "North Yard": "NORTH-YARD",
     "West Yard": "WEST-YARD",
@@ -141,7 +143,7 @@
   },
   "session_operations": {
     "session_start": [
-      "Evaluate empty repositioning and generate new car orders if unfilled backlog is 20 or fewer.",
+      "Generate new car orders each session (soft cap via workflow max_new; coke bulk lanes run separately).",
       "D749 picks up all cars with orders at Demmler Yard and runs to South Yard.",
       "D749 sets out the inbound block at South Yard \u2014 the operating session begins here.",
       "Yardmaster and engineer swap blocks; D749 departs South Yard westbound.",
@@ -350,9 +352,9 @@
       "loading_location": "SHEN-COKE-SHIPPING",
       "unloading_location": "USSTEELE-COKE",
       "special_instructions": "Outbound coke: weigh at South Yard scale; record certified gross weight on waybill.",
-      "min_interval": 1,
-      "max_interval": 1,
-      "min_amount": 3,
+      "min_interval": 2,
+      "max_interval": 3,
+      "min_amount": 2,
       "max_amount": 4
     },
     {
@@ -363,9 +365,9 @@
       "loading_location": "SHEN-COKE-SHIPPING",
       "unloading_location": "CLEVWORK-COKE",
       "special_instructions": "Outbound coke: weigh at South Yard scale; record certified gross weight on waybill.",
-      "min_interval": 1,
-      "max_interval": 1,
-      "min_amount": 3,
+      "min_interval": 2,
+      "max_interval": 3,
+      "min_amount": 2,
       "max_amount": 4
     },
     {
