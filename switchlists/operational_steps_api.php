@@ -124,7 +124,7 @@ try {
             }
             $body = operational_steps_api_body();
             $format = $body['format'] ?? 'phased';
-            $jobs = isset($body['jobs']) ? array_values(array_filter(array_map('trim', explode(',', $body['jobs'])))) : ['D749', 'NVL', 'CK1'];
+            $jobs = isset($body['jobs']) ? array_values(array_filter(array_map('trim', explode(',', $body['jobs'])))) : [];
             if (isset($body['recipe']) && is_array($body['recipe'])) {
                 operational_steps_save_recipe($switchlists_dir, $body['recipe']);
             }
