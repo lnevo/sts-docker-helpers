@@ -29,8 +29,10 @@ echo
     "${WEB_CID}:/var/www/html/sts/track_scale_10x10.php"
   # Deploy the edited weigh paths (sts/ is baked into the image, not mounted),
   # so the automated track-scale step applies balance_shift -> reloads route.
-  docker cp "${ROOT}/sts-docker/sts/track_scale_helpers.php" \
-    "${WEB_CID}:/var/www/html/sts/track_scale_helpers.php"
+  # The whole track_scale plugin is deployed as a unit (helpers, warm-start,
+  # dispatch, GUI) so edits to any part take effect.
+  docker cp "${ROOT}/sts-docker/sts/plugins/track_scale/." \
+    "${WEB_CID}:/var/www/html/sts/plugins/track_scale/"
   docker cp "${ROOT}/sts-docker/sts/warm_start_helpers.php" \
     "${WEB_CID}:/var/www/html/sts/warm_start_helpers.php"
   # calibrate_track_scale step (dispatch + catalog) lives here.

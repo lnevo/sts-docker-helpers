@@ -211,8 +211,9 @@ docker exec \
 
   print basename($sql_file) . " restored successfully.\n";
 
-  if (is_readable("/var/www/html/sts/track_scale_helpers.php")) {
-    require_once "/var/www/html/sts/track_scale_helpers.php";
+  $track_scale_helpers = "/var/www/html/sts/plugins/track_scale/track_scale_helpers.php";
+  if (is_readable($track_scale_helpers)) {
+    require_once $track_scale_helpers;
     track_scale_reset_cached_weights($dbc, true);
     print "Track scale cached weights cleared (calibration kept).\n";
   }

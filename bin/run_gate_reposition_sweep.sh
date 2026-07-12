@@ -26,9 +26,12 @@ deploy_runtime() {
   docker cp "${ROOT}/sts-docker-helpers/diagnostics/track_scale_10x10.php" \
     "${WEB_CID}:/var/www/html/sts/track_scale_10x10.php"
   for f in session_helpers.php master_switchlist_helpers.php operational_steps_catalog.php \
-    track_scale_helpers.php warm_start_helpers.php; do
+    warm_start_helpers.php; do
     docker cp "${ROOT}/sts-docker/sts/${f}" "${WEB_CID}:/var/www/html/sts/${f}"
   done
+  # Track scale lives in a plugin; deploy the whole plugin dir as a unit.
+  docker cp "${ROOT}/sts-docker/sts/plugins/track_scale/." \
+    "${WEB_CID}:/var/www/html/sts/plugins/track_scale/"
 }
 
 patch_workflow() {

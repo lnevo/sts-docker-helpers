@@ -315,7 +315,7 @@
     "rpt_station": "Neville Island",
     "remarks": "Shenango Coke Works",
     "color": "black",
-    "outbound_weigh_note": "Outbound coke: weigh at South Yard scale; record certified gross weight on waybill."
+    "outbound_weigh_note": "Outgoing: weigh at scale; record gross wt."
   },
   "coke_shipments": [
     {
@@ -325,7 +325,7 @@
       "car_code": "HM",
       "loading_location": "SHEN-COKE-SHIPPING",
       "unloading_location": "USSTEELE-COKE",
-      "special_instructions": "Outbound coke: weigh at South Yard scale; record certified gross weight on waybill.",
+      "special_instructions": "Outgoing: weigh at scale; record gross wt.",
       "min_interval": 99,
       "max_interval": 99,
       "min_amount": 1,
@@ -338,7 +338,7 @@
       "car_code": "HM",
       "loading_location": "SHEN-COKE-SHIPPING",
       "unloading_location": "CLEVWORK-COKE",
-      "special_instructions": "Outbound coke: weigh at South Yard scale; record certified gross weight on waybill.",
+      "special_instructions": "Outgoing: weigh at scale; record gross wt.",
       "min_interval": 99,
       "max_interval": 99,
       "min_amount": 1,
@@ -351,7 +351,7 @@
       "car_code": "HM",
       "loading_location": "SHEN-COKE-SHIPPING",
       "unloading_location": "USSTEELE-COKE",
-      "special_instructions": "Outbound coke: weigh at South Yard scale; record certified gross weight on waybill.",
+      "special_instructions": "Outgoing: weigh at scale; record gross wt.",
       "min_interval": 2,
       "max_interval": 3,
       "min_amount": 2,
@@ -364,7 +364,7 @@
       "car_code": "HM",
       "loading_location": "SHEN-COKE-SHIPPING",
       "unloading_location": "CLEVWORK-COKE",
-      "special_instructions": "Outbound coke: weigh at South Yard scale; record certified gross weight on waybill.",
+      "special_instructions": "Outgoing: weigh at scale; record gross wt.",
       "min_interval": 2,
       "max_interval": 3,
       "min_amount": 2,

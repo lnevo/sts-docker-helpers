@@ -20,7 +20,8 @@ REQUIRED=(
   warm_start_session_stats.php
   generate_order_helpers.php
   fill_order_helpers.php
-  track_scale_helpers.php
+  plugins/plugins.php
+  plugins/track_scale/track_scale_helpers.php
   master_switchlist_helpers.php
   generate_master_switchlists.php
   editor.html

@@ -21,6 +21,13 @@ $disabled = catalog_test_matrix_disabled_adder_commands();
 $roundTripSkip = array_flip(catalog_test_matrix_round_trip_skip());
 $runnerDispatch = array_flip(catalog_test_matrix_runner_dispatch_ids());
 $dispatchCases = catalog_test_api_dispatch_cases();
+// Plugin-provided steps (e.g. track_scale, calibrate_track_scale) are dispatched
+// through plugins_try_dispatch() before the switch, so they have no case label.
+if (function_exists('plugins_dispatch_ids')) {
+    foreach (plugins_dispatch_ids() as $pluginDispatch) {
+        $dispatchCases[$pluginDispatch] = true;
+    }
+}
 $covered = array_flip(catalog_test_matrix_covered_command_ids($dbc));
 $covered['section_label'] = true;
 $covered['stop'] = true;
@@ -111,8 +118,10 @@ foreach ($matrixSteps as $step) {
 
     $csv = operational_steps_recipe_to_csv($probeRecipe);
     $csvLines = array_values(array_filter(explode("\n", trim($csv))));
+    // CSV columns: Step #, Function, Params, STS GUI Instruction, ... — the
+    // instruction is column index 3.
     $csvCols = str_getcsv($csvLines[1] ?? '');
-    $csvInstruction = trim($csvCols[1] ?? '');
+    $csvInstruction = trim($csvCols[3] ?? '');
     if ($csvInstruction !== $instruction) {
         $errors[] = "{$id}: CSV instruction mismatch — expected '{$instruction}', got '{$csvInstruction}'";
         continue;
