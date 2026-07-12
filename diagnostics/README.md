@@ -24,6 +24,11 @@ Scripts bootstrap from `bootstrap.php`, which locates `sts-docker/sts/` for
 | `nvl_tune_round.php` | `run_nvl_tune_sweep.sh` |
 | `coke_stagger_compare.php` | `run_coke_stagger_compare.sh` |
 | `track_scale_10x10.php` | `run_track_scale_10x10.sh`, `run_traffic_extremes.sh`, `run_gate_reposition_sweep.sh` |
+| `track_scale_validate_readonly.php` | — (smoke-test read-only AJAX endpoints) |
 | `home_split_benchmark.php` | `benchmark_home_split.sh` |
+| `rebuild_waybill_pages.php` | — (one-time: re-render waybill pages after page-break refactor) |
+| `cleanup_special_instructions.php` | — (one-time: string-replace stale instruction text on disk) |
+| `update_special_instructions.php` | — (one-time: DB + cache + waybill instruction migration) |
+| `merge_ck1_switchlists.php` | — (one-time: collapse CK1 inbound/outbound phases per session) |
 
 Sweep logs and temp configs are written under `sts-backups/session_editor/` (gitignored).
