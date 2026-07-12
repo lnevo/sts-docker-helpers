@@ -48,10 +48,10 @@ if [[ -n "${BACKUP_NAME}" ]]; then
 fi
 
 echo "==> Playing operating session"
-docker exec "${WEB_CID}" php /var/www/html/sts/play_operating_session.php "${ARGS[@]}"
+sts_helpers_docker_exec_www "${WEB_CID}" php /var/www/html/sts/play_operating_session.php "${ARGS[@]}"
 
 SESSION="$(
-  docker exec "${WEB_CID}" php -r \
+  sts_helpers_docker_exec_www "${WEB_CID}" php -r \
     'chdir("/var/www/html/sts"); require "open_db.php"; $d=open_db(); $r=mysqli_query($d,"SELECT setting_value FROM settings WHERE setting_name=\"session_nbr\""); echo mysqli_fetch_row($r)[0];'
 )"
 echo "==> Session ${SESSION} play complete (STG-SCULLY backlog ready for next begin_session)"

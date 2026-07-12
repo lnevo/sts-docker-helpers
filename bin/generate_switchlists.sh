@@ -41,30 +41,20 @@ if [[ -z "${WEB_CID}" ]]; then
   exit 1
 fi
 
-OUTPUT_ROOT="${HELPERS_ROOT}/../switchlists"
-ARGS=()
-for arg in "$@"; do
-  case "${arg}" in
-    --output=*) OUTPUT_ROOT="${arg#--output=}" ;;
-    *) ARGS+=("${arg}") ;;
-  esac
-done
+# DEPRECATED: generate_master_switchlists.php only snapshots current job
+# assignment once per job, so it cannot produce the workflow's per-phase D749/NVL
+# switch lists (e.g. D749 at Demmler AND at South Yard). Phased switch lists must
+# be produced by the session_run_recipe engine that runs the saved workflow's
+# assign → generate → pick-up → set-out steps.
+cat >&2 <<EOF
+generate_switchlists.sh is deprecated and no longer calls
+generate_master_switchlists.php (it produced incorrect single-phase output).
 
-"${BIN_DIR}/sync_operational_steps.sh"
+To generate correct phased switch lists, run the active saved workflow:
+  ${BIN_DIR}/run_catalog_workflow.sh            # advances + generates one session
+  ${BIN_DIR}/run_session_simulations.sh --sessions N   # multi-session sweep
 
-echo "==> Generating master switch lists"
-docker exec "${WEB_CID}" php /var/www/html/sts/generate_master_switchlists.php --output=/var/www/html/switchlists "${ARGS[@]}"
-
-SESSION="$(docker exec "${WEB_CID}" php -r 'chdir("/var/www/html/sts"); require "open_db.php"; $d=open_db(); $r=mysqli_query($d,"SELECT setting_value FROM settings WHERE setting_name=\"session_nbr\""); echo mysqli_fetch_row($r)[0];')"
-mkdir -p "${OUTPUT_ROOT}/session_${SESSION}"
-echo "==> Copying HTML to ${OUTPUT_ROOT}/session_${SESSION}"
-docker cp "${WEB_CID}:/var/www/html/switchlists/session_${SESSION}/." "${OUTPUT_ROOT}/session_${SESSION}/"
-if docker exec "${WEB_CID}" test -f "/var/www/html/switchlists/index.html"; then
-  echo "==> Copying all-sessions index to ${OUTPUT_ROOT}/index.html"
-  docker cp "${WEB_CID}:/var/www/html/switchlists/index.html" "${OUTPUT_ROOT}/index.html"
-fi
-if docker exec "${WEB_CID}" test -f "/var/www/html/switchlists/operational_steps_editor.html"; then
-  docker cp "${WEB_CID}:/var/www/html/switchlists/operational_steps_editor.html" "${OUTPUT_ROOT}/operational_steps_editor.html"
-  docker cp "${WEB_CID}:/var/www/html/switchlists/operational_steps_api.php" "${OUTPUT_ROOT}/operational_steps_api.php" 2>/dev/null || true
-  docker cp "${WEB_CID}:/var/www/html/switchlists/save_operational_steps.php" "${OUTPUT_ROOT}/save_operational_steps.php" 2>/dev/null || true
-fi
+Output lands in the container at temp/sessions/session_N and is viewable at
+  http://localhost:8980/sts/session.php
+EOF
+exit 2

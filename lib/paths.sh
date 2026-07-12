@@ -62,6 +62,13 @@ sts_helpers_resolve_paths() {
   LEGACY_STS="${HELPERS_ROOT}/sts"
 }
 
+# Run a command in the web container as www-data (matches Apache/PHP web UI ownership).
+sts_helpers_docker_exec_www() {
+  local web_cid="$1"
+  shift
+  docker exec -u www-data "${web_cid}" "$@"
+}
+
 # Hot-copy optional legacy CLI scripts from sts-docker-helpers/sts (not baked into the image).
 sts_helpers_docker_cp_legacy_cli() {
   local web_cid="$1"

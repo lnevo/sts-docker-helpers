@@ -1,0 +1,666 @@
+{
+    "version": 1,
+    "name": "start_session",
+    "steps": [
+        {
+            "function": "section_label",
+            "params": {
+                "label": "Initialize"
+            },
+            "catalog_description": "Section heading with optional remarks (non-operational)."
+        },
+        {
+            "function": "if_then",
+            "params": {
+                "variable": "session_nbr",
+                "operator": ">",
+                "value": "0",
+                "section": "step-4",
+                "section_label": "Setup Session",
+                "step": "4"
+            },
+            "catalog_description": "When the condition is true, skip forward to a later section. When false, continue to the next step. Variables: session #, unfilled count, STG backlog, cars on job, cars at location."
+        },
+        {
+            "function": "restore_database",
+            "params": {
+                "backup": "hart_seed"
+            },
+            "catalog_description": "Restore STS from a backup file in sts/backups/. Shell: apply_hart_seed.sh for hart_seed."
+        },
+        {
+            "function": "section_label",
+            "params": {
+                "label": "Setup Session"
+            },
+            "catalog_description": "Section heading with optional remarks (non-operational)."
+        },
+        {
+            "function": "increment_session",
+            "params": [],
+            "catalog_description": "Advance session number by 1. GUI: generate.php (Next Session)."
+        },
+        {
+            "function": "load_unload",
+            "params": {
+                "filters": {
+                    "car_code": "",
+                    "status": "",
+                    "commodity": "",
+                    "current_location": "",
+                    "loading_location": "",
+                    "unloading_location": ""
+                }
+            },
+            "catalog_description": "Complete offline load/unload transitions. Optional filters mirror the STS load/unload page."
+        },
+        {
+            "function": "generate_orders",
+            "params": {
+                "shipment": "COKE-CLEV-BULK",
+                "increment_session": "",
+                "max_unfilled": "",
+                "seed": ""
+            },
+            "catalog_description": "Auto-generate car orders for due shipments. Default matches generate.php AUTOMATIC (increment session + generate). Set Increment session=No to generate for the current session only. Or set Shipment for a single manual order. Optional Random seed (e.g. 42) reproduces the same due-shipment mix after each restore."
+        },
+        {
+            "function": "generate_orders",
+            "params": {
+                "shipment": "COKE-USS-BULK",
+                "increment_session": "",
+                "max_unfilled": "",
+                "seed": ""
+            },
+            "catalog_description": "Auto-generate car orders for due shipments. Default matches generate.php AUTOMATIC (increment session + generate). Set Increment session=No to generate for the current session only. Or set Shipment for a single manual order. Optional Random seed (e.g. 42) reproduces the same due-shipment mix after each restore."
+        },
+        {
+            "function": "if_then",
+            "params": {
+                "variable": "open_orders",
+                "operator": ">",
+                "value": "25",
+                "section": "step-11",
+                "section_label": "Generate Orders",
+                "step": "11"
+            },
+            "catalog_description": "When the condition is true, skip forward to a later section. When false, continue to the next step. Variables: session #, unfilled count, STG backlog, cars on job, cars at location."
+        },
+        {
+            "function": "generate_orders",
+            "params": {
+                "shipment": "",
+                "increment_session": "",
+                "max_unfilled": "20",
+                "seed": "54321"
+            },
+            "catalog_description": "Auto-generate car orders for due shipments. Default matches generate.php AUTOMATIC (increment session + generate). Set Increment session=No to generate for the current session only. Or set Shipment for a single manual order."
+        },
+        {
+            "function": "section_label",
+            "params": {
+                "label": "Generate Orders"
+            },
+            "catalog_description": "Section heading with optional remarks (non-operational)."
+        },
+        {
+            "function": "reposition_empties",
+            "params": {
+                "mode": "reposition_to_home",
+                "percent": "50",
+                "filters": {
+                    "car_code": "",
+                    "current_station": "",
+                    "current_location": "",
+                    "home_station": "",
+                    "home_location": "",
+                    "off_home_only": ""
+                }
+            },
+            "catalog_description": "Reposition empty cars: send off-home cars home, or update with a chosen destination."
+        },
+        {
+            "function": "fill_orders",
+            "params": {
+                "percent": "100",
+                "order_filters": {
+                    "loading_location": "",
+                    "unloading_location": "",
+                    "consignment": "",
+                    "car_code": ""
+                },
+                "car_filters": {
+                    "categories": "pool,station,priority,system",
+                    "current_station": "",
+                    "current_location": "",
+                    "car_code": ""
+                }
+            },
+            "catalog_description": "Auto-assign eligible cars to open orders (same as Fill Car Orders \u2192 Auto Assign). Uses car source checkboxes and optional order/car filters. Set Percent to limit how many orders are filled."
+        },
+        {
+            "function": "generate_waybills",
+            "params": [],
+            "catalog_description": "Render printable waybill HTML for open waybills in the current session."
+        },
+        {
+            "function": "section_label",
+            "params": {
+                "label": "Coke Setup"
+            },
+            "catalog_description": "Section heading with optional remarks (non-operational)."
+        },
+        {
+            "function": "auto_assign_locals",
+            "params": {
+                "jobs": "CK1",
+                "station": "South Yard"
+            },
+            "catalog_description": "Auto-assign eligible cars to selected job(s)/train(s). Hold Ctrl/Cmd to select multiple. Optional station filter limits picks to one yard."
+        },
+        {
+            "function": "generate_switchlists",
+            "params": {
+                "jobs": "CK1",
+                "format": "all",
+                "title": "CK1 - Inbound"
+            },
+            "catalog_description": "Replay the workflow recipe and write switch list HTML for selected job(s) or all."
+        },
+        {
+            "function": "pick_up_cars",
+            "params": {
+                "job": "CK1",
+                "location": "SOUTH-SCALE",
+                "car_filters": {
+                    "pickup_location": "",
+                    "reporting_marks": "",
+                    "car_code": "",
+                    "status": "",
+                    "consignment": "",
+                    "final_destination": "",
+                    "loading_location": "",
+                    "unloading_location": ""
+                }
+            },
+            "catalog_description": "Pick up assigned cars onto a job train. Leave job blank for all locals (staging excluded)."
+        },
+        {
+            "function": "set_out_cars",
+            "params": {
+                "job": "CK1",
+                "car_filters": {
+                    "pickup_location": "",
+                    "reporting_marks": "",
+                    "car_code": "",
+                    "status": "",
+                    "consignment": "",
+                    "final_destination": "",
+                    "loading_location": "",
+                    "unloading_location": ""
+                }
+            },
+            "catalog_description": "Set out cars from a job train. Leave location as Final destinations (auto) to assign each car to its loading or unloading location (same as Assign on set_out.php). Pick a yard to set out all train cars there. Leave job and location blank for all locals."
+        },
+        {
+            "function": "auto_assign_locals",
+            "params": {
+                "jobs": "CK1",
+                "station": "Shenango Coke Works"
+            },
+            "catalog_description": "Assign eligible cars to selected job(s)/train(s). Hold Ctrl/Cmd to select multiple. Optional station filter limits picks to one yard."
+        },
+        {
+            "function": "generate_switchlists",
+            "params": {
+                "jobs": "CK1",
+                "format": "all",
+                "title": "CK1 - Outbound"
+            },
+            "catalog_description": "Write switch list HTML for the current simulator state for selected job(s) or all."
+        },
+        {
+            "function": "pick_up_cars",
+            "params": {
+                "job": "CK1",
+                "location": "SHEN-COKE-SHIPPING",
+                "car_filters": {
+                    "pickup_location": "",
+                    "reporting_marks": "",
+                    "car_code": "",
+                    "status": "",
+                    "consignment": "",
+                    "final_destination": "",
+                    "loading_location": "",
+                    "unloading_location": ""
+                }
+            },
+            "catalog_description": "Pick up assigned cars onto a job train. Optional car filters match the Pick Up Cars page. Leave job blank for all locals (staging excluded)."
+        },
+        {
+            "function": "calibrate_track_scale",
+            "params": {
+                "every_sessions": "1"
+            },
+            "catalog_description": "Recalibrate the coke track scale. Performs a fresh random calibration when required (first use / out of service) or when the configured number of sessions have elapsed since the last calibration. Set to 1 to calibrate every session (steady ~15% reload routing); higher values let scale drift accumulate so more cars route to reload between calibrations. Run this before the Track Scale weigh step."
+        },
+        {
+            "function": "track_scale",
+            "params": {
+                "job": "CK1",
+                "commodity": "COKE"
+            },
+            "catalog_description": "Weigh loaded cars on a job train (or at the scale) for the selected commodity. Uses track scale config when commodity is blank."
+        },
+        {
+            "function": "set_out_cars",
+            "params": {
+                "job": "CK1",
+                "location": "SOUTH-YARD",
+                "car_filters": {
+                    "pickup_location": "",
+                    "reporting_marks": "",
+                    "car_code": "",
+                    "status": "",
+                    "consignment": "",
+                    "final_destination": "",
+                    "loading_location": "",
+                    "unloading_location": ""
+                }
+            },
+            "catalog_description": "Set out cars from a job train. Choose Final Destination to assign each car to its loading or unloading location (same as Assign on set_out.php). Pick a yard to set out all matching train cars there. Optional car filters match the Set Out Cars page. Leave job and location blank for all locals."
+        },
+        {
+            "function": "section_label",
+            "params": {
+                "label": "D749"
+            },
+            "catalog_description": "Section heading with optional remarks (non-operational)."
+        },
+        {
+            "function": "auto_assign_locals",
+            "params": {
+                "jobs": "D749",
+                "station": "South Yard"
+            },
+            "catalog_description": "Auto-assign eligible cars to selected job(s)/train(s). Hold Ctrl/Cmd to select multiple. Optional station filter limits picks to one yard."
+        },
+        {
+            "function": "generate_switchlists",
+            "params": {
+                "jobs": "D749",
+                "format": "all",
+                "title": "D749 Outbound"
+            },
+            "catalog_description": "Write switch list HTML for the current simulator state for selected job(s) or all."
+        },
+        {
+            "function": "pick_up_cars",
+            "params": {
+                "job": "D749",
+                "location": "SOUTH-YARD",
+                "car_filters": {
+                    "pickup_location": "",
+                    "reporting_marks": "",
+                    "car_code": "",
+                    "status": "",
+                    "consignment": "",
+                    "final_destination": "",
+                    "loading_location": "",
+                    "unloading_location": ""
+                }
+            },
+            "catalog_description": "Pick up assigned cars onto a job train. Optional car filters match the Pick Up Cars page. Leave job blank for all locals (staging excluded)."
+        },
+        {
+            "function": "set_out_cars",
+            "params": {
+                "job": "D749",
+                "location": "DEMMLER-YARD",
+                "car_filters": {
+                    "pickup_location": "",
+                    "reporting_marks": "",
+                    "car_code": "",
+                    "status": "",
+                    "consignment": "",
+                    "final_destination": "",
+                    "loading_location": "",
+                    "unloading_location": ""
+                }
+            },
+            "catalog_description": "Set out cars from a job train. Choose Final Destination to assign each car to its loading or unloading location (same as Assign on set_out.php). Pick a yard to set out all matching train cars there. Optional car filters match the Set Out Cars page. Leave job and location blank for all locals."
+        },
+        {
+            "function": "section_label",
+            "params": {
+                "label": "STG-DEMMLER"
+            },
+            "catalog_description": "Section heading with optional remarks (non-operational)."
+        },
+        {
+            "function": "auto_assign_locals",
+            "params": {
+                "jobs": "STG-DEMMLER",
+                "station": "Mckeesport-PA"
+            },
+            "catalog_description": "Auto-assign eligible cars to selected job(s)/train(s). Hold Ctrl/Cmd to select multiple. Optional station filter limits picks to one yard."
+        },
+        {
+            "function": "generate_switchlists",
+            "params": {
+                "jobs": "STG-DEMMLER",
+                "format": "all",
+                "title": "D749 Inbound"
+            },
+            "catalog_description": "Write switch list HTML for the current simulator state for selected job(s) or all."
+        },
+        {
+            "function": "auto_assign_locals",
+            "params": {
+                "jobs": "STG-DEMMLER"
+            },
+            "catalog_description": "Assign eligible cars to selected job(s)/train(s). Hold Ctrl/Cmd to select multiple. Optional station filter limits picks to one yard."
+        },
+        {
+            "function": "pick_up_cars",
+            "params": {
+                "job": "STG-DEMMLER",
+                "location": "",
+                "car_filters": {
+                    "pickup_location": "",
+                    "reporting_marks": "",
+                    "car_code": "",
+                    "status": "",
+                    "consignment": "",
+                    "final_destination": "",
+                    "loading_location": "",
+                    "unloading_location": ""
+                }
+            },
+            "catalog_description": "Pick up assigned cars onto a job train. Leave job blank for all locals (staging excluded)."
+        },
+        {
+            "function": "set_out_cars",
+            "params": {
+                "job": "STG-DEMMLER",
+                "car_filters": {
+                    "pickup_location": "",
+                    "reporting_marks": "",
+                    "car_code": "",
+                    "status": "",
+                    "consignment": "",
+                    "final_destination": "",
+                    "loading_location": "",
+                    "unloading_location": ""
+                }
+            },
+            "catalog_description": "Set out cars from a job train. Leave location as Final destinations (auto) to assign each car to its loading or unloading location (same as Assign on set_out.php). Pick a yard to set out all train cars there. Leave job and location blank for all locals."
+        },
+        {
+            "function": "set_out_cars",
+            "params": {
+                "job": "STG-DEMMLER",
+                "location": "DEMMLER-YARD",
+                "car_filters": {
+                    "pickup_location": "",
+                    "reporting_marks": "",
+                    "car_code": "",
+                    "status": "",
+                    "consignment": "",
+                    "final_destination": "",
+                    "loading_location": "",
+                    "unloading_location": ""
+                }
+            },
+            "catalog_description": "Set out cars from a job train. Choose Final Destination to assign each car to its loading or unloading location (same as Assign on set_out.php). Pick a yard to set out all matching train cars there. Optional car filters match the Set Out Cars page. Leave job and location blank for all locals."
+        },
+        {
+            "function": "section_label",
+            "params": {
+                "label": "STG-SCULLY"
+            },
+            "catalog_description": "Section heading with optional remarks (non-operational)."
+        },
+        {
+            "function": "auto_assign_locals",
+            "params": {
+                "jobs": "STG-SCULLY"
+            },
+            "catalog_description": "Assign eligible cars to selected job(s)/train(s). Hold Ctrl/Cmd to select multiple. Optional station filter limits picks to one yard."
+        },
+        {
+            "function": "generate_switchlists",
+            "params": {
+                "jobs": "STG-SCULLY",
+                "format": "all",
+                "title": "NVL Inbound"
+            },
+            "catalog_description": "Write switch list HTML for the current simulator state for selected job(s) or all."
+        },
+        {
+            "function": "pick_up_cars",
+            "params": {
+                "job": "STG-SCULLY",
+                "location": "",
+                "car_filters": {
+                    "pickup_location": "",
+                    "reporting_marks": "",
+                    "car_code": "",
+                    "status": "",
+                    "consignment": "",
+                    "final_destination": "",
+                    "loading_location": "",
+                    "unloading_location": ""
+                }
+            },
+            "catalog_description": "Pick up assigned cars onto a job train. Optional car filters match the Pick Up Cars page. Leave job blank for all locals (staging excluded)."
+        },
+        {
+            "function": "set_out_cars",
+            "params": {
+                "job": "STG-SCULLY",
+                "car_filters": {
+                    "pickup_location": "",
+                    "reporting_marks": "",
+                    "car_code": "",
+                    "status": "",
+                    "consignment": "",
+                    "final_destination": "",
+                    "loading_location": "",
+                    "unloading_location": ""
+                }
+            },
+            "catalog_description": "Set out cars from a job train. Choose Final Destination to assign each car to its loading or unloading location (same as Assign on set_out.php). Pick a yard to set out all matching train cars there. Optional car filters match the Set Out Cars page. Leave job and location blank for all locals."
+        },
+        {
+            "function": "set_out_cars",
+            "params": {
+                "job": "STG-SCULLY",
+                "location": "SCULLY-YARD",
+                "car_filters": {
+                    "pickup_location": "",
+                    "reporting_marks": "",
+                    "car_code": "",
+                    "status": "",
+                    "consignment": "",
+                    "final_destination": "",
+                    "loading_location": "",
+                    "unloading_location": ""
+                }
+            },
+            "catalog_description": "Set out cars from a job train. Choose Final Destination to assign each car to its loading or unloading location (same as Assign on set_out.php). Pick a yard to set out all matching train cars there. Optional car filters match the Set Out Cars page. Leave job and location blank for all locals."
+        },
+        {
+            "function": "section_label",
+            "params": {
+                "label": "NVL"
+            },
+            "catalog_description": "Section heading with optional remarks (non-operational)."
+        },
+        {
+            "function": "auto_assign_locals",
+            "params": {
+                "jobs": "NVL",
+                "station": "Scully Yard"
+            },
+            "catalog_description": "Auto-assign eligible cars to selected job(s)/train(s). Hold Ctrl/Cmd to select multiple. Optional station filter limits picks to one yard."
+        },
+        {
+            "function": "generate_switchlists",
+            "params": {
+                "jobs": "NVL",
+                "format": "all",
+                "title": "NVL Inbound"
+            },
+            "catalog_description": "Write switch list HTML for the current simulator state for selected job(s) or all."
+        },
+        {
+            "function": "pick_up_cars",
+            "params": {
+                "job": "NVL",
+                "location": "SCULLY-YARD",
+                "car_filters": {
+                    "pickup_location": "",
+                    "reporting_marks": "",
+                    "car_code": "",
+                    "status": "",
+                    "consignment": "",
+                    "final_destination": "",
+                    "loading_location": "",
+                    "unloading_location": ""
+                }
+            },
+            "catalog_description": "Pick up assigned cars onto a job train. Optional car filters match the Pick Up Cars page. Leave job blank for all locals (staging excluded)."
+        },
+        {
+            "function": "set_out_cars",
+            "params": {
+                "job": "NVL",
+                "location": "SOUTH-YARD",
+                "car_filters": {
+                    "pickup_location": "",
+                    "reporting_marks": "",
+                    "car_code": "",
+                    "status": "",
+                    "consignment": "",
+                    "final_destination": "station::Mckeesport-PA",
+                    "loading_location": "",
+                    "unloading_location": ""
+                }
+            },
+            "catalog_description": "Set out cars from a job train. Choose Final Destination to assign each car to its loading or unloading location (same as Assign on set_out.php). Pick a yard to set out all matching train cars there. Optional car filters match the Set Out Cars page. Leave job and location blank for all locals."
+        },
+        {
+            "function": "auto_assign_locals",
+            "params": {
+                "jobs": "NVL"
+            },
+            "catalog_description": "Assign eligible cars to selected job(s)/train(s). Hold Ctrl/Cmd to select multiple. Optional station filter limits picks to one yard."
+        },
+        {
+            "function": "generate_switchlists",
+            "params": {
+                "jobs": "NVL",
+                "format": "all",
+                "title": "NVL Outbound"
+            },
+            "catalog_description": "Write switch list HTML for the current simulator state for selected job(s) or all."
+        },
+        {
+            "function": "pick_up_cars",
+            "params": {
+                "job": "NVL",
+                "location": "SOUTH-YARD",
+                "car_filters": {
+                    "pickup_location": "",
+                    "reporting_marks": "",
+                    "car_code": "",
+                    "status": "",
+                    "consignment": "",
+                    "final_destination": "",
+                    "loading_location": "",
+                    "unloading_location": ""
+                }
+            },
+            "catalog_description": "Pick up assigned cars onto a job train. Optional car filters match the Pick Up Cars page. Leave job blank for all locals (staging excluded)."
+        },
+        {
+            "function": "set_out_cars",
+            "params": {
+                "job": "NVL",
+                "car_filters": {
+                    "pickup_location": "",
+                    "reporting_marks": "",
+                    "car_code": "",
+                    "status": "",
+                    "consignment": "",
+                    "final_destination": "station::Neville Island",
+                    "loading_location": "",
+                    "unloading_location": ""
+                }
+            },
+            "catalog_description": "Set out cars from a job train. Choose Final Destination to assign each car to its loading or unloading location (same as Assign on set_out.php). Pick a yard to set out all matching train cars there. Optional car filters match the Set Out Cars page. Leave job and location blank for all locals."
+        },
+        {
+            "function": "pick_up_cars",
+            "params": {
+                "job": "NVL",
+                "location": "Neville Island",
+                "car_filters": {
+                    "pickup_location": "",
+                    "reporting_marks": "",
+                    "car_code": "",
+                    "status": "",
+                    "consignment": "",
+                    "final_destination": "",
+                    "loading_location": "",
+                    "unloading_location": ""
+                }
+            },
+            "catalog_description": "Pick up assigned cars onto a job train. Optional car filters match the Pick Up Cars page. Leave job blank for all locals (staging excluded)."
+        },
+        {
+            "function": "set_out_cars",
+            "params": {
+                "job": "NVL",
+                "car_filters": {
+                    "pickup_location": "",
+                    "reporting_marks": "",
+                    "car_code": "",
+                    "status": "",
+                    "consignment": "",
+                    "final_destination": "",
+                    "loading_location": "",
+                    "unloading_location": ""
+                }
+            },
+            "catalog_description": "Set out cars from a job train. Leave location as Final destinations (auto) to assign each car to its loading or unloading location. Pick a yard to set out all train cars there. Optional car filters match the Set Out Cars page."
+        },
+        {
+            "function": "set_out_cars",
+            "params": {
+                "job": "NVL",
+                "location": "SCULLY-YARD",
+                "car_filters": {
+                    "pickup_location": "",
+                    "reporting_marks": "",
+                    "car_code": "",
+                    "status": "",
+                    "consignment": "",
+                    "final_destination": "",
+                    "loading_location": "",
+                    "unloading_location": ""
+                }
+            },
+            "catalog_description": "Set out cars from a job train. Choose Final Destination to assign each car to its loading or unloading location (same as Assign on set_out.php). Pick a yard to set out all matching train cars there. Optional car filters match the Set Out Cars page. Leave job and location blank for all locals."
+        },
+        {
+            "function": "section_label",
+            "params": {
+                "label": "Finish"
+            },
+            "catalog_description": "Section heading with optional remarks (non-operational)."
+        }
+    ],
+    "source_workflow": "start_session.workflow.json"
+}

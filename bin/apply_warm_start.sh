@@ -87,7 +87,7 @@ else
   echo "==> Simulating warm start (min_sessions=${COMPLETED_SESSIONS}, max=${MAX_SESSIONS}, seed=${SEED})"
   SIM_ARGS+=(--seed="${SEED}")
 fi
-docker exec "${WEB_CID}" php /var/www/html/sts/simulate_warm_start.php "${SIM_ARGS[@]}"
+sts_helpers_docker_exec_www "${WEB_CID}" php /var/www/html/sts/simulate_warm_start.php "${SIM_ARGS[@]}"
 
 PHOTOS_SRC="${BACKUPS_DIR}/hart_seed_photos"
 PHOTOS_DST="${BACKUPS_DIR}/${BACKUP_NAME}_photos"

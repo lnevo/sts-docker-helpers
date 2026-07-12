@@ -91,7 +91,7 @@ if [[ "${TRACKED}" -eq 1 ]]; then
 fi
 
 WARM_SESSION="$(
-  docker exec "${WEB_CID}" php -r \
+  sts_helpers_docker_exec_www "${WEB_CID}" php -r \
     'chdir("/var/www/html/sts"); require "open_db.php"; $d=open_db(); $r=mysqli_query($d,"SELECT setting_value FROM settings WHERE setting_name=\"session_nbr\""); echo mysqli_fetch_row($r)[0];'
 )"
 
@@ -103,7 +103,7 @@ if [[ "${RUN_WARM_START}" -eq 1 ]]; then
   "${BIN_DIR}/apply_warm_start.sh" "${WARM_ARGS[@]}" --backup-name "sim_warm_start"
 
   WARM_SESSION="$(
-    docker exec "${WEB_CID}" php -r \
+    sts_helpers_docker_exec_www "${WEB_CID}" php -r \
       'chdir("/var/www/html/sts"); require "open_db.php"; $d=open_db(); $r=mysqli_query($d,"SELECT setting_value FROM settings WHERE setting_name=\"session_nbr\""); echo mysqli_fetch_row($r)[0];'
   )"
   echo "==> Warm start complete at session ${WARM_SESSION} (STG-SCULLY backlog expected)"
@@ -119,12 +119,18 @@ PREV_SESSION="${WARM_SESSION}"
 for ((n = 1; n <= SESSIONS; n++)); do
   echo ""
   echo "========================================"
-  echo "==> Operating session cycle ${n}/${SESSIONS}: begin + switch lists"
+  echo "==> Operating session cycle ${n}/${SESSIONS}: run active workflow"
   echo "========================================"
-  "${BIN_DIR}/begin_session.sh" --run-stg-scully --switchlists
+  # Drive the editor's ACTIVE saved workflow end-to-end (increment → prep →
+  # D749/NVL/CK1 operating steps → phased switch lists → bookend staging) via
+  # session_run_recipe. This is the correct phased-switch-list engine; the old
+  # begin_session --switchlists + generate_master_switchlists.php path only
+  # snapshotted current assignment once per job and could not produce the
+  # per-phase D749/NVL lists.
+  "${BIN_DIR}/run_catalog_workflow.sh"
 
   DB_SESSION="$(
-    docker exec "${WEB_CID}" php -r \
+    sts_helpers_docker_exec_www "${WEB_CID}" php -r \
       'chdir("/var/www/html/sts"); require "open_db.php"; $d=open_db(); $r=mysqli_query($d,"SELECT setting_value FROM settings WHERE setting_name=\"session_nbr\""); echo mysqli_fetch_row($r)[0];'
   )"
   DELTA=$((DB_SESSION - PREV_SESSION))
@@ -133,19 +139,8 @@ for ((n = 1; n <= SESSIONS; n++)); do
     exit 1
   fi
   PREV_SESSION="${DB_SESSION}"
-  echo "==> Operating session ${DB_SESSION} ready (switch lists generated)"
-
-  if [[ "${n}" -lt "${SESSIONS}" ]]; then
-    echo "==> Playing through operating session ${DB_SESSION}"
-    "${BIN_DIR}/play_operating_session.sh" --backup-name "sim_session_${n}"
-  fi
+  echo "==> Operating session ${DB_SESSION} complete (phased switch lists in temp/sessions/session_${DB_SESSION})"
 done
-
-echo ""
-echo "==> Syncing switchlists into web container"
-docker exec "${WEB_CID}" mkdir -p /var/www/html/switchlists
-docker cp "${OUTPUT_ROOT}/." "${WEB_CID}:/var/www/html/switchlists/"
-"${BIN_DIR}/sync_operational_steps.sh"
 
 echo ""
 if [[ "${RUN_WARM_START}" -eq 1 ]]; then
@@ -153,6 +148,6 @@ if [[ "${RUN_WARM_START}" -eq 1 ]]; then
 else
   echo "Done. Continued from session ${WARM_SESSION}; ${SESSIONS} operating session(s) opened."
 fi
-echo "Switch lists: sessions ${FIRST_OPEN}–${LAST_OPEN}"
-echo "All sessions:  http://localhost:8980/switchlists/index.html"
-echo "Latest session: http://localhost:8980/switchlists/session_${LAST_OPEN}/index.html"
+echo "Phased switch lists (workflow engine): sessions ${FIRST_OPEN}–${LAST_OPEN}"
+echo "All sessions:   http://localhost:8980/sts/session.php"
+echo "Latest session: http://localhost:8980/sts/session.php?session=${LAST_OPEN}"

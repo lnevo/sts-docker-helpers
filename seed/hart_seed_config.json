@@ -109,6 +109,13 @@
     "unit_train_hopper_max_length_ft": 40,
     "scale_weigh_demand_weight": 0.5
   },
+  "car_home_split": {
+    "_comment": "south_only = all non-coke freight at South Yard (baseline). demand = split by shipment endpoint demand (island/IX). ix_focus = interchange yards only for car codes with IX/offline demand; island-heavy codes stay South. moderate = cap interchange share at moderate_interchange_pct of each code's fleet.",
+    "mode": "moderate",
+    "moderate_interchange_pct": 50,
+    "enable_yard_balance": true
+  },
+  "traffic_mult": 2.5,
   "default_setout_locations": {
     "North Yard": "NORTH-YARD",
     "West Yard": "WEST-YARD",
@@ -134,7 +141,7 @@
   },
   "session_operations": {
     "session_start": [
-      "Evaluate empty repositioning and generate new car orders if unfilled backlog is 30 or fewer.",
+      "Evaluate empty repositioning and generate new car orders if unfilled backlog is 20 or fewer.",
       "D749 picks up all cars with orders at Demmler Yard and runs to South Yard.",
       "D749 sets out the inbound block at South Yard \u2014 the operating session begins here.",
       "Yardmaster and engineer swap blocks; D749 departs South Yard westbound.",
@@ -243,12 +250,12 @@
     "stop_when_staging_ready": true,
     "run_ck1_test": false,
     "seed": 54321,
-    "max_unfilled_before_generate": 30,
+    "max_unfilled_before_generate": 20,
     "staging_jobs": [
       "STG-SCULLY",
       "STG-DEMMLER"
     ],
-    "reposition_fraction": 0.65,
+    "reposition_fraction": 0.5,
     "scale_calibrate_every_sessions": 3,
     "ck1_test": {
       "weigh_required": true,
@@ -257,7 +264,7 @@
     },
     "partial": {
       "fill_orders": 0.88,
-      "reposition": 0.65,
+      "reposition": 0.5,
       "auto_assign": 0.75,
       "pickup": 0.55,
       "setout": 0.65,
@@ -305,7 +312,8 @@
     "spot": "OUT",
     "rpt_station": "Neville Island",
     "remarks": "Shenango Coke Works",
-    "color": "black"
+    "color": "black",
+    "outbound_weigh_note": "Outbound coke: weigh at South Yard scale; record certified gross weight on waybill."
   },
   "coke_shipments": [
     {
@@ -315,7 +323,7 @@
       "car_code": "HM",
       "loading_location": "SHEN-COKE-SHIPPING",
       "unloading_location": "USSTEELE-COKE",
-      "special_instructions": "All loads to be weighed in South Yard.",
+      "special_instructions": "Outbound coke: weigh at South Yard scale; record certified gross weight on waybill.",
       "min_interval": 99,
       "max_interval": 99,
       "min_amount": 1,
@@ -328,7 +336,7 @@
       "car_code": "HM",
       "loading_location": "SHEN-COKE-SHIPPING",
       "unloading_location": "CLEVWORK-COKE",
-      "special_instructions": "All loads to be weighed in South Yard.",
+      "special_instructions": "Outbound coke: weigh at South Yard scale; record certified gross weight on waybill.",
       "min_interval": 99,
       "max_interval": 99,
       "min_amount": 1,
@@ -341,10 +349,10 @@
       "car_code": "HM",
       "loading_location": "SHEN-COKE-SHIPPING",
       "unloading_location": "USSTEELE-COKE",
-      "special_instructions": "All loads to be weighed in South Yard.",
-      "min_interval": 99,
-      "max_interval": 99,
-      "min_amount": 4,
+      "special_instructions": "Outbound coke: weigh at South Yard scale; record certified gross weight on waybill.",
+      "min_interval": 1,
+      "max_interval": 1,
+      "min_amount": 3,
       "max_amount": 4
     },
     {
@@ -354,10 +362,10 @@
       "car_code": "HM",
       "loading_location": "SHEN-COKE-SHIPPING",
       "unloading_location": "CLEVWORK-COKE",
-      "special_instructions": "All loads to be weighed in South Yard.",
-      "min_interval": 99,
-      "max_interval": 99,
-      "min_amount": 4,
+      "special_instructions": "Outbound coke: weigh at South Yard scale; record certified gross weight on waybill.",
+      "min_interval": 1,
+      "max_interval": 1,
+      "min_amount": 3,
       "max_amount": 4
     },
     {
@@ -373,9 +381,13 @@
       "max_amount": 1
     }
   ],
+  "shipment_car_code_overrides": {
+    "_comment": "Per-lane car-type overrides applied after commodity-based AAR selection. Spread coal across the idle HT fleet so it does not overload the 3-car HK pool.",
+    "CALG-COAL-IN-HILLMAN": "HT"
+  },
   "shipment_yard_balance": {
-    "_comment": "Auto-balance Demmler vs Scully shipment intervals from home-yard fleet at those yards. Disabled while freight homes at South Yard.",
-    "enabled": false,
+    "_comment": "Auto-balance Demmler vs Scully shipment intervals from forecast demand routed through each interchange yard vs available home-yard fleet.",
+    "enabled": true,
     "interchange_stations": [
       "Demmler Yard",
       "Scully Yard"
@@ -668,14 +680,14 @@
           "remarks": "Shenango Coke Works \u2014 Pick up for South Yard"
         },
         {
-          "step_number": 95,
+          "step_number": 100,
           "station": 8,
           "pickup": false,
           "setout": true,
           "remarks": "South Yard Scale \u2014 Weigh coke cars; assign outbound or reload orders"
         },
         {
-          "step_number": 100,
+          "step_number": 95,
           "station": 12,
           "pickup": true,
           "setout": false,
@@ -1054,12 +1066,6 @@
     {
       "job": "CK1",
       "step_nbr": 95,
-      "car_status": "",
-      "dest_station_id": 8
-    },
-    {
-      "job": "CK1",
-      "step_nbr": 100,
       "car_status": "",
       "dest_station_id": 14
     },

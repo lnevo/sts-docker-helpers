@@ -34,9 +34,9 @@ insert into `CK1` values("80","12","T","T","Shenango Coke Works — Pick up for 
 #
 insert into `CK1` values("90","12","T","F","Shenango Coke Works — Pick up for South Yard");
 #
-insert into `CK1` values("95","8","F","T","South Yard Scale — Weigh coke cars; assign outbound or reload orders");
+insert into `CK1` values("100","8","F","T","South Yard Scale — Weigh coke cars; assign outbound or reload orders");
 #
-insert into `CK1` values("100","12","T","F","Shenango Coke Works — Pick up for Mckeesport-PA");
+insert into `CK1` values("95","12","T","F","Shenango Coke Works — Pick up for Mckeesport-PA");
 #
 insert into `CK1` values("110","8","T","F","South Yard — Pick up reload coke for Shenango Coke Works (after scale weigh)");
 #
@@ -1237,7 +1237,7 @@ insert into `pu_criteria` values("33","CK1","90","","","","8");
 #
 insert into `pu_criteria` values("34","CK1","95","","","","8");
 #
-insert into `pu_criteria` values("35","CK1","100","","","","14");
+insert into `pu_criteria` values("35","CK1","95","","","","14");
 #
 insert into `pu_criteria` values("36","CK1","110","","","","12");
 #
@@ -1364,135 +1364,135 @@ CREATE TABLE `shipments` (
   PRIMARY KEY (`Id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=71 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 #
-insert into `shipments` values("1","ARIS-PELLETS-IN-DOW","Dow Chemical (Midland, MI) to Aristech Plastics","22","9","13","99","0","2","4","0","1","","","","","","");
+insert into `shipments` values("1","ARIS-PELLETS-IN-DOW","Dow Chemical (Midland, MI) to Aristech Plastics","22","9","13","99","0","2","4","1","2","","","","","","");
 #
-insert into `shipments` values("2","ARIS-PELLETS-IN-BASF","BASF (Wyandotte, MI) to Aristech Plastics","22","9","9","99","0","2","4","0","1","","","","","","");
+insert into `shipments` values("2","ARIS-PELLETS-IN-BASF","BASF (Wyandotte, MI) to Aristech Plastics","22","9","9","99","0","2","4","1","2","","","","","","");
 #
-insert into `shipments` values("3","ARIS-PELLETS-IN-NOVACOR","Novacor (Indian Orchard, MA) to Aristech Plastics","22","9","43","99","0","2","4","0","1","","","","","","");
+insert into `shipments` values("3","ARIS-PELLETS-IN-NOVACOR","Novacor (Indian Orchard, MA) to Aristech Plastics","22","9","43","99","0","2","4","1","2","","","","","","");
 #
-insert into `shipments` values("4","ARIS-CHEM-IN-DOW-EA","Dow Chemical (Midland, MI) to Aristech Plastics","8","10","13","98","0","1","2","0","1","","","","","","");
+insert into `shipments` values("4","ARIS-CHEM-IN-DOW-EA","Dow Chemical (Midland, MI) to Aristech Plastics","8","10","13","98","0","1","2","1","2","","","","","","");
 #
-insert into `shipments` values("5","ARIS-CHEM-IN-EXXON","Exxon Chemical (Bayonne, NJ) to Aristech Plastics","18","10","33","98","0","1","2","0","1","","","","","","");
+insert into `shipments` values("5","ARIS-CHEM-IN-EXXON","Exxon Chemical (Bayonne, NJ) to Aristech Plastics","18","10","33","98","0","1","2","1","2","","","","","","");
 #
-insert into `shipments` values("6","ARIS-CHEM-IN-DOW-STY","Dow Chemical (Midland, MI) to Aristech Plastics","33","10","13","98","0","1","2","0","1","","","","","","");
+insert into `shipments` values("6","ARIS-CHEM-IN-DOW-STY","Dow Chemical (Midland, MI) to Aristech Plastics","33","10","13","98","0","1","2","1","2","","","","","","");
 #
-insert into `shipments` values("7","ARIS-RESIN-OUT-BEMIS","Aristech Plastics to Bemis Company (Flemington, NJ)","23","5","100","47","0","0","2","1","1","","","","","","");
+insert into `shipments` values("7","ARIS-RESIN-OUT-BEMIS","Aristech Plastics to Bemis Company (Flemington, NJ)","23","5","100","47","0","0","2","1","2","","","","","","");
 #
-insert into `shipments` values("8","ARIS-RESIN-OUT-OI-TOLEDO","Aristech Plastics to Owens-Illinois (Toledo, OH)","23","5","100","50","0","0","2","1","1","","","","","","");
+insert into `shipments` values("8","ARIS-RESIN-OUT-OI-TOLEDO","Aristech Plastics to Owens-Illinois (Toledo, OH)","23","5","100","50","0","0","2","1","2","","","","","","");
 #
-insert into `shipments` values("9","ARIS-RESIN-OUT-OI-OTTAWA","Aristech Plastics to Owens-Illinois (Ottawa, IL)","23","5","100","28","0","0","2","1","1","","","","","","");
+insert into `shipments` values("9","ARIS-RESIN-OUT-OI-OTTAWA","Aristech Plastics to Owens-Illinois (Ottawa, IL)","23","5","100","28","0","0","2","1","2","","","","","","");
 #
-insert into `shipments` values("10","STUK-STEEL-IN-METAL-SVC","Metal Service Co. (Apollo, PA) to A Stucki Co","29","5","20","96","0","0","2","1","1","","","","","","");
+insert into `shipments` values("10","STUK-STEEL-IN-METAL-SVC","Metal Service Co. (Apollo, PA) to A Stucki Co","29","5","20","96","0","0","2","1","2","","","","","","");
 #
-insert into `shipments` values("11","STUK-STEEL-IN-ALLEGHENY","Allegheny Ludlum (Brackenridge, PA) to A Stucki Co","29","2","32","96","0","0","2","1","1","","","","","","");
+insert into `shipments` values("11","STUK-STEEL-IN-ALLEGHENY","Allegheny Ludlum (Brackenridge, PA) to A Stucki Co","29","2","32","96","0","0","2","1","2","","","","","","");
 #
-insert into `shipments` values("12","STUK-STEEL-IN-REP-STEEL","Republic Steel (Cleveland, OH) to A Stucki Co","29","6","44","96","0","3","5","0","1","","","","","","");
+insert into `shipments` values("12","STUK-STEEL-IN-REP-STEEL","Republic Steel (Cleveland, OH) to A Stucki Co","29","6","44","96","0","3","5","1","2","","","","","","");
 #
-insert into `shipments` values("13","STUK-COILS-IN-RYERSON","Ryerson Steel Service to A Stucki Co","31","5","22","97","0","0","2","1","1","","","","","","");
+insert into `shipments` values("13","STUK-COILS-IN-RYERSON","Ryerson Steel Service to A Stucki Co","31","5","22","97","0","0","2","1","2","","","","","","");
 #
-insert into `shipments` values("14","STUK-PLATE-IN-WASH-STL","Washington Steel (Washington, PA) to A Stucki Co","32","2","24","97","0","0","2","1","1","","","","","","");
+insert into `shipments` values("14","STUK-PLATE-IN-WASH-STL","Washington Steel (Washington, PA) to A Stucki Co","32","2","24","97","0","0","2","1","2","","","","","","");
 #
-insert into `shipments` values("15","STUK-BILLETS-IN-MCCONWAY","McConway & Torley (Pittsburgh, PA) to A Stucki Co","30","6","41","97","0","3","5","0","1","","","","","","");
+insert into `shipments` values("15","STUK-BILLETS-IN-MCCONWAY","McConway & Torley (Pittsburgh, PA) to A Stucki Co","30","6","41","97","0","3","5","1","2","","","","","","");
 #
-insert into `shipments` values("16","STUK-PARTS-OUT-METAL-SVC","A Stucki Co to Metal Service Co. (Apollo, PA)","17","5","97","27","0","0","2","1","1","","","","","","");
+insert into `shipments` values("16","STUK-PARTS-OUT-METAL-SVC","A Stucki Co to Metal Service Co. (Apollo, PA)","17","5","97","27","0","0","2","1","2","","","","","","");
 #
-insert into `shipments` values("17","STUK-SPRINGS-OUT-PITTS-FORGE","A Stucki Co to Pittsburgh Forge (McKees Rocks, PA)","25","2","97","7","0","0","2","1","1","","","","","","");
+insert into `shipments` values("17","STUK-SPRINGS-OUT-PITTS-FORGE","A Stucki Co to Pittsburgh Forge (McKees Rocks, PA)","25","2","97","7","0","0","2","1","2","","","","","","");
 #
-insert into `shipments` values("18","STUK-COILS-OUT-RYERSON","A Stucki Co to Ryerson Steel Service","31","6","97","22","0","3","5","0","1","","","","","","");
+insert into `shipments` values("18","STUK-COILS-OUT-RYERSON","A Stucki Co to Ryerson Steel Service","31","6","97","22","0","3","5","1","2","","","","","","");
 #
-insert into `shipments` values("19","CALG-COAL-IN-CONSOL","Consol Energy (Pittsburgh, PA) to Calgon Carbon","6","14","10","103","0","0","2","1","1","","","","","","");
+insert into `shipments` values("19","CALG-COAL-IN-CONSOL","Consol Energy (Pittsburgh, PA) to Calgon Carbon","6","14","10","103","0","0","2","1","2","","","","","","");
 #
-insert into `shipments` values("20","CALG-COAL-IN-RP","R&P Coal (Brady Twp, PA) to Calgon Carbon","6","14","21","103","0","0","2","1","1","","","","","","");
+insert into `shipments` values("20","CALG-COAL-IN-RP","R&P Coal (Brady Twp, PA) to Calgon Carbon","6","14","21","103","0","0","2","1","2","","","","","","");
 #
-insert into `shipments` values("21","CALG-COAL-IN-HILLMAN","Hillman Coal (Canton Twp, PA) to Calgon Carbon","6","14","37","103","0","0","2","1","1","","","","","","");
+insert into `shipments` values("21","CALG-COAL-IN-HILLMAN","Hillman Coal (Canton Twp, PA) to Calgon Carbon","6","14","37","103","0","0","2","1","2","","","","","","");
 #
-insert into `shipments` values("22","CALG-CARBON-OUT-UNIVAR","Calgon Carbon to Univar (Salem, MA)","1","7","101","52","0","2","5","0","1","","","","","","");
+insert into `shipments` values("22","CALG-CARBON-OUT-UNIVAR","Calgon Carbon to Univar (Salem, MA)","1","7","101","52","0","2","5","1","2","","","","","","");
 #
-insert into `shipments` values("23","CALG-CARBON-OUT-CORP","Calgon Carbon to Calgon Corp (Columbus, OH)","1","7","101","25","0","2","5","0","1","","","","","","");
+insert into `shipments` values("23","CALG-CARBON-OUT-CORP","Calgon Carbon to Calgon Corp (Columbus, OH)","1","7","101","25","0","2","5","1","2","","","","","","");
 #
-insert into `shipments` values("24","CALG-CARBON-OUT-HOUGHTON","Calgon Carbon to Houghton Chemical (Allston, MA)","1","7","101","26","0","2","5","0","1","","","","","","");
+insert into `shipments` values("24","CALG-CARBON-OUT-HOUGHTON","Calgon Carbon to Houghton Chemical (Allston, MA)","1","7","101","26","0","2","5","1","2","","","","","","");
 #
-insert into `shipments` values("25","CALG-CHEM-IN-HOUGHTON","Houghton Chemical (Allston, MA) to Calgon Carbon","4","10","38","102","0","1","2","0","1","","","","","","");
+insert into `shipments` values("25","CALG-CHEM-IN-HOUGHTON","Houghton Chemical (Allston, MA) to Calgon Carbon","4","10","38","102","0","1","2","1","2","","","","","","");
 #
-insert into `shipments` values("26","CALG-CHEM-IN-GEN-CHEM","General Chemical (Parsippany, NJ) to Calgon Carbon","14","10","35","102","0","1","2","0","1","","","","","","");
+insert into `shipments` values("26","CALG-CHEM-IN-GEN-CHEM","General Chemical (Parsippany, NJ) to Calgon Carbon","14","10","35","102","0","1","2","1","2","","","","","","");
 #
-insert into `shipments` values("27","CALG-CHEM-IN-DOW","Dow Chemical (Midland, MI) to Calgon Carbon","21","10","13","102","0","1","2","0","1","","","","","","");
+insert into `shipments` values("27","CALG-CHEM-IN-DOW","Dow Chemical (Midland, MI) to Calgon Carbon","21","10","13","102","0","1","2","1","2","","","","","","");
 #
-insert into `shipments` values("28","FERR-LPG-IN-TANEYTOWN","Ferrellgas Co (Taneytown, MD) to Ferrel Gas","16","10","34","104","0","1","2","0","1","","","","","","");
+insert into `shipments` values("28","FERR-LPG-IN-TANEYTOWN","Ferrellgas Co (Taneytown, MD) to Ferrel Gas","16","10","34","104","0","1","2","1","2","","","","","","");
 #
-insert into `shipments` values("29","FERR-LPG-IN-PIPE","Ferrellgas pipeline terminal to Ferrel Gas","16","10","17","104","0","1","2","0","1","","","","","","");
+insert into `shipments` values("29","FERR-LPG-IN-PIPE","Ferrellgas pipeline terminal to Ferrel Gas","16","10","17","104","0","1","2","1","2","","","","","","");
 #
-insert into `shipments` values("30","KOSM-CEMENT-IN-KOSMOS","Kosmos Cement (Canton, OH) to Kosmos Cement","5","7","39","106","0","2","5","0","1","","","","","","");
+insert into `shipments` values("30","KOSM-CEMENT-IN-KOSMOS","Kosmos Cement (Canton, OH) to Kosmos Cement","5","7","39","106","0","2","5","1","2","","","","","","");
 #
-insert into `shipments` values("31","KOSM-CEMENT-IN-MEDUSA","Medusa Cement (Charlevoix, MI) to Kosmos Cement","5","7","19","106","0","2","5","0","1","","","","","","");
+insert into `shipments` values("31","KOSM-CEMENT-IN-MEDUSA","Medusa Cement (Charlevoix, MI) to Kosmos Cement","5","7","19","106","0","2","5","1","2","","","","","","");
 #
-insert into `shipments` values("32","KOSM-CEMENT-IN-LEHIGH","Lehigh Cement (Mitchell, IN) to Kosmos Cement","5","7","40","106","0","2","5","0","1","","","","","","");
+insert into `shipments` values("32","KOSM-CEMENT-IN-LEHIGH","Lehigh Cement (Mitchell, IN) to Kosmos Cement","5","7","40","106","0","2","5","1","2","","","","","","");
 #
-insert into `shipments` values("33","KOSM-AGG-IN-MI-LIME","Michigan Limestone (Rogers City, MI) to Kosmos Cement","2","6","42","105","0","3","5","0","1","","","","","","");
+insert into `shipments` values("33","KOSM-AGG-IN-MI-LIME","Michigan Limestone (Rogers City, MI) to Kosmos Cement","2","6","42","105","0","3","5","1","2","","","","","","");
 #
-insert into `shipments` values("34","KOSM-AGG-IN-US-AGG","US Aggregates (Indianapolis, IN) to Kosmos Cement","2","6","23","105","0","3","5","0","1","","","","","","");
+insert into `shipments` values("34","KOSM-AGG-IN-US-AGG","US Aggregates (Indianapolis, IN) to Kosmos Cement","2","6","23","105","0","3","5","1","2","","","","","","");
 #
-insert into `shipments` values("35","KOSM-AGG-IN-MARTIN","Martin Marietta (Clairton, PA) to Kosmos Cement","2","8","18","105","0","0","2","1","1","","","","","","");
+insert into `shipments` values("35","KOSM-AGG-IN-MARTIN","Martin Marietta (Clairton, PA) to Kosmos Cement","2","8","18","105","0","0","2","1","2","","","","","","");
 #
-insert into `shipments` values("36","IX-LAMPS-GE-PENELEC","GE (Bridgeville, PA) to Penelec (Erie, PA)","9","5","79","73","0","0","2","1","1","","","","","","");
+insert into `shipments` values("36","IX-LAMPS-GE-PENELEC","GE (Bridgeville, PA) to Penelec (Erie, PA)","9","5","79","73","0","0","2","1","2","","","","","","");
 #
-insert into `shipments` values("37","IX-TUBES-GE-GRAYBAR","GE (Bridgeville, PA) to Graybar Electric (St. Louis, MO)","10","5","80","65","0","0","2","1","1","","","","","","");
+insert into `shipments` values("37","IX-TUBES-GE-GRAYBAR","GE (Bridgeville, PA) to Graybar Electric (St. Louis, MO)","10","5","80","65","0","0","2","1","2","","","","","","");
 #
-insert into `shipments` values("38","IX-RESIN-DOW-OI-OTT","Dow Chemical (Midland, MI) to Owens-Illinois (Ottawa, IL)","23","5","15","92","0","0","2","1","1","","","","","","");
+insert into `shipments` values("38","IX-RESIN-DOW-OI-OTT","Dow Chemical (Midland, MI) to Owens-Illinois (Ottawa, IL)","23","5","15","92","0","0","2","1","2","","","","","","");
 #
-insert into `shipments` values("39","IX-COILS-REP-DEERE","Republic Steel (Cleveland, OH) to John Deere (Moline, IL)","31","1","46","62","0","0","2","1","1","","","","","","");
+insert into `shipments` values("39","IX-COILS-REP-DEERE","Republic Steel (Cleveland, OH) to John Deere (Moline, IL)","31","1","46","62","0","0","2","1","2","","","","","","");
 #
-insert into `shipments` values("40","IX-COILS-WEIRTON-RYERSON","Weirton Steel (Weirton, WV) to Ryerson Steel Service (Pittsburgh, PA)","31","1","59","59","0","0","2","1","1","","","","","","");
+insert into `shipments` values("40","IX-COILS-WEIRTON-RYERSON","Weirton Steel (Weirton, WV) to Ryerson Steel Service (Pittsburgh, PA)","31","1","59","59","0","0","2","1","2","","","","","","");
 #
-insert into `shipments` values("41","IX-TINPLATE-WHEELING-HEINZ","Wheeling-Pittsburgh Steel (Wheeling, WV) to Heinz (Pittsburgh, PA)","34","1","86","67","0","0","2","1","1","","","","","","");
+insert into `shipments` values("41","IX-TINPLATE-WHEELING-HEINZ","Wheeling-Pittsburgh Steel (Wheeling, WV) to Heinz (Pittsburgh, PA)","34","1","86","67","0","0","2","1","2","","","","","","");
 #
-insert into `shipments` values("42","IX-CARBON-CORP-HOUGHTON","Calgon Corp (Columbus, OH) to Houghton Chemical (Allston, MA)","1","7","25","91","0","3","6","0","1","","","","","","");
+insert into `shipments` values("42","IX-CARBON-CORP-HOUGHTON","Calgon Corp (Columbus, OH) to Houghton Chemical (Allston, MA)","1","7","25","91","0","3","6","1","2","","","","","","");
 #
-insert into `shipments` values("43","IX-CEMENT-LEHIGH-HOLCIM","Lehigh Cement (Mitchell, IN) to Holcim (Buffalo, NY)","5","7","40","68","0","3","6","0","1","","","","","","");
+insert into `shipments` values("43","IX-CEMENT-LEHIGH-HOLCIM","Lehigh Cement (Mitchell, IN) to Holcim (Buffalo, NY)","5","7","40","68","0","3","6","1","2","","","","","","");
 #
-insert into `shipments` values("44","IX-CEMENT-MEDUSA-KNOUSE","Medusa Cement (Charlevoix, MI) to Knouse Foods (Orrtanna, PA)","5","7","83","69","0","3","6","0","1","","","","","","");
+insert into `shipments` values("44","IX-CEMENT-MEDUSA-KNOUSE","Medusa Cement (Charlevoix, MI) to Knouse Foods (Orrtanna, PA)","5","7","83","69","0","3","6","1","2","","","","","","");
 #
-insert into `shipments` values("45","IX-PHOSPHOR-GEN-GE","General Chemical (Parsippany, NJ) to GE (Bridgeville, PA)","20","7","55","89","0","3","6","0","1","","","","","","");
+insert into `shipments` values("45","IX-PHOSPHOR-GEN-GE","General Chemical (Parsippany, NJ) to GE (Bridgeville, PA)","20","7","55","89","0","3","6","1","2","","","","","","");
 #
-insert into `shipments` values("46","IX-PHOSPHOR-GEN-HEINZ","General Chemical (Parsippany, NJ) to Heinz (Pittsburgh, PA)","20","7","36","66","0","3","6","0","1","","","","","","");
+insert into `shipments` values("46","IX-PHOSPHOR-GEN-HEINZ","General Chemical (Parsippany, NJ) to Heinz (Pittsburgh, PA)","20","7","36","66","0","3","6","1","2","","","","","","");
 #
-insert into `shipments` values("47","IX-PELLETS-BASF-OI-TOL","BASF (Wyandotte, MI) to Owens-Illinois (Toledo, OH)","22","9","78","72","0","4","7","0","1","","","","","","");
+insert into `shipments` values("47","IX-PELLETS-BASF-OI-TOL","BASF (Wyandotte, MI) to Owens-Illinois (Toledo, OH)","22","9","78","72","0","4","7","1","2","","","","","","");
 #
-insert into `shipments` values("48","IX-PELLETS-BASF-OI-TOL-CSX","BASF (Wyandotte, MI) to Owens-Illinois (Toledo, OH)","22","9","9","49","0","4","7","0","1","","","","","","");
+insert into `shipments` values("48","IX-PELLETS-BASF-OI-TOL-CSX","BASF (Wyandotte, MI) to Owens-Illinois (Toledo, OH)","22","9","9","49","0","4","7","1","2","","","","","","");
 #
-insert into `shipments` values("49","IX-FORGINGS-SFP-CAT","Standard Forged Products (McKees Rocks, PA) to Caterpillar (Peoria, IL)","11","2","84","61","0","0","2","0","1","","","","","","");
+insert into `shipments` values("49","IX-FORGINGS-SFP-CAT","Standard Forged Products (McKees Rocks, PA) to Caterpillar (Peoria, IL)","11","2","84","61","0","0","2","1","2","","","","","","");
 #
-insert into `shipments` values("50","IX-FORGINGS-SFP-SHARON","Standard Forged Products (McKees Rocks, PA) to Sharon Steel (Farrell, PA)","11","2","56","94","0","0","2","0","1","","","","","","");
+insert into `shipments` values("50","IX-FORGINGS-SFP-SHARON","Standard Forged Products (McKees Rocks, PA) to Sharon Steel (Farrell, PA)","11","2","56","94","0","0","2","1","2","","","","","","");
 #
-insert into `shipments` values("51","IX-STAINLESS-USA-RYERSON","Universal Stainless & Alloy (Bridgeville, PA) to Ryerson Steel (Chicago, IL)","27","2","85","74","0","0","2","0","1","","","","","","");
+insert into `shipments` values("51","IX-STAINLESS-USA-RYERSON","Universal Stainless & Alloy (Bridgeville, PA) to Ryerson Steel (Chicago, IL)","27","2","85","74","0","0","2","1","2","","","","","","");
 #
-insert into `shipments` values("52","IX-STAINLESS-USA-CARPENTER","Universal Stainless & Alloy (Bridgeville, PA) to Carpenter Steel (Reading, PA)","27","2","57","88","0","0","2","0","1","","","","","","");
+insert into `shipments` values("52","IX-STAINLESS-USA-CARPENTER","Universal Stainless & Alloy (Bridgeville, PA) to Carpenter Steel (Reading, PA)","27","2","57","88","0","0","2","1","2","","","","","","");
 #
-insert into `shipments` values("53","IX-SLAB-ALLEGHENY-USA","Allegheny Ludlum (Brackenridge, PA) to Universal Stainless & Alloy (Bridgeville, PA)","28","2","31","95","0","0","2","0","1","","","","","","");
+insert into `shipments` values("53","IX-SLAB-ALLEGHENY-USA","Allegheny Ludlum (Brackenridge, PA) to Universal Stainless & Alloy (Bridgeville, PA)","28","2","31","95","0","0","2","1","2","","","","","","");
 #
-insert into `shipments` values("54","IX-SLAB-WEIRTON-ARMCO","Weirton Steel (Weirton, WV) to Armco Steel (Middletown, OH)","28","2","58","60","0","0","2","0","1","","","","","","");
+insert into `shipments` values("54","IX-SLAB-WEIRTON-ARMCO","Weirton Steel (Weirton, WV) to Armco Steel (Middletown, OH)","28","2","58","60","0","0","2","1","2","","","","","","");
 #
-insert into `shipments` values("55","IX-BILLETS-REP-SFP","Republic Steel (Cleveland, OH) to Standard Forged Products (McKees Rocks, PA)","30","2","45","93","0","0","2","0","1","","","","","","");
+insert into `shipments` values("55","IX-BILLETS-REP-SFP","Republic Steel (Cleveland, OH) to Standard Forged Products (McKees Rocks, PA)","30","2","45","93","0","0","2","1","2","","","","","","");
 #
-insert into `shipments` values("56","IX-BILLETS-REP-MCCONWAY","Republic Steel (Cleveland, OH) to McConway & Torley (Pittsburgh, PA)","30","2","45","41","0","0","2","0","1","","","","","","");
+insert into `shipments` values("56","IX-BILLETS-REP-MCCONWAY","Republic Steel (Cleveland, OH) to McConway & Torley (Pittsburgh, PA)","30","2","45","41","0","0","2","1","2","","","","","","");
 #
-insert into `shipments` values("57","IX-PLATE-BETHLEHEM-RYERSON","Bethlehem Steel (Bethlehem, PA) to Ryerson Steel Service (Pittsburgh, PA)","32","2","53","53","0","0","2","0","1","","","","","","");
+insert into `shipments` values("57","IX-PLATE-BETHLEHEM-RYERSON","Bethlehem Steel (Bethlehem, PA) to Ryerson Steel Service (Pittsburgh, PA)","32","2","53","53","0","0","2","1","2","","","","","","");
 #
-insert into `shipments` values("58","IX-SCRAP-ALLEGHENY-MCCONWAY","Allegheny Ludlum (Brackenridge, PA) to McConway & Torley (Pittsburgh, PA)","26","6","30","71","0","5","8","0","1","","","","","","");
+insert into `shipments` values("58","IX-SCRAP-ALLEGHENY-MCCONWAY","Allegheny Ludlum (Brackenridge, PA) to McConway & Torley (Pittsburgh, PA)","26","6","30","71","0","5","8","1","2","","","","","","");
 #
-insert into `shipments` values("59","IX-COAL-CONSOL-AEP","Consol Energy (Pittsburgh, PA) to American Electric Power (Columbus, OH)","6","14","10","87","0","0","2","1","1","","","","","","");
+insert into `shipments` values("59","IX-COAL-CONSOL-AEP","Consol Energy (Pittsburgh, PA) to American Electric Power (Columbus, OH)","6","14","10","87","0","0","2","1","2","","","","","","");
 #
-insert into `shipments` values("60","IX-REEFER-HEINZ-SYSCO","Heinz (Pittsburgh, PA) to Sysco Foods (Harrisburg, PA)","12","11","81","76","0","0","2","1","1","","","","","","");
+insert into `shipments` values("60","IX-REEFER-HEINZ-SYSCO","Heinz (Pittsburgh, PA) to Sysco Foods (Harrisburg, PA)","12","11","81","76","0","0","2","1","2","","","","","","");
 #
-insert into `shipments` values("61","IX-REEFER-DUBUQUE-GIANT","Dubuque Packing Co (Dubuque, IA) to Giant Eagle (Pittsburgh, PA)","19","11","54","90","0","0","2","1","1","","","","","","");
+insert into `shipments` values("61","IX-REEFER-DUBUQUE-GIANT","Dubuque Packing Co (Dubuque, IA) to Giant Eagle (Pittsburgh, PA)","19","11","54","90","0","0","2","1","2","","","","","","");
 #
-insert into `shipments` values("62","IX-ARGON-AIRPROD-GE","Air Products (Allentown, PA) to GE (Bridgeville, PA)","3","10","77","64","0","2","4","0","1","","","","","","");
+insert into `shipments` values("62","IX-ARGON-AIRPROD-GE","Air Products (Allentown, PA) to GE (Bridgeville, PA)","3","10","77","64","0","2","4","1","2","","","","","","");
 #
-insert into `shipments` values("63","IX-CHEM-DOW-KNOUSE","Dow Chemical (Midland, MI) to Knouse Foods (Orrtanna, PA)","15","10","12","70","0","2","4","0","1","","","","","","");
+insert into `shipments` values("63","IX-CHEM-DOW-KNOUSE","Dow Chemical (Midland, MI) to Knouse Foods (Orrtanna, PA)","15","10","12","70","0","2","4","1","2","","","","","","");
 #
-insert into `shipments` values("64","IX-LPG-MAPCO-SUBURBAN","Mapco LP (Memphis, TN) to Suburban Propane (Buffalo, NY)","16","10","82","75","0","2","4","0","1","","","","","","");
+insert into `shipments` values("64","IX-LPG-MAPCO-SUBURBAN","Mapco LP (Memphis, TN) to Suburban Propane (Buffalo, NY)","16","10","82","75","0","2","4","1","2","","","","","","");
 #
-insert into `shipments` values("65","IX-CHEM-EXXON-DUPONT","Exxon Chemical (Bayonne, NJ) to DuPont (Wilmington, DE)","18","10","33","63","0","2","4","0","1","","","","","","");
+insert into `shipments` values("65","IX-CHEM-EXXON-DUPONT","Exxon Chemical (Bayonne, NJ) to DuPont (Wilmington, DE)","18","10","33","63","0","2","4","1","2","","","","","","");
 #
 insert into `shipments` values("66","COKE-USS","Shenango Coke Works to U.S. Steel Edgar Thomson Works","7","3","6","29","0","99.0","99.0","1","1","All loads to be weighed in South Yard.","","","","","");
 #

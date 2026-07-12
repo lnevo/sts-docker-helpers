@@ -77,6 +77,22 @@ def apply_interval_deltas(intervals: dict, min_delta: int, max_delta: int) -> di
     return {**intervals, "min_interval": min_i, "max_interval": max_i}
 
 
+def shipment_routed_stations(row: dict, stations: tuple[str, ...]) -> list[str]:
+    """Interchange yards this shipment touches (load/unload), not only loading spot."""
+    routed = row.get("routed_stations")
+    if routed is not None:
+        return [s for s in routed if s in stations]
+    station = row.get("station", "")
+    return [station] if station in stations else []
+
+
+def combine_interval_deltas(
+    left: tuple[int, int], right: tuple[int, int]
+) -> tuple[int, int]:
+    """Prefer the stronger throttle when a lane routes through multiple yards."""
+    return (max(left[0], right[0]), max(left[1], right[1]))
+
+
 def compute_yard_balance(
     shipments: list[dict],
     inventory: dict[str, dict[str, int]],
@@ -86,10 +102,10 @@ def compute_yard_balance(
     stations = settings["stations"]
     demand: dict[str, dict[str, float]] = {s: {} for s in stations}
     for row in shipments:
-        station = row.get("station", "")
-        if station not in stations:
-            continue
         if str(row.get("code", "")).startswith("COKE-"):
+            continue
+        routed = shipment_routed_stations(row, stations)
+        if not routed:
             continue
         car_code = row["car_code"]
         load = estimate_loads_10_sessions(
@@ -98,7 +114,9 @@ def compute_yard_balance(
             float(row["min_amount"]),
             float(row["max_amount"]),
         )
-        demand[station][car_code] = demand.get(station, {}).get(car_code, 0.0) + load
+        share = load / len(routed)
+        for station in routed:
+            demand[station][car_code] = demand.get(station, {}).get(car_code, 0.0) + share
 
     total_demand = sum(sum(by.values()) for by in demand.values())
     total_supply = 0.0
@@ -150,19 +168,32 @@ def balance_shipment_rows(
     station_for_location_id,
     car_code_for_id,
     config: dict,
+    routed_station_names_for_shipment=None,
 ) -> dict:
     """Apply yard-balance deltas in place to shipment dicts. Returns summary."""
     settings = yard_balance_settings(config)
     if not settings["enabled"]:
         return {"enabled": False}
 
+    stations = settings["stations"]
     work: list[dict] = []
     for row in shipments:
-        station = station_for_location_id(row["loading_location"])
+        routed = []
+        if routed_station_names_for_shipment is not None:
+            routed = [
+                s
+                for s in routed_station_names_for_shipment(row)
+                if s in stations
+            ]
+        if not routed:
+            station = station_for_location_id(row["loading_location"])
+            if station in stations:
+                routed = [station]
         work.append(
             {
                 "code": row["code"],
-                "station": station,
+                "station": routed[0] if routed else "",
+                "routed_stations": routed,
                 "car_code": car_code_for_id(row["car_code"]),
                 "min_interval": row["min_interval"],
                 "max_interval": row["max_interval"],
@@ -178,12 +209,27 @@ def balance_shipment_rows(
     for row in shipments:
         if str(row.get("code", "")).startswith("COKE-"):
             continue
-        station = station_for_location_id(row["loading_location"])
         car_code = car_code_for_id(row["car_code"])
-        key = (station, car_code)
-        if key not in deltas:
+        if routed_station_names_for_shipment is not None:
+            routed = [
+                s
+                for s in routed_station_names_for_shipment(row)
+                if s in stations
+            ]
+        else:
+            station = station_for_location_id(row["loading_location"])
+            routed = [station] if station in stations else []
+        min_d = max_d = 0
+        matched = False
+        for station in routed:
+            key = (station, car_code)
+            if key not in deltas:
+                continue
+            matched = True
+            d_min, d_max = deltas[key]
+            min_d, max_d = combine_interval_deltas((min_d, max_d), (d_min, d_max))
+        if not matched:
             continue
-        min_d, max_d = deltas[key]
         adjusted = apply_interval_deltas(row, min_d, max_d)
         row["min_interval"] = adjusted["min_interval"]
         row["max_interval"] = adjusted["max_interval"]
@@ -278,25 +324,46 @@ GROUP BY r.station, cc.code;
 
 def shipments_from_database() -> list[dict]:
     sql = """
-SELECT r.station, s.code, cc.code,
-       s.min_interval, s.max_interval, s.min_amount, s.max_amount, s.id
+SELECT s.code, cc.code,
+       s.min_interval, s.max_interval, s.min_amount, s.max_amount, s.id,
+       rl.station AS load_station, ru.station AS unload_station
 FROM shipments s
 JOIN car_codes cc ON cc.id = s.car_code
-LEFT JOIN locations l ON l.id = s.loading_location
-LEFT JOIN routing r ON r.id = l.station
+LEFT JOIN locations ll ON ll.id = s.loading_location
+LEFT JOIN routing rl ON rl.id = ll.station
+LEFT JOIN locations lu ON lu.id = s.unloading_location
+LEFT JOIN routing ru ON ru.id = lu.station
 WHERE s.code NOT LIKE 'COKE-%';
 """
     rows = []
     out = _docker_mysql_query(sql).strip()
     if not out:
         return rows
+    stations = set(INTERCHANGE_STATIONS)
     for line in out.splitlines():
-        station, code, car_code, min_i, max_i, min_a, max_a, sid = line.split("\t")
+        (
+            code,
+            car_code,
+            min_i,
+            max_i,
+            min_a,
+            max_a,
+            sid,
+            load_station,
+            unload_station,
+        ) = line.split("\t")
+        routed = [
+            s
+            for s in (load_station, unload_station)
+            if s in stations and s
+        ]
+        routed = list(dict.fromkeys(routed))
         rows.append(
             {
                 "id": int(sid),
                 "code": code,
-                "station": station,
+                "station": routed[0] if routed else (load_station or ""),
+                "routed_stations": routed,
                 "car_code": car_code,
                 "min_interval": float(min_i),
                 "max_interval": float(max_i),
@@ -324,10 +391,17 @@ def apply_balance_to_database(config: dict) -> dict:
     cases_min = []
     cases_max = []
     for row in shipments:
-        key = (row["station"], row["car_code"])
-        if key not in deltas:
+        min_d = max_d = 0
+        matched = False
+        for station in row.get("routed_stations") or [row.get("station", "")]:
+            key = (station, row["car_code"])
+            if key not in deltas:
+                continue
+            matched = True
+            d_min, d_max = deltas[key]
+            min_d, max_d = combine_interval_deltas((min_d, max_d), (d_min, d_max))
+        if not matched:
             continue
-        min_d, max_d = deltas[key]
         adjusted = apply_interval_deltas(row, min_d, max_d)
         sid = row["id"]
         cases_min.append(
@@ -337,7 +411,10 @@ def apply_balance_to_database(config: dict) -> dict:
             f"WHEN {sid} THEN {adjusted['max_interval']}"
         )
 
-    ids = sorted({row["id"] for row in shipments if (row["station"], row["car_code"]) in deltas})
+    ids = sorted({row["id"] for row in shipments if any(
+        (station, row["car_code"]) in deltas
+        for station in (row.get("routed_stations") or [row.get("station", "")])
+    )})
     sql = f"""
 UPDATE shipments
 SET min_interval = CASE id {' '.join(cases_min)} ELSE min_interval END,

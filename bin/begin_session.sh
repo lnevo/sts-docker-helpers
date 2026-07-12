@@ -62,15 +62,18 @@ echo "==> Syncing legacy begin-session CLI into web container"
 sts_helpers_docker_cp_legacy_cli "${WEB_CID}" begin_operating_session.php
 
 echo "==> Beginning operating session"
-docker exec "${WEB_CID}" php /var/www/html/sts/begin_operating_session.php "${PHP_ARGS[@]}"
+sts_helpers_docker_exec_www "${WEB_CID}" php /var/www/html/sts/begin_operating_session.php "${PHP_ARGS[@]}"
 
 if [[ "${GENERATE_SWITCHLISTS}" -eq 1 ]]; then
-  echo "==> Generating phased switch lists (mobile + half sheet)"
-  "${BIN_DIR}/generate_switchlists.sh" --format=phased
-  SESSION="$(
-    docker exec "${WEB_CID}" php -r \
-      'chdir("/var/www/html/sts"); require "open_db.php"; $d=open_db(); $r=mysqli_query($d,"SELECT setting_value FROM settings WHERE setting_name=\"session_nbr\""); echo mysqli_fetch_row($r)[0];'
-  )"
-  echo "Switch list index: http://localhost:8980/switchlists/index.html"
-  echo "Session index: http://localhost:8980/switchlists/session_${SESSION}/index.html"
+  # --switchlists previously called generate_master_switchlists.php, which only
+  # snapshotted current assignment once per job and could not produce the
+  # per-phase D749/NVL switch lists. Phased switch lists now come from running
+  # the saved workflow through session_run_recipe.
+  cat >&2 <<EOF
+==> --switchlists is deprecated in begin_session.sh.
+    begin_session only runs session prep; it does not run the workflow's
+    operating/generate steps. Generate phased switch lists with the workflow:
+      ${BIN_DIR}/run_catalog_workflow.sh
+    (or run a full sweep: ${BIN_DIR}/run_session_simulations.sh --sessions N)
+EOF
 fi

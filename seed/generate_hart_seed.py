@@ -228,79 +228,99 @@ SHIPMENT_INTERVALS_LOCAL = {
     "min_interval": 0,
     "max_interval": 2,
     "min_amount": 1,
-    "max_amount": 1,
+    "max_amount": 2,
 }
 SHIPMENT_INTERVALS_LOCAL_GONDOLA = {
-    "min_interval": 3,
-    "max_interval": 5,
-    "min_amount": 0,
-    "max_amount": 1,
+    # 5 local GA lanes share only 2 gondolas; stretch the interval so a car has
+    # time to complete its round trip before the next order competes for it.
+    "min_interval": 6,
+    "max_interval": 10,
+    "min_amount": 1,
+    "max_amount": 2,
 }
 SHIPMENT_INTERVALS_IX = {
     "min_interval": 0,
     "max_interval": 2,
     "min_amount": 1,
-    "max_amount": 1,
+    "max_amount": 2,
 }
 SHIPMENT_INTERVALS_LOCAL_HC = {
     "min_interval": 2,
     "max_interval": 5,
-    "min_amount": 0,
-    "max_amount": 1,
+    "min_amount": 1,
+    "max_amount": 2,
 }
 SHIPMENT_INTERVALS_IX_HC = {
     "min_interval": 3,
     "max_interval": 6,
-    "min_amount": 0,
-    "max_amount": 1,
+    "min_amount": 1,
+    "max_amount": 2,
 }
 SHIPMENT_INTERVALS_LOCAL_HP = {
     "min_interval": 2,
     "max_interval": 4,
-    "min_amount": 0,
-    "max_amount": 1,
+    "min_amount": 1,
+    "max_amount": 2,
 }
 SHIPMENT_INTERVALS_IX_HP = {
     "min_interval": 4,
     "max_interval": 7,
-    "min_amount": 0,
-    "max_amount": 1,
+    "min_amount": 1,
+    "max_amount": 2,
 }
 SHIPMENT_INTERVALS_LOCAL_TANK = {
     "min_interval": 1,
     "max_interval": 2,
-    "min_amount": 0,
-    "max_amount": 1,
+    "min_amount": 1,
+    "max_amount": 2,
 }
 SHIPMENT_INTERVALS_IX_TANK = {
     "min_interval": 2,
     "max_interval": 4,
-    "min_amount": 0,
-    "max_amount": 1,
+    "min_amount": 1,
+    "max_amount": 2,
 }
 SHIPMENT_INTERVALS_IX_GONDOLA = {
-    "min_interval": 5,
-    "max_interval": 8,
-    "min_amount": 0,
-    "max_amount": 1,
+    "min_interval": 8,
+    "max_interval": 12,
+    "min_amount": 1,
+    "max_amount": 2,
+}
+SHIPMENT_INTERVALS_REEFER = {
+    # Only 2 reefers on the roster; keep the two RM lanes spaced out enough that a
+    # car can cycle out and back before the next order lands.
+    "min_interval": 4,
+    "max_interval": 7,
+    "min_amount": 1,
+    "max_amount": 2,
+}
+SHIPMENT_INTERVALS_COAL = {
+    # Coal rides the small open-top hopper fleet (3 HK + 2 HT). Space the coal
+    # lanes out so those cars have time to cycle instead of piling unfilled orders.
+    "min_interval": 4,
+    "max_interval": 7,
+    "min_amount": 1,
+    "max_amount": 2,
 }
 SHIPMENT_INTERVALS_LOCAL_FM = {
     "min_interval": 0,
     "max_interval": 2,
     "min_amount": 1,
-    "max_amount": 1,
+    "max_amount": 2,
 }
 SHIPMENT_INTERVALS_IX_FM = {
     "min_interval": 0,
     "max_interval": 2,
-    "min_amount": 0,
-    "max_amount": 1,
+    "min_amount": 1,
+    "max_amount": 2,
 }
 GONDOLA_CODES = frozenset({"GA", "GD"})
 TANK_CODES = frozenset({"TA", "TL"})
 FLATCAR_FM_CODES = frozenset({"FM"})
 COVERED_HOPPER_HP_CODES = frozenset({"HP"})
 COVERED_HOPPER_HC_CODES = frozenset({"HC"})
+REEFER_CODES = frozenset({"RM", "RB", "RP"})
+OPEN_HOPPER_COAL_CODES = frozenset({"HK", "HT"})
 
 PASSENGER_TYPES = frozenset(
     {
@@ -1021,10 +1041,14 @@ def aar_prefix_for_waybill(car_type: str, commodity: str, config: dict) -> str |
         if commodity_lower == "coke":
             return "HM"
         if commodity_lower == "coal":
-            return "H*"
+            # Coal rides dedicated open-top triple hoppers (HK) rather than the
+            # H* wildcard, which also matched the HM coke fleet and starved coke.
+            return "HK"
         if commodity_lower == "aggregate":
-            return "HT"
-        return "HT"
+            # Aggregate uses covered hoppers (HC, 9-car pool) instead of the
+            # tiny 2-car HT fleet.
+            return "HC"
+        return "HC"
     if car_type == "Covered Hopper":
         commodity = commodity.strip()
         if commodity in PNEUMATIC_COVERED_COMMODITIES:
@@ -1165,13 +1189,58 @@ class SeedBuilder:
             self.car_code_for_id,
             self.freight_car_ids,
         )
+        config = self.config
+        if self.yard_balance_enabled() and not config.get(
+            "shipment_yard_balance", {}
+        ).get("enabled"):
+            config = {
+                **config,
+                "shipment_yard_balance": {
+                    **config.get("shipment_yard_balance", {}),
+                    "enabled": True,
+                },
+            }
         return balance_shipment_rows(
             self.shipment_rows,
             inventory,
             self.station_name_for_location,
             self.car_code_for_id,
-            self.config,
+            config,
+            routed_station_names_for_shipment=self.routed_interchange_station_names,
         )
+
+    def routed_interchange_station_names(self, shipment_row: dict) -> list[str]:
+        """Interchange yards touched by a shipment's load/unload endpoints."""
+        names: list[str] = []
+        for loc_id in (
+            shipment_row["loading_location"],
+            shipment_row["unloading_location"],
+        ):
+            role = self.shipment_endpoint_demand_role(loc_id)
+            if role == "scully":
+                names.append("Scully Yard")
+            elif role == "demmler":
+                names.append("Demmler Yard")
+        return list(dict.fromkeys(names))
+
+    def scale_shipment_intervals_for_traffic(self, traffic_mult: float) -> dict:
+        """Shorten shipment intervals to model higher demand (traffic_mult > 1)."""
+        traffic_mult = float(traffic_mult)
+        if traffic_mult <= 0.0 or abs(traffic_mult - 1.0) < 0.001:
+            return {"traffic_mult": 1.0, "changed": 0}
+
+        changed = 0
+        for row in self.shipment_rows:
+            for key in ("min_interval", "max_interval"):
+                value = int(row.get(key, 0))
+                if value <= 0:
+                    continue
+                scaled = max(1, int(round(value / traffic_mult)))
+                if scaled != value:
+                    row[key] = scaled
+                    changed += 1
+
+        return {"traffic_mult": traffic_mult, "changed": changed}
 
     def add_routing(self) -> None:
         instructions = self.config.get("routing_instructions", {})
@@ -1649,6 +1718,13 @@ class SeedBuilder:
                 self._shipment_route_keys.add(route_key)
 
             car_code = self.pick_shipment_aar_code(car_type, commodity_name)
+            # Optional per-lane car-type override (e.g. spread coal across the HT
+            # fleet instead of overloading the 3-car HK pool).
+            car_code_overrides = self.config.get("shipment_car_code_overrides", {})
+            if car_code_overrides:
+                override_code = car_code_overrides.get(self.shipment_code(row))
+                if override_code:
+                    car_code = override_code
             car_code_id = self.ensure_car_code(car_code)
             commodity_key = commodity_code(commodity_name)
             consignment_id = self.commodity_code_to_id.get(commodity_key)
@@ -1736,6 +1812,10 @@ class SeedBuilder:
                     intervals = SHIPMENT_INTERVALS_IX_TANK
                 else:
                     intervals = SHIPMENT_INTERVALS_LOCAL_TANK
+            elif car_code in REEFER_CODES:
+                intervals = SHIPMENT_INTERVALS_REEFER
+            elif car_code in OPEN_HOPPER_COAL_CODES:
+                intervals = SHIPMENT_INTERVALS_COAL
             elif kind == "interchange":
                 intervals = SHIPMENT_INTERVALS_IX
             else:
@@ -1767,7 +1847,12 @@ class SeedBuilder:
             self._next_shipment_id += 1
 
     def add_coke_shipments(self) -> None:
-        coke_weigh_note = "All loads to be weighed in South Yard."
+        shenango = self.config.get("shenango_coke", {})
+        outbound_loading = shenango.get("location_code", "SHEN-COKE-SHIPPING")
+        coke_weigh_note = shenango.get(
+            "outbound_weigh_note",
+            "Outbound coke: weigh at South Yard scale; record certified gross weight on waybill.",
+        )
         for spec in self.config.get("coke_shipments", []):
             commodity_key = spec["commodity"]
             consignment_id = self.commodity_code_to_id.get(commodity_key)
@@ -1784,7 +1869,8 @@ class SeedBuilder:
             car_code = spec.get("car_code", "HM")
             car_code_id = self.ensure_car_code(car_code)
             code = spec["code"]
-            if code.startswith("COKE-USS") or code.startswith("COKE-CLEV"):
+            # Outbound lanes load at Shenango shipping; reload/inbound lanes do not.
+            if loading_code == outbound_loading:
                 special = coke_weigh_note
             else:
                 special = spec.get("special_instructions", "")
@@ -2052,11 +2138,124 @@ class SeedBuilder:
         code_assigned[yard_id] = code_assigned.get(yard_id, 0) + 1
         return yard_id
 
+    def freight_car_counts_by_code(self) -> dict[str, int]:
+        """Count assignable non-coke freight cars per AAR car code."""
+        counts: dict[str, int] = {}
+        for car in self.car_rows:
+            if car["id"] not in self.freight_car_ids:
+                continue
+            code = self.car_code_for_id(car["car_code_id"])
+            if self.is_unit_train_hopper(code, car):
+                continue
+            counts[code] = counts.get(code, 0) + 1
+        return counts
+
+    def home_yard_targets_for_mode(
+        self,
+        mode: str,
+        demand: dict[str, dict[str, float]],
+        counts: dict[str, int],
+    ) -> dict[str, dict[int, int]]:
+        """Build per-code home-yard slot targets for a split mode."""
+        if mode == "south_only":
+            home = self.config["car_home_yard"]
+            south_id = self.location_code_to_id[
+                home.get("south_yard_code", "SOUTH-YARD")
+            ]
+            return {code: {south_id: count} for code, count in counts.items()}
+
+        targets = self.home_yard_targets(demand, counts)
+        if mode == "demand":
+            return targets
+
+        home = self.config["car_home_yard"]
+        south_id = self.location_code_to_id[home.get("south_yard_code", "SOUTH-YARD")]
+        scully_id = self.location_code_to_id[home["pohc_yard_code"]]
+        demmler_id = self.location_code_to_id[home["csx_yard_code"]]
+
+        if mode == "ix_focus":
+            adjusted: dict[str, dict[int, int]] = {}
+            for code, count in counts.items():
+                bucket = demand.get(code, {})
+                ix_need = bucket.get("scully", 0.0) + bucket.get("demmler", 0.0)
+                if ix_need <= 0:
+                    adjusted[code] = {south_id: count}
+                    continue
+                local_need = bucket.get("island", 0.0) + bucket.get("weigh", 0.0)
+                south_keep = 0
+                if local_need > 0 and count > 1:
+                    south_keep = min(
+                        max(1, round(count * local_need / (ix_need + local_need))),
+                        count - 1,
+                    )
+                ix_count = count - south_keep
+                scully_need = bucket.get("scully", 0.0)
+                demmler_need = bucket.get("demmler", 0.0)
+                ix_total = scully_need + demmler_need
+                if ix_total == 0:
+                    scully_target = ix_count // 2
+                else:
+                    scully_target = round(ix_count * scully_need / ix_total)
+                scully_target = min(max(scully_target, 0), ix_count)
+                demmler_target = ix_count - scully_target
+                adjusted[code] = {
+                    south_id: south_keep,
+                    scully_id: scully_target,
+                    demmler_id: demmler_target,
+                }
+            return adjusted
+
+        if mode == "moderate":
+            pct = float(
+                self.config.get("car_home_split", {}).get(
+                    "moderate_interchange_pct", 50
+                )
+            )
+            adjusted = {}
+            for code, count in counts.items():
+                yards = targets.get(code, {south_id: count})
+                ix_cap = round(count * pct / 100.0)
+                scully_n = yards.get(scully_id, 0)
+                demmler_n = yards.get(demmler_id, 0)
+                ix_have = scully_n + demmler_n
+                if ix_have > ix_cap:
+                    scale = ix_cap / ix_have if ix_have else 0
+                    scully_n = round(scully_n * scale)
+                    demmler_n = max(0, ix_cap - scully_n)
+                south_n = count - scully_n - demmler_n
+                adjusted[code] = {
+                    south_id: south_n,
+                    scully_id: scully_n,
+                    demmler_id: demmler_n,
+                }
+            return adjusted
+
+        raise ValueError(f"Unknown car_home_split mode: {mode}")
+
+    def yard_balance_enabled(self) -> bool:
+        split = self.config.get("car_home_split", {})
+        mode = split.get("mode", "south_only")
+        if mode == "south_only":
+            return bool(
+                self.config.get("shipment_yard_balance", {}).get("enabled", False)
+            )
+        return bool(split.get("enable_yard_balance", True))
+
     def assign_car_home_yards(self) -> None:
         home = self.config["car_home_yard"]
         south_id = self.location_code_to_id[home.get("south_yard_code", "SOUTH-YARD")]
         coke_plant_code = home.get("coke_plant_yard_code", "SHEN-COKE-SHIPPING")
         coke_plant_id = self.location_code_to_id[coke_plant_code]
+        mode = self.config.get("car_home_split", {}).get("mode", "south_only")
+
+        counts = self.freight_car_counts_by_code()
+        demand = (
+            self.build_home_yard_demand_from_shipments()
+            if mode != "south_only"
+            else {}
+        )
+        targets = self.home_yard_targets_for_mode(mode, demand, counts)
+        assigned: dict[str, dict[int, int]] = {}
 
         for car in self.car_rows:
             if car["id"] not in self.freight_car_ids:
@@ -2066,8 +2265,9 @@ class SeedBuilder:
                 car["current_location_id"] = coke_plant_id
                 car["home_location"] = coke_plant_id
                 continue
-            car["current_location_id"] = south_id
-            car["home_location"] = south_id
+            yard_id = self.pick_home_yard_for_car_code(code, targets, assigned)
+            car["current_location_id"] = yard_id
+            car["home_location"] = yard_id
 
     def assign_coke_fleet_pools(self) -> None:
         """Link Shenango coke hoppers to all coke shipment orders."""
@@ -2559,12 +2759,31 @@ def main() -> None:
     parser.add_argument("--config", type=Path, default=DEFAULT_CONFIG)
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
     parser.add_argument("--mrr-csv", type=Path, default=DEFAULT_MRR_CSV)
+    parser.add_argument(
+        "--home-split",
+        choices=("south_only", "demand", "ix_focus", "moderate"),
+        help="Override car_home_split.mode in config",
+    )
+    parser.add_argument(
+        "--traffic-mult",
+        type=float,
+        default=None,
+        help="Demand multiplier (>1 shortens shipment intervals for more traffic); "
+        "defaults to traffic_mult in config (1.0 if unset)",
+    )
     args = parser.parse_args()
 
     MRR_DESCRIPTIONS = load_mrr_aar_descriptions(args.mrr_csv)
 
     hart_dir = args.hart_dir
     config = load_config(args.config)
+    traffic_mult = float(
+        args.traffic_mult
+        if args.traffic_mult is not None
+        else config.get("traffic_mult", 1.0)
+    )
+    if args.home_split:
+        config.setdefault("car_home_split", {})["mode"] = args.home_split
     industry_colors = load_industry_location_colors(hart_dir)
     builder = SeedBuilder(config, industry_colors=industry_colors)
     builder.load_shipping_proposals(
@@ -2593,6 +2812,7 @@ def main() -> None:
     builder.add_shipments(waybills)
     builder.add_coke_shipments()
     builder.apply_config_shipment_overrides()
+    traffic_summary = builder.scale_shipment_intervals_for_traffic(traffic_mult)
     builder.assign_car_home_yards()
     builder.apply_unavailable_car_status()
     yard_summary = builder.balance_interchange_shipment_intervals()
@@ -2625,6 +2845,11 @@ def main() -> None:
         f"empty_locations={len(builder.empty_location_rows)} "
         f"pool={len(builder.pool_rows)}"
     )
+    if traffic_summary.get("traffic_mult", 1.0) != 1.0:
+        print(
+            f"  traffic_mult={traffic_summary.get('traffic_mult')} "
+            f"interval_fields_scaled={traffic_summary.get('changed')}"
+        )
     if yard_summary.get("enabled"):
         print(
             f"  yard_balance: target={yard_summary.get('target_loads_per_car_10sess')} "
