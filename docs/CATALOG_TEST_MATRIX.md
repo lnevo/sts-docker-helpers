@@ -1,6 +1,6 @@
 # Catalog Test Matrix
 
-Test coverage for **selectable** workflow-editor commands (`adder_functions[]` where `disabled` is not set). Greyed-out entries (Reports, Waybills) are listed in the catalog but excluded from this matrix — no API or dispatch work is required for them.
+Test coverage for **selectable** workflow-editor commands (`adder_functions[]` where `disabled` is not set). Legacy report-only GUI entries (`report_*`) remain greyed out in the catalog and are excluded from this matrix.
 
 ## Regenerate
 
@@ -26,35 +26,33 @@ Outputs:
 
 Test workflow includes two variants of each (specific station/job or jobs list, and locals default).
 
-## Selectable commands (26)
+## Selectable commands
 
 | Group | Command | Test section |
 |-------|---------|--------------|
 | Before Operations | `generate_orders` | Before Operations |
+| | `replenish_coke_orders` | Before Operations |
 | | `fill_orders` | Before Operations |
 | | `reposition_empties` | Before Operations |
 | During Operations | `build_switchlists_sts` ×2 | During Operations |
 | | `auto_assign_locals` ×2 | During Operations |
 | | `pick_up_cars` ×2 | During Operations |
 | | `set_out_cars` ×2 | During Operations |
-| | `run_job_criterion` | During Operations |
+| | `calibrate_track_scale` | During Operations |
 | | `track_scale` | During Operations |
 | After Operations | `load_unload` | After Operations |
-| Session | `increment_session` | Session |
 | Switch Lists | `generate_switchlists` | Switch Lists |
 | | `generate_waybills` | Switch Lists |
 | Database | `restore_database` | Setup |
 | | `backup_database` | Database |
 | | `validate_database` | Database |
+| | `increment_session` | Database |
 | | `import_data` | Database |
 | | `restart_session` | Database |
 | | `reset_session` | Database |
 | | `remove_backup` | Database |
-| Notes | `section_label` | Each section header |
-| | `text_instruction` | Workflow notes |
+| Notes | `text_instruction` | Workflow notes |
 | | `if_then` | Workflow notes |
-| | `goto` | Workflow notes |
-| | `stop` | Final step |
 
 **Not in test workflow:** `wipe_database` (destructive; compile-only if needed later).
 
@@ -84,7 +82,7 @@ For each matrix step:
 3. Recipe → CSV instruction column matches compile output
 4. CSV instruction → `guess_function()` returns same command id (except known skips)
 
-Round-trip skipped for: `fill_orders`, `reposition_empties`, `load_unload`, `import_data`, `goto`, `text_instruction`, `track_scale` (legacy `Weigh Cars CK1` alias).
+Round-trip skipped for: `fill_orders`, `reposition_empties`, `load_unload`, `import_data`, `goto`, `text_instruction`, `track_scale`, `generate_switchlists`, `replenish_coke_orders` (complex param encoding or legacy aliases).
 
 ## Source files
 

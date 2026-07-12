@@ -7,6 +7,7 @@
             "params": {
                 "label": "[Catalog test \u2014 setup]"
             },
+            "catalog_description": "Section heading with optional remarks (non-operational).",
             "description": "Section: [Catalog test \u2014 setup]"
         },
         {
@@ -14,6 +15,7 @@
             "params": {
                 "backup": "hart_seed"
             },
+            "catalog_description": "Restore STS from a backup file in sts/backups/. Shell: apply_hart_seed.sh for hart_seed.",
             "description": "Test: Restore Database"
         },
         {
@@ -21,16 +23,29 @@
             "params": {
                 "label": "[Before Operations]"
             },
+            "catalog_description": "Section heading with optional remarks (non-operational).",
             "description": "Section: [Before Operations]"
         },
         {
             "function": "generate_orders",
             "params": {
                 "shipment": "",
-                "increment_session": "",
-                "max_unfilled": ""
+                "max_unfilled": "",
+                "max_new": "",
+                "seed": "",
+                "increment_session": "1"
             },
+            "catalog_description": "Auto-generate car orders for due shipments. Default matches generate.php AUTOMATIC (increment session + generate). Set Increment session=No to generate for the current session only. Or set Shipment for a single manual order. Max unfilled orders skips generation entirely when the unfilled backlog is above the limit (hard gate). Max new orders/session is a soft cap: it still generates every session but stops after that many new orders, serving due shipments in random order and leaving the rest due for later \u2014 this spreads demand smoothly and avoids the burst-then-starve pattern a hard gate causes. Optional Random seed (e.g. 42) reproduces the same due-shipment mix after each restore.",
             "description": "Test: Generate Car Orders"
+        },
+        {
+            "function": "replenish_coke_orders",
+            "params": {
+                "target_min": "6",
+                "target_max": "8"
+            },
+            "catalog_description": "Count unfilled outbound coke orders (USS/CLEV singles and bulk). When below target minimum, generate single-car COKE-USS / COKE-CLEV orders alternating lanes until the minimum is met (capped at target maximum).",
+            "description": "Test: Replenish Coke Orders"
         },
         {
             "function": "fill_orders",
@@ -38,7 +53,7 @@
                 "percent": "100",
                 "car_filters": {
                     "categories": "pool,station,priority,system",
-                    "current_station": "all",
+                    "current_station": "",
                     "current_location": "",
                     "car_code": ""
                 },
@@ -49,6 +64,7 @@
                     "car_code": ""
                 }
             },
+            "catalog_description": "Auto-assign eligible cars to open orders (same as Fill Car Orders \u2192 Auto Assign). Uses car source checkboxes and optional order/car filters. Set Percent to limit how many orders are filled.",
             "description": "Test: Fill Car Orders"
         },
         {
@@ -65,6 +81,7 @@
                     "off_home_only": ""
                 }
             },
+            "catalog_description": "Reposition empty cars: send off-home cars home, or update with a chosen destination.",
             "description": "Test: Reposition Empty Cars"
         },
         {
@@ -72,84 +89,139 @@
             "params": {
                 "label": "[During Operations]"
             },
+            "catalog_description": "Section heading with optional remarks (non-operational).",
             "description": "Section: [During Operations]"
         },
         {
             "function": "build_switchlists_sts",
             "params": {
-                "station": "Demmler",
-                "job": "D749"
+                "station": "Demmler Yard",
+                "job": "CK1"
             },
-            "description": "Test: Build Switch Lists (Demmler D749)"
+            "catalog_description": "Legacy \u2014 use Assign Cars instead. Assign ordered cars at a station to a job/train (by-station switch list build).",
+            "description": "Test: Build Switch Lists (Demmler Yard CK1)"
         },
         {
             "function": "build_switchlists_sts",
             "params": {
-                "station": "Scully",
-                "job": "NVL"
+                "station": "East Yard",
+                "job": "D749"
             },
-            "description": "Test: Build Switch Lists (Scully NVL)"
+            "catalog_description": "Legacy \u2014 use Assign Cars instead. Assign ordered cars at a station to a job/train (by-station switch list build).",
+            "description": "Test: Build Switch Lists (East Yard D749)"
         },
         {
             "function": "auto_assign_locals",
             "params": {
-                "jobs": "D749,NVL,CK1"
+                "jobs": "CK1,D749,NVL",
+                "station": "Demmler Yard"
             },
-            "description": "Test: Auto-Assign Cars (explicit jobs)"
+            "catalog_description": "Assign eligible cars to selected job(s)/train(s). Hold Ctrl/Cmd to select multiple. Optional station filter limits picks to one yard.",
+            "description": "Test: Auto-Assign Cars (jobs + station filter)"
         },
         {
             "function": "auto_assign_locals",
             "params": {
                 "jobs": ""
             },
-            "description": "Test: Auto-Assign Cars (locals default)"
+            "catalog_description": "Assign eligible cars to selected job(s)/train(s). Hold Ctrl/Cmd to select multiple. Optional station filter limits picks to one yard.",
+            "description": "Test: Auto-Assign Cars (no jobs selected)"
         },
         {
             "function": "pick_up_cars",
             "params": {
-                "job": "D749",
-                "location": "Demmler"
+                "job": "CK1",
+                "location": "Demmler Yard",
+                "car_filters": {
+                    "pickup_location": "",
+                    "reporting_marks": "",
+                    "car_code": "",
+                    "status": "",
+                    "consignment": "",
+                    "final_destination": "",
+                    "loading_location": "",
+                    "unloading_location": ""
+                }
             },
-            "description": "Test: Pick Up Cars (D749 Demmler)"
+            "catalog_description": "Pick up assigned cars onto a job train. Optional car filters match the Pick Up Cars page. Leave job blank for all locals (staging excluded).",
+            "description": "Test: Pick Up Cars (CK1 Demmler Yard)"
         },
         {
             "function": "pick_up_cars",
-            "params": [],
+            "params": {
+                "car_filters": {
+                    "pickup_location": "",
+                    "reporting_marks": "",
+                    "car_code": "",
+                    "status": "",
+                    "consignment": "",
+                    "final_destination": "",
+                    "loading_location": "",
+                    "unloading_location": ""
+                }
+            },
+            "catalog_description": "Pick up assigned cars onto a job train. Optional car filters match the Pick Up Cars page. Leave job blank for all locals (staging excluded).",
             "description": "Test: Pick Up Cars (all locals)"
         },
         {
             "function": "set_out_cars",
             "params": {
-                "job": "D749",
-                "location": "South-Yard"
+                "job": "CK1",
+                "location": "East Yard",
+                "car_filters": {
+                    "pickup_location": "",
+                    "reporting_marks": "",
+                    "car_code": "",
+                    "status": "",
+                    "consignment": "",
+                    "final_destination": "",
+                    "loading_location": "",
+                    "unloading_location": ""
+                }
             },
-            "description": "Test: Set Out Cars (D749 South-Yard)"
+            "catalog_description": "Set out cars from a job train. Choose Final Destination to assign each car to its loading or unloading location (same as Assign on set_out.php). Pick a yard to set out all matching train cars there. Optional car filters match the Set Out Cars page. Leave job and location blank for all locals.",
+            "description": "Test: Set Out Cars (CK1 East Yard)"
         },
         {
             "function": "set_out_cars",
-            "params": [],
+            "params": {
+                "car_filters": {
+                    "pickup_location": "",
+                    "reporting_marks": "",
+                    "car_code": "",
+                    "status": "",
+                    "consignment": "",
+                    "final_destination": "",
+                    "loading_location": "",
+                    "unloading_location": ""
+                }
+            },
+            "catalog_description": "Set out cars from a job train. Choose Final Destination to assign each car to its loading or unloading location (same as Assign on set_out.php). Pick a yard to set out all matching train cars there. Optional car filters match the Set Out Cars page. Leave job and location blank for all locals.",
             "description": "Test: Set Out Cars (all locals)"
         },
         {
-            "function": "run_job_criterion",
+            "function": "calibrate_track_scale",
             "params": {
-                "job": "NVL",
-                "steps": "10,15,20"
+                "every_sessions": "1"
             },
-            "description": "Test: Run Job Criterion Steps"
+            "catalog_description": "Recalibrate the coke track scale. Performs a fresh random calibration when required (first use / out of service) or when the configured number of sessions have elapsed since the last calibration. Set to 1 to calibrate every session (steady ~15% reload routing); higher values let scale drift accumulate so more cars route to reload between calibrations. Run this before the Track Scale weigh step.",
+            "description": "Test: Calibrate Track Scale (every 1 session)"
         },
         {
             "function": "track_scale",
             "params": {
-                "job": "CK1"
+                "job": "CK1",
+                "commodity": "ACTIVATEDCARBON"
             },
-            "description": "Test: Track Scale (CK1)"
+            "catalog_description": "Weigh loaded cars on a job train (or at the scale) for the selected commodity. Uses track scale config when commodity is blank.",
+            "description": "Test: Track Scale (CK1 ACTIVATEDCARBON)"
         },
         {
             "function": "section_label",
             "params": {
                 "label": "[After Operations]"
             },
+            "catalog_description": "Section heading with optional remarks (non-operational).",
             "description": "Section: [After Operations]"
         },
         {
@@ -159,42 +231,37 @@
                     "car_code": "",
                     "status": "Loading",
                     "commodity": "",
-                    "current_location": "Scully",
+                    "current_location": "East Yard",
                     "loading_location": "",
                     "unloading_location": ""
                 }
             },
+            "catalog_description": "Complete offline load/unload transitions. Optional filters mirror the STS load/unload page.",
             "description": "Test: Load / Unload Cars"
-        },
-        {
-            "function": "section_label",
-            "params": {
-                "label": "[Session]"
-            },
-            "description": "Section: [Session]"
-        },
-        {
-            "function": "increment_session",
-            "params": [],
-            "description": "Test: Increment Session Number"
         },
         {
             "function": "section_label",
             "params": {
                 "label": "[Switch Lists]"
             },
+            "catalog_description": "Section heading with optional remarks (non-operational).",
             "description": "Section: [Switch Lists]"
         },
         {
             "function": "generate_switchlists",
             "params": {
-                "jobs": "all"
+                "jobs": "CK1",
+                "format": "mobile",
+                "title": "CK1",
+                "info": "Test"
             },
-            "description": "Test: Generate Switch Lists"
+            "catalog_description": "Write switch list HTML for the current simulator state for selected job(s) or all.",
+            "description": "Test: Generate Switch Lists (CK1 mobile)"
         },
         {
             "function": "generate_waybills",
             "params": [],
+            "catalog_description": "Render printable waybill HTML for open waybills in the current session.",
             "description": "Test: Generate Waybill List"
         },
         {
@@ -202,6 +269,7 @@
             "params": {
                 "label": "[Database]"
             },
+            "catalog_description": "Section heading with optional remarks (non-operational).",
             "description": "Section: [Database]"
         },
         {
@@ -209,12 +277,20 @@
             "params": {
                 "backup": "catalog_test_backup"
             },
+            "catalog_description": "Export current database to sts/backups/. GUI: backup_db.php.",
             "description": "Test: Create Backup"
         },
         {
             "function": "validate_database",
             "params": [],
+            "catalog_description": "Check STS for broken links and data integrity. GUI: validate_db.php.",
             "description": "Test: Validate Database"
+        },
+        {
+            "function": "increment_session",
+            "params": [],
+            "catalog_description": "Advance session number by 1. GUI: generate.php (Next Session).",
+            "description": "Test: Increment Session Number"
         },
         {
             "function": "import_data",
@@ -222,16 +298,19 @@
                 "table": "shipments",
                 "add_replace": "append"
             },
+            "catalog_description": "Import tables from CSV. GUI: import_tables.php.",
             "description": "Test: Import Data"
         },
         {
             "function": "restart_session",
             "params": [],
+            "catalog_description": "Restart shippers, cancel waybills, release all cars. GUI: restart.php.",
             "description": "Test: Restart Session"
         },
         {
             "function": "reset_session",
             "params": [],
+            "catalog_description": "Restart session and reset all cars. GUI: reset.php.",
             "description": "Test: Reset Session"
         },
         {
@@ -239,6 +318,7 @@
             "params": {
                 "backup": "catalog_test_backup"
             },
+            "catalog_description": "Delete a backup file from sts/backups/. GUI: remove_backup.php.",
             "description": "Test: Remove Backup"
         },
         {
@@ -246,6 +326,7 @@
             "params": {
                 "label": "[Workflow notes]"
             },
+            "catalog_description": "Section heading with optional remarks (non-operational).",
             "description": "Section: [Workflow notes]"
         },
         {
@@ -253,6 +334,7 @@
             "params": {
                 "instruction": "Sample free-text instruction for catalog test"
             },
+            "catalog_description": "Free-text STS GUI instruction (imported or legacy steps). Not runnable.",
             "description": "Test: Text instruction"
         },
         {
@@ -260,14 +342,15 @@
             "params": {
                 "variable": "session_nbr",
                 "operator": ">",
-                "value": "0",
-                "step": "35"
+                "value": "0"
             },
-            "description": "Test: If \u2026 then goto Stop"
+            "catalog_description": "When the condition is true, skip forward to a later section. When false, continue to the next step. Variables match the Operations dashboard counts (session #, open/unfilled orders, unassigned, pickup/set-out pending, organize, scale, load/unload).",
+            "description": "Test: If \u2026 then goto"
         },
         {
             "function": "stop",
             "params": [],
+            "catalog_description": "Halt recipe execution at this step.",
             "description": "Test: Stop"
         }
     ]

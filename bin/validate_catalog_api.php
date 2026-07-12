@@ -74,13 +74,6 @@ foreach ($disabled as $def) {
     }
 }
 
-if (!in_array('generate_switchlists', array_column($disabled, 'id'), true)) {
-    $errors[] = 'generate_switchlists must be disabled in the adder catalog until implemented';
-}
-if (!in_array('generate_waybills', array_column($disabled, 'id'), true)) {
-    $errors[] = 'generate_waybills must be disabled in the adder catalog until implemented';
-}
-
 $matrixSteps = [];
 foreach (catalog_test_matrix_sections($dbc) as $section) {
     foreach ($section['steps'] as $step) {
