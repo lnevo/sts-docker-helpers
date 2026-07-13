@@ -30,6 +30,7 @@ Scripts bootstrap from `bootstrap.php`, which locates `sts-docker/sts/` for
 | `cleanup_special_instructions.php` | — (one-time: string-replace stale instruction text on disk) |
 | `update_special_instructions.php` | — (one-time: DB + cache + waybill instruction migration) |
 | `merge_ck1_switchlists.php` | — (one-time: collapse CK1 inbound/outbound phases per session) |
-| `build_station_report.php` | — (`php build_station_report.php [N|all]`: build/cache `session_N/station_report.html`; also built on demand via `so.php`) |
+| `build_station_report.php` | — (`php build_station_report.php [N|all]`: build/cache `session_N/station_report.html` and `wheel_report.html`; also built on demand via `so.php`) |
+| `build_wheel_report.php` | — (`php build_wheel_report.php [N|all|historical]`: build/cache end-of-session `session_N/wheel_report.html`; `historical` = all sessions before the current DB session) |
 
 Sweep logs and temp configs are written under `sts-backups/session_editor/` (gitignored).

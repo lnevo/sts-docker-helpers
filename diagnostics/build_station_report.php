@@ -1,8 +1,11 @@
 <?php
 /**
- * Build start-of-session station reports into session_N/station_report.html.
+ * Build start-of-session station + wheel reports into
+ * session_N/station_report.html and session_N/wheel_report.html.
  * Prefer the dynamic path (so.php builds on first request); use this to warm
- * the cache for every session after a bulk import or migration.
+ * the cache for every session after a bulk import or migration, or to re-bake
+ * every cached report after a report template change (staleness only tracks the
+ * session's switch-list archives, not this code).
  *
  *   docker exec -u www-data <web> php /tmp/build_station_report.php [N|all]
  *
@@ -38,14 +41,16 @@ if ($sessions === []) {
 $built = 0;
 $failed = [];
 foreach ($sessions as $sn) {
-    $rel = session_build_station_report($dbc, $sn, $root);
-    if ($rel === null) {
-        $failed[] = $sn;
-        echo "FAIL session {$sn}\n";
-        continue;
+    foreach (['station' => 'session_build_station_report', 'wheel' => 'session_build_wheel_report'] as $kind => $fn) {
+        $rel = $fn($dbc, $sn, $root);
+        if ($rel === null) {
+            $failed[] = "{$sn}/{$kind}";
+            echo "FAIL session {$sn} ({$kind})\n";
+            continue;
+        }
+        $built++;
+        echo "Wrote {$rel}\n";
     }
-    $built++;
-    echo "Wrote {$rel}\n";
 }
 
 mysqli_close($dbc);
