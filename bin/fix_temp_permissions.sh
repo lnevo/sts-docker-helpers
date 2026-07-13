@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
-# Fix temp/sessions ownership when CLI scripts ran as root inside the web container.
+# Fix session-output ownership when CLI scripts ran as root inside the web
+# container. Session data lives at backups/session_state/sessions (see
+# session_web_root()); this makes it www-data-writable again.
 set -euo pipefail
 
 _script_home="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -14,5 +16,5 @@ if [[ -z "${WEB_CID}" ]]; then
 fi
 
 docker exec -u root "${WEB_CID}" sh -c \
-  'chown -R www-data:www-data /var/www/html/sts/temp && chmod -R u+rwX,g+rwX /var/www/html/sts/temp'
-echo "Fixed ownership on /var/www/html/sts/temp (www-data can write session output)."
+  'chown -R www-data:www-data /var/www/html/sts/backups/session_state && chmod -R u+rwX,g+rwX /var/www/html/sts/backups/session_state'
+echo "Fixed ownership on /var/www/html/sts/backups/session_state (www-data can write session output)."

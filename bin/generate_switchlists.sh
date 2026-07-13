@@ -54,7 +54,7 @@ To generate correct phased switch lists, run the active saved workflow:
   ${BIN_DIR}/run_catalog_workflow.sh            # advances + generates one session
   ${BIN_DIR}/run_session_simulations.sh --sessions N   # multi-session sweep
 
-Output lands in the container at temp/sessions/session_N and is viewable at
+Output lands in the container at backups/session_state/sessions/session_N and is viewable at
   http://localhost:8980/sts/session.php
 EOF
 exit 2

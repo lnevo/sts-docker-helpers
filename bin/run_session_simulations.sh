@@ -139,7 +139,7 @@ for ((n = 1; n <= SESSIONS; n++)); do
     exit 1
   fi
   PREV_SESSION="${DB_SESSION}"
-  echo "==> Operating session ${DB_SESSION} complete (phased switch lists in temp/sessions/session_${DB_SESSION})"
+  echo "==> Operating session ${DB_SESSION} complete (phased switch lists in backups/session_state/sessions/session_${DB_SESSION})"
 done
 
 echo ""

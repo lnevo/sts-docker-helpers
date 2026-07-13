@@ -38,7 +38,7 @@ Commands:
                     (also refreshes sessions_latest.tar.gz). Default command.
   restore [NAME]    Restore session state from an archive (default: latest).
                     NAME may be a filename in session_state/ or a full path.
-                    Existing temp/sessions is replaced.
+                    Existing backups/session_state/sessions is replaced.
   list              List available session-state archives.
   -h, --help        Show this help.
 EOF

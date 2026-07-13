@@ -44,6 +44,6 @@ fi
 docker cp "${STS_DOCKER}/sts/run_catalog_workflow.php" \
   "${WEB_CID}:/var/www/html/sts/run_catalog_workflow.php"
 
-# Run as www-data so temp/sessions output stays writable by Apache/PHP.
+# Run as www-data so session output stays writable by Apache/PHP.
 sts_helpers_docker_exec_www "${WEB_CID}" \
   php /var/www/html/sts/run_catalog_workflow.php ${CONTAINER_ARG:+"${CONTAINER_ARG}"}
