@@ -16,7 +16,7 @@ sts-docker-helpers/
   lib/paths.sh         Shared path resolution (Docker, backups, seed dirs)
   migrations/          Historical SQL patches
   backups/             Optional local SQL snapshots (not Docker mount)
-  track_scale/         Track scale config reference
+  track_scale/         Track scale config (active/track-scale only; omitted on workflow-editor)
   docs/                Design notes
 ```
 
