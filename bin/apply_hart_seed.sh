@@ -6,8 +6,9 @@ _script_home="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "${_script_home}/../lib/paths.sh"
 sts_helpers_resolve_paths "${_script_home}/$(basename "${BASH_SOURCE[0]}")"
 
-SQL_FILE="${BACKUPS_DIR}/hart_seed"
-BACKUP_NAME="hart_seed"
+# Session-0 seed dump (name includes token 0 for generic Restart Session matching).
+SQL_FILE="${BACKUPS_DIR}/hart_seed0"
+BACKUP_NAME="hart_seed0"
 
 GENERATE=0
 SYNC_IMAGES=0
@@ -18,17 +19,20 @@ usage() {
   cat <<'EOF'
 Usage: apply_hart_seed.sh [options]
 
-Generate (optional) and restore hart_seed into the running STS Docker stack.
+Generate (optional) and restore hart_seed0 into the running STS Docker stack.
 Uses the same # -delimited SQL restore logic as STS Database Maintenance -> Restore.
-Optionally syncs car photos from Car Cards into sts-backups/hart_seed_photos/.
+Optionally syncs car photos from Car Cards into sts-backups/hart_seed0_photos/.
 Photos are always restored from that folder when it exists (same as STS Restore).
+
+The default name hart_seed0 carries session token 0 so Session Overview
+"Restart Session" can discover it when restarting session 1.
 
 Options:
   --generate         Run generate_hart_seed.py before restoring
   --merge-fleet      After --generate, copy car fleet from --fleet-backup (default: session10)
   --fleet-backup PATH  STS backup with car roster (default: sts-backups/session10)
   --sync-images      Run sync_hart_car_images.py before restoring (refresh _photos folder)
-  --sql-file PATH    SQL file to restore (default: sts-backups/hart_seed)
+  --sql-file PATH    SQL file to restore (default: sts-backups/hart_seed0)
   -h, --help         Show this help
 
 Requires the build-profile web + db containers to be running:
@@ -84,9 +88,16 @@ if [[ "${GENERATE}" -eq 1 ]]; then
     python3 "${TOOLS_DIR}/merge_car_fleet_from_backup.py" "${merge_args[@]}"
   fi
 elif [[ ! -f "${SQL_FILE}" ]]; then
-  echo "SQL file not found: ${SQL_FILE}" >&2
-  echo "Run with --generate or: python3 seed/generate_hart_seed.py --output backups/hart_seed" >&2
-  exit 1
+  # Legacy name without session token 0 (pre-Restart-Session convention).
+  if [[ -f "${BACKUPS_DIR}/hart_seed" ]]; then
+    echo "==> Note: using legacy ${BACKUPS_DIR}/hart_seed (prefer hart_seed0)"
+    SQL_FILE="${BACKUPS_DIR}/hart_seed"
+    BACKUP_NAME="hart_seed"
+  else
+    echo "SQL file not found: ${SQL_FILE}" >&2
+    echo "Run with --generate or: python3 seed/generate_hart_seed.py --output backups/hart_seed0" >&2
+    exit 1
+  fi
 fi
 
 car_rows="$(grep -ci 'insert into \`cars\`' "${SQL_FILE}" || true)"
@@ -94,16 +105,21 @@ if [[ "${car_rows}" -eq 0 ]]; then
   echo "ERROR: ${SQL_FILE} has 0 cars. Regenerate with --generate --merge-fleet." >&2
   exit 1
 fi
-echo "==> hart_seed car rows: ${car_rows}"
+echo "==> ${BACKUP_NAME} car rows: ${car_rows}"
 
 BACKUP_DIR="${BACKUPS_DIR}"
 PHOTOS_DIR="${BACKUP_DIR}/${BACKUP_NAME}_photos"
+# If restoring/generating hart_seed0 but only legacy photos exist, reuse them.
+if [[ ! -d "${PHOTOS_DIR}" && "${BACKUP_NAME}" == "hart_seed0" && -d "${BACKUP_DIR}/hart_seed_photos" ]]; then
+  PHOTOS_DIR="${BACKUP_DIR}/hart_seed_photos"
+fi
 
 if [[ "${SYNC_IMAGES}" -eq 1 ]]; then
-  echo "==> Syncing car images to ${PHOTOS_DIR}"
+  echo "==> Syncing car images to ${BACKUP_DIR}/${BACKUP_NAME}_photos"
   python3 "${TOOLS_DIR}/sync_hart_car_images.py" \
     --seed-sql "${SQL_FILE}" \
-    --output-dir "${PHOTOS_DIR}"
+    --output-dir "${BACKUP_DIR}/${BACKUP_NAME}_photos"
+  PHOTOS_DIR="${BACKUP_DIR}/${BACKUP_NAME}_photos"
 fi
 
 WEB_CID="$("${COMPOSE[@]}" ps -q web 2>/dev/null || true)"

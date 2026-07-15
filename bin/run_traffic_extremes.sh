@@ -4,7 +4,7 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 SEED_DIR="${ROOT}/sts-docker-helpers/seed"
-BACKUP="${ROOT}/sts-backups/hart_seed"
+BACKUP="${ROOT}/sts-backups/hart_seed0"
 WORKFLOW="${ROOT}/sts-backups/session_editor/start_session.workflow.json"
 COMPOSE="${ROOT}/sts-docker/docker-compose.yml"
 ROUNDS="${1:-5}"

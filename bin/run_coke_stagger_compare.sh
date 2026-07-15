@@ -11,7 +11,7 @@ SESSIONS="${1:-40}"
 WORKFLOW="${2:-hart_session}"
 SEED_SCRIPT="${HELPERS_ROOT}/seed/generate_hart_seed.py"
 CONFIG="${HELPERS_ROOT}/seed/hart_seed_config.json"
-SEED_OUT="${BACKUPS_DIR}/hart_seed"
+SEED_OUT="${BACKUPS_DIR}/hart_seed0"
 LOG="${BACKUPS_DIR}/session_editor/coke_stagger_compare_$(date +%Y%m%d_%H%M%S).log"
 
 WEB_CID="$("${COMPOSE[@]}" ps -q web)"

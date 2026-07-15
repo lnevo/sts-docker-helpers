@@ -52,13 +52,16 @@ def default_fleet_backup() -> Path:
 
 def default_seed_sql() -> Path:
     for candidate in (
+        CARDS_ROOT / "sts-backups" / "hart_seed0",
+        Path.home() / "sts" / "sts-backups" / "hart_seed0",
+        HELPERS_ROOT / "backups" / "hart_seed0",
         CARDS_ROOT / "sts-backups" / "hart_seed",
         Path.home() / "sts" / "sts-backups" / "hart_seed",
         HELPERS_ROOT / "backups" / "hart_seed",
     ):
         if candidate.is_file():
             return candidate
-    return CARDS_ROOT / "sts-backups" / "hart_seed"
+    return CARDS_ROOT / "sts-backups" / "hart_seed0"
 
 
 def split_backup(text: str) -> list[str]:

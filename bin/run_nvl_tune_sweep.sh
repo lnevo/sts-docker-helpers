@@ -12,7 +12,7 @@ WORKFLOW="${2:-hart_session}"
 SCENARIOS="${BACKUPS_DIR}/session_editor/nvl_tune_scenarios.json"
 CONFIG="${HELPERS_ROOT}/seed/hart_seed_config.json"
 SEED_SCRIPT="${HELPERS_ROOT}/seed/generate_hart_seed.py"
-SEED_OUT="${BACKUPS_DIR}/hart_seed"
+SEED_OUT="${BACKUPS_DIR}/hart_seed0"
 TMP_CONFIG="${BACKUPS_DIR}/session_editor/_nvl_tune_config.json"
 LOG="${BACKUPS_DIR}/session_editor/nvl_tune_sweep_$(date +%Y%m%d_%H%M%S).log"
 

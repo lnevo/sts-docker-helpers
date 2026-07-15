@@ -22,7 +22,7 @@ require "open_db.php";
 require "operational_steps_catalog.php";
 
 $dbc = open_db();
-operational_steps_dispatch_step($dbc, ["function" => "restore_database", "params" => ["backup" => "hart_seed"]], []);
+operational_steps_dispatch_step($dbc, ["function" => "restore_database", "params" => ["backup" => "hart_seed0"]], []);
 
 $errors = [];
 $warnings = [];

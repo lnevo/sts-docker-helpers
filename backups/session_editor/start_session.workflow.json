@@ -24,7 +24,7 @@
         {
             "function": "restore_database",
             "params": {
-                "backup": "hart_seed"
+                "backup": "hart_seed0"
             },
             "catalog_description": "Restore STS from sts/backups/."
         },
@@ -41,13 +41,6 @@
             "catalog_description": "Advance session number by 1."
         },
         {
-            "function": "section_label",
-            "params": {
-                "label": "D749 Starting"
-            },
-            "catalog_description": "Morning: D749 already holds overnight consist in-train. Print Starting, then set out to South Yard."
-        },
-        {
             "function": "generate_switchlists",
             "params": {
                 "jobs": "D749",
@@ -57,24 +50,6 @@
             },
             "catalog_description": "List #1 \u2014 morning: cars already in-train on D749 from prior Next Day. Print consist as-is.",
             "description": "D749 Starting \u2014 in-train overnight consist (morning)."
-        },
-        {
-            "function": "set_out_cars",
-            "params": {
-                "job": "D749",
-                "location": "SOUTH-YARD",
-                "car_filters": {
-                    "pickup_location": "",
-                    "reporting_marks": "",
-                    "car_code": "",
-                    "status": "",
-                    "consignment": "",
-                    "final_destination": "",
-                    "loading_location": "",
-                    "unloading_location": ""
-                }
-            },
-            "catalog_description": "Set out cars from a job train. Choose Final Destination to spot each car at its loading or unloading location. Or pick a station / station-location to spot matching train cars there. Optional car filters match the Set Out Cars page. Leave job and location blank for all locals."
         },
         {
             "function": "load_unload",
@@ -95,8 +70,8 @@
             "params": {
                 "threshold": "40",
                 "target": "30",
-                "keep_coke": "1",
-                "order": "oldest_first"
+                "order": "oldest_first",
+                "keep_coke": "1"
             },
             "catalog_description": "When unfilled (non-E) orders exceed Threshold, cancel unfilled orders down to Target so the generate max_unfilled gate can reopen. Keeps COKE-* orders by default. Choose Oldest first (stale backlog) or Newest first (drop recent surge).",
             "description": "Parked: cancel 40\u219230 oldest_first before generate."
@@ -118,7 +93,7 @@
             "params": {
                 "shipment": "",
                 "increment_session": "",
-                "max_unfilled": "50",
+                "max_unfilled": "35",
                 "max_new": "12",
                 "seed": ""
             },
@@ -193,6 +168,31 @@
             },
             "catalog_description": "Snapshot in-train / assigned cars from the live database into this session's wheel report. Each call appends a new phase (Phase 1, Phase 2, \u2026); optional Info labels the phase. Wheel-report phases are numbered independently of station reports.",
             "description": "Wheel report \u2014 Starting."
+        },
+        {
+            "function": "section_label",
+            "params": {
+                "label": "D749 Starting"
+            },
+            "catalog_description": "Morning: D749 already holds overnight consist in-train. Print Starting, then set out to South Yard."
+        },
+        {
+            "function": "set_out_cars",
+            "params": {
+                "job": "D749",
+                "location": "SOUTH-YARD",
+                "car_filters": {
+                    "pickup_location": "",
+                    "reporting_marks": "",
+                    "car_code": "",
+                    "status": "",
+                    "consignment": "",
+                    "final_destination": "",
+                    "loading_location": "",
+                    "unloading_location": ""
+                }
+            },
+            "catalog_description": "Set out cars from a job train. Choose Final Destination to spot each car at its loading or unloading location. Or pick a station / station-location to spot matching train cars there. Optional car filters match the Set Out Cars page. Leave job and location blank for all locals."
         },
         {
             "function": "section_label",
@@ -389,7 +389,8 @@
                 "jobs": "D749",
                 "station": "South Yard"
             },
-            "catalog_description": "Assign South Yard after NVL McKeesport/Demmler drops + CK1 surprise reload."
+            "catalog_description": "Assign eligible cars to selected job(s)/train(s). Hold Ctrl/Cmd to select multiple. Optional station filter limits to cars currently at one yard; optional destination filter limits to cars bound for a station/location (same tokens as Pickup final dest). Prefer destination-scoped assigns + Pick Up all over filtered pickups.",
+            "description": "Assign South Yard after NVL McKeesport/Demmler drops + CK1 surprise reload."
         },
         {
             "function": "generate_switchlists",
@@ -399,7 +400,8 @@
                 "title": "D749",
                 "info": "Outbound"
             },
-            "catalog_description": "List #2 \u2014 outgoing South \u2192 Demmler."
+            "catalog_description": "Generate printable switch lists for selected jobs.",
+            "description": "D749 Outbound \u2014 after NVL South drops."
         },
         {
             "function": "pick_up_cars",
@@ -513,10 +515,10 @@
             "params": {
                 "jobs": "NVL",
                 "station": "Neville Island",
-                "destination": "station::Scully Yard,station::McKees Rocks-PA,station::Mckeesport-PA,station::Demmler Yard"
+                "destination": "station::Neville Island,station::Scully Yard,station::McKees Rocks-PA,station::Mckeesport-PA,station::Demmler Yard"
             },
             "catalog_description": "Assign eligible cars to selected job(s)/train(s). Hold Ctrl/Cmd to select multiple. Optional station filter limits to cars currently at one yard; optional destination filter limits to cars bound for a station/location (same tokens as Pickup final dest). Prefer destination-scoped assigns + Pick Up all over filtered pickups.",
-            "description": "Assign NVL at Neville Island for Scully, McKees Rocks, McKeesport, Demmler."
+            "description": "Assign NVL at Neville Island for island respots plus Scully, McKees Rocks, McKeesport, Demmler."
         },
         {
             "function": "auto_assign_locals",
@@ -566,6 +568,24 @@
                 }
             },
             "catalog_description": "Pick up all assigned NVL cars at Neville Island."
+        },
+        {
+            "function": "set_out_cars",
+            "params": {
+                "job": "NVL",
+                "car_filters": {
+                    "pickup_location": "",
+                    "reporting_marks": "",
+                    "car_code": "",
+                    "status": "",
+                    "consignment": "",
+                    "final_destination": "",
+                    "loading_location": "",
+                    "unloading_location": ""
+                }
+            },
+            "catalog_description": "Set out cars from a job train. Choose Final Destination to spot each car at its loading or unloading location. Or pick a station / station-location to spot matching train cars there. Optional car filters match the Set Out Cars page. Leave job and location blank for all locals.",
+            "description": "NVL Return \u2014 final-dest setout after Neville PU (island respots) before homebound Shenango/South pulls."
         },
         {
             "function": "pick_up_cars",
@@ -638,6 +658,17 @@
             "description": "Assign STG-DEMMLER (all stations, including McKeesport)."
         },
         {
+            "function": "generate_switchlists",
+            "params": {
+                "jobs": "STG-DEMMLER",
+                "format": "all",
+                "title": "D749",
+                "info": "Starting"
+            },
+            "catalog_description": "Print Demmler staging cars as D749 Starting (title override consolidates under D749).",
+            "description": "D749 Starting \u2014 STG-DEMMLER cars printed under D749."
+        },
+        {
             "function": "pick_up_cars",
             "params": {
                 "job": "STG-DEMMLER",
@@ -702,6 +733,17 @@
                 "jobs": "STG-SCULLY"
             },
             "catalog_description": "Assign eligible cars to selected job(s)/train(s). Hold Ctrl/Cmd to select multiple. Optional station filter limits to cars currently at one yard; optional destination filter limits to cars bound for a station/location (same tokens as Pickup final dest). Prefer destination-scoped assigns + Pick Up all over filtered pickups."
+        },
+        {
+            "function": "generate_switchlists",
+            "params": {
+                "jobs": "STG-SCULLY",
+                "format": "all",
+                "title": "NVL",
+                "info": "Outbound"
+            },
+            "catalog_description": "Print Scully staging cars as NVL Outbound (title override consolidates under NVL).",
+            "description": "NVL Outbound \u2014 STG-SCULLY cars printed under NVL."
         },
         {
             "function": "pick_up_cars",
@@ -827,6 +869,14 @@
                 "label": "Finish"
             },
             "catalog_description": "Section heading with optional remarks (non-operational)."
+        },
+        {
+            "function": "backup_database",
+            "params": {
+                "prefix": "hart_session"
+            },
+            "catalog_description": "Export current DB to sts/backups/{prefix}{session_nbr} and copy RollingStock photos to {prefix}{session_nbr}_photos. Overwrites any prior dump with that name. Use a stable prefix (e.g. hart_session) so each session writes hart_session1, hart_session2, \u2026 Lock from the session overview for a static *_locked checkpoint.",
+            "description": "End-of-session dump as hart_session{N} (+ photos)."
         }
     ],
     "source_workflow": "hart_session.workflow.json"

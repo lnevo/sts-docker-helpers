@@ -72,8 +72,11 @@ if [[ "${RESTORE_BASE}" -eq 1 ]]; then
     echo "apply_hart_seed.sh not found at ${APPLY_HART_SEED}." >&2
     exit 1
   fi
-  seed_file="${BACKUPS_DIR}/hart_seed"
-  echo "==> Restoring base hart_seed"
+  seed_file="${BACKUPS_DIR}/hart_seed0"
+  if [[ ! -f "${seed_file}" && -f "${BACKUPS_DIR}/hart_seed" ]]; then
+    seed_file="${BACKUPS_DIR}/hart_seed"
+  fi
+  echo "==> Restoring base $(basename "${seed_file}")"
   "${APPLY_HART_SEED}" --sql-file "${seed_file}"
 fi
 
@@ -89,7 +92,10 @@ else
 fi
 sts_helpers_docker_exec_www "${WEB_CID}" php /var/www/html/sts/simulate_warm_start.php "${SIM_ARGS[@]}"
 
-PHOTOS_SRC="${BACKUPS_DIR}/hart_seed_photos"
+PHOTOS_SRC="${BACKUPS_DIR}/hart_seed0_photos"
+if [[ ! -d "${PHOTOS_SRC}" ]]; then
+  PHOTOS_SRC="${BACKUPS_DIR}/hart_seed_photos"
+fi
 PHOTOS_DST="${BACKUPS_DIR}/${BACKUP_NAME}_photos"
 if [[ -d "${PHOTOS_SRC}" && ! -e "${PHOTOS_DST}" ]]; then
   echo "==> Linking car photos to ${BACKUP_NAME}_photos"

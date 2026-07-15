@@ -22,17 +22,22 @@ DEFAULT_CONFIG = SEED_DIR / "hart_seed_config.json"
 
 
 def _default_seed_sql() -> Path:
+    home = Path.home()
     for candidate in (
+        REPO_ROOT / "backups/hart_seed0",
+        REPO_ROOT / "sts-backups/hart_seed0",
+        home / "sts/sts-backups/hart_seed0",
         REPO_ROOT / "backups/hart_seed",
         REPO_ROOT / "sts-backups/hart_seed",
+        home / "sts/sts-backups/hart_seed",
     ):
         if candidate.is_file():
             return candidate
-    return REPO_ROOT / "backups/hart_seed"
+    return REPO_ROOT / "backups/hart_seed0"
 
 
 DEFAULT_SEED_SQL = _default_seed_sql()
-DEFAULT_OUTPUT = REPO_ROOT / "backups/hart_seed_photos"
+DEFAULT_OUTPUT = DEFAULT_SEED_SQL.parent / f"{DEFAULT_SEED_SQL.name}_photos"
 
 PASSENGER_TYPES = frozenset(
     {"Baggage", "Coach", "Combine", "Dining", "Observation", "Caboose", "MOW"}

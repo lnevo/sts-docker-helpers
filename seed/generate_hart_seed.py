@@ -3,7 +3,8 @@
 
 Reads roster, waybill, and spot data from this directory and writes a backup-format
 SQL file compatible with STS Database Maintenance -> Restore (same format as files
-in sts-backups/).
+in sts-backups/). Default output is hart_seed0 so the filename carries session
+token 0 (Restart Session can discover it when restarting session 1).
 """
 
 from __future__ import annotations
@@ -33,13 +34,15 @@ def resolve_default_hart_dir() -> Path:
 
 
 def resolve_default_output() -> Path:
+    # Name ends with session token 0 so Restart Session (session 1) can find
+    # this dump by number without hardcoded prefixes (see session_restart_*).
     for candidate in (
-        CARDS_ROOT / "sts-backups" / "hart_seed",
-        REPO_ROOT / "backups" / "hart_seed",
+        CARDS_ROOT / "sts-backups" / "hart_seed0",
+        REPO_ROOT / "backups" / "hart_seed0",
     ):
         candidate.parent.mkdir(parents=True, exist_ok=True)
         return candidate
-    return CARDS_ROOT / "sts-backups" / "hart_seed"
+    return CARDS_ROOT / "sts-backups" / "hart_seed0"
 
 
 DEFAULT_HART_DIR = resolve_default_hart_dir()
