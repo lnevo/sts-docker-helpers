@@ -1,0 +1,15 @@
+STS-supported restore package (session 2 clean)
+Created: 2026-07-15
+
+Clean end-of-session-2 lock after order-preserving switchlist re-snap:
+- NVL Outbound/Return at yard From (not in-train)
+- Scully restocked with 8 waybilled cars for session-3 Outbound
+- Session 2 papers: D749 Starting = BO600421+BO8417; Outbound = South Yard only;
+  Next Day = Demmler; same 34 waybills as open-orders archive
+
+SQL:    sts-backups/session2.clean
+Photos: sts-backups/session2.clean_photos
+State:  session_nbr=2, car_orders=34
+
+Restore:
+  sts-docker-helpers/bin/apply_hart_seed.sh --sql-file sts-backups/session2.clean

@@ -122,7 +122,7 @@
     <car id="BO133007" roadName="BO" roadNumber="133007" type="Hopper" length="50" color="Black" weight="4.4" weightTons="88" moves="0" date="" selected="false" load="E" />
     <car id="BO283057" roadName="BO" roadNumber="283057" type="Boxcar" length="50" color="Brown" weight="4.4" weightTons="88" moves="0" date="" selected="false" load="E" />
     <car id="BO283069" roadName="BO" roadNumber="283069" type="Boxcar" length="50" color="Brown" weight="4.4" weightTons="88" moves="0" date="" selected="false" load="E" />
-    <car id="BO371604" roadName="BO" roadNumber="371604" type="Gondola" length="50" color="Gray" weight="4.4" weightTons="88" moves="0" date="" selected="false" load="E" />
+    <car id="PRR371604" roadName="PRR" roadNumber="371604" type="Gondola" length="50" color="Gray" weight="4.4" weightTons="88" moves="0" date="" selected="false" load="E" />
     <car id="BO466063" roadName="BO" roadNumber="466063" type="Boxcar" length="40" color="Gray" weight="3.8" weightTons="76" moves="0" date="" selected="false" load="E" />
     <car id="BO467071" roadName="BO" roadNumber="467071" type="Boxcar" length="40" color="Black" weight="3.8" weightTons="76" moves="0" date="" selected="false" load="E" />
     <car id="BO467439" roadName="BO" roadNumber="467439" type="Boxcar" length="40" color="Black" weight="3.8" weightTons="76" moves="0" date="" selected="false" load="E" />

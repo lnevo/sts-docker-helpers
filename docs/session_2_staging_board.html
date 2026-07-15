@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>HART Session 2 — Staging Board (15 cars)</title>
+<style>
+  body { font-family: Georgia, "Times New Roman", serif; font-size: 11pt; margin: 0.6in; color: #111; }
+  h1 { font-size: 16pt; margin: 0 0 4px; }
+  h2 { font-size: 12pt; margin: 18px 0 6px; border-bottom: 1px solid #333; padding-bottom: 2px; }
+  .meta { font-size: 10pt; color: #444; margin-bottom: 12px; }
+  .note { font-size: 9.5pt; background: #f5f5f0; border: 1px solid #ccc; padding: 8px; margin-bottom: 14px; }
+  table { width: 100%; border-collapse: collapse; font-size: 9.5pt; margin-bottom: 8px; }
+  th, td { border: 1px solid #999; padding: 4px 6px; vertical-align: top; text-align: left; }
+  th { background: #e8e8e0; font-weight: bold; }
+  .work { background: #fff8f0; }
+  .pool { background: #f8f8ff; }
+  .reserve { background: #f5f5f5; }
+  .resident { background: #fffef5; }
+  @media print { .note { break-inside: avoid; } tr { break-inside: avoid; } }
+</style>
+</head>
+<body>
+
+<h1>HART Railroad — Session 2 Staging Board</h1>
+<p class="meta">15 cars in physical staging · DB session_nbr = 2 · Generated for operators</p>
+
+<div class="note">
+  <strong>How to read this:</strong>
+  <strong>Current</strong> = where STS says the car is now.
+  <strong>Next</strong> = from <em>database</em> (waybill + shipment), not switch lists.
+  Cars marked <strong>POOL</strong> have no session-2 work — correct at the yard until order-generation runs in a later session.
+  Cars marked <strong>ASSIGNED</strong> have waybills but are not on switch lists because they sit in the home yard pool, not on an active local consist.
+</div>
+
+<h2>D749 / STG-DEMMLER side (Demmler Yard home)</h2>
+<table>
+<tr>
+  <th>Car</th><th>Type</th><th>Status</th><th>Current location</th><th>Verdict</th><th>Waybill</th><th>Next move (load → deliver)</th>
+</tr>
+<tr class="work">
+  <td>CO2052</td><td>HP Hopper</td><td>Ordered</td><td>Demmler Yard</td>
+  <td><strong>ASSIGNED</strong> — pick up when D749/NVL has capacity</td>
+  <td>001-001</td><td>NOVACOR-PLST (McKees Rocks) → ARIS-PELLETS (Island)</td>
+</tr>
+<tr class="work">
+  <td>BO8417</td><td>FM Flat</td><td>Ordered</td><td>Demmler Yard</td>
+  <td><strong>ASSIGNED</strong></td>
+  <td>001-004</td><td>STUK-TEAM (Island) → PITTSFOR-SPRG (McKees Rocks)</td>
+</tr>
+<tr class="work">
+  <td>UTLX32642</td><td>TA Tank</td><td>Ordered</td><td>Demmler Yard</td>
+  <td><strong>ASSIGNED</strong></td>
+  <td>001-010</td><td>HOUGHTON-CAUS (McKees Rocks) → CALG-CHEMICAL (Island)</td>
+</tr>
+<tr class="work">
+  <td>BO466063</td><td>XM Box</td><td>Ordered</td><td>Demmler Yard</td>
+  <td><strong>ASSIGNED</strong></td>
+  <td>001-015</td><td>GE-TUBE (McKees Rocks) → GRAYBAR-TUBE (Mckeesport)</td>
+</tr>
+<tr class="work">
+  <td>BO600421</td><td>HC Hopper</td><td>Ordered</td><td>Demmler Yard</td>
+  <td><strong>ASSIGNED</strong></td>
+  <td>002-004</td><td>CALG-CARBON (Island) → CALGON-ACAR (Mckeesport)</td>
+</tr>
+<tr class="work">
+  <td>EL8063</td><td>FM Flat</td><td>Ordered</td><td>Demmler Yard</td>
+  <td><strong>ASSIGNED</strong></td>
+  <td>002-003</td><td>UNIVS-SBAR-MR (McKees Rocks) → RYERSON-SBAR (Mckeesport)</td>
+</tr>
+<tr class="pool">
+  <td>BO8300</td><td>FC Coil</td><td>Ordered</td><td>Demmler Yard</td>
+  <td><strong>POOL</strong> — OK at yard; no session-2 waybill (gets 003-009 in session 3 per backups)</td>
+  <td>—</td><td>— (await order-gen)</td>
+</tr>
+<tr class="pool">
+  <td>KSMX101</td><td>HC Hopper</td><td>Ordered</td><td>Demmler Yard</td>
+  <td><strong>POOL</strong> — OK at yard (gets 003-002 in session 3 per backups)</td>
+  <td>—</td><td>— (await order-gen)</td>
+</tr>
+<tr class="reserve">
+  <td>REX350</td><td>RM Reefer</td><td>Empty</td><td>Demmler Yard</td>
+  <td><strong>RESERVE</strong> — OK; spare empty, never used s1–s10</td>
+  <td>—</td><td>—</td>
+</tr>
+</table>
+
+<h2>D749 side — pre-positioned at Mckeesport industries (not at yard)</h2>
+<table>
+<tr>
+  <th>Car</th><th>Type</th><th>Status</th><th>Current location</th><th>Verdict</th><th>Waybill</th><th>Next move</th>
+</tr>
+<tr class="resident">
+  <td>BO133007</td><td>HK Hopper</td><td>Loaded</td><td>CONSOLEN-COAL (Mckeesport)</td>
+  <td><strong>RESIDENT</strong> — OK; pre-loaded coal at mine loadout, no order yet</td>
+  <td>—</td><td>Stays until order-gen matches ship 19 (CALG-COAL-IN-CONSOL) — due session 3+</td>
+</tr>
+<tr class="resident">
+  <td>EL66410</td><td>XM Box</td><td>Ordered*</td><td>RYERSON-COIL (Mckeesport)</td>
+  <td><strong>RESIDENT</strong> — OK at coil track; no session-2 order (*was Loaded in db_session_2 snapshot)</td>
+  <td>—</td><td>Stays until order-gen matches ship 13 (STUK-COILS-IN-RYERSON) — filled session 5 in backups</td>
+</tr>
+</table>
+
+<h2>STG-SCULLY / NVL side (Scully Yard home)</h2>
+<table>
+<tr>
+  <th>Car</th><th>Type</th><th>Status</th><th>Current location</th><th>Verdict</th><th>Waybill</th><th>Next move</th>
+</tr>
+<tr class="pool">
+  <td>PRR371604</td><td>GA Gondola</td><td>Ordered</td><td>Scully Yard</td>
+  <td><strong>POOL</strong> — OK at yard (waybill 007-014 in session 7 per backups)</td>
+  <td>—</td><td>— (await order-gen)</td>
+</tr>
+<tr class="pool">
+  <td>CBQ171856</td><td>HT Hopper</td><td>Ordered</td><td>Scully Yard</td>
+  <td><strong>POOL</strong> — OK at yard (waybill 009-007 in session 9 per backups)</td>
+  <td>—</td><td>— (await order-gen)</td>
+</tr>
+<tr class="pool">
+  <td>CO306607</td><td>FC Coil</td><td>Ordered</td><td>Scully Yard</td>
+  <td><strong>POOL</strong> — OK at yard; cycles without order through session 10</td>
+  <td>—</td><td>— (await order-gen)</td>
+</tr>
+<tr class="reserve">
+  <td>PRR728012</td><td>HM Hopper</td><td>Empty</td><td>Scully Yard</td>
+  <td><strong>RESERVE</strong> — OK; spare empty, never used s1–s10</td>
+  <td>—</td><td>—</td>
+</tr>
+</table>
+
+<h2>Summary counts</h2>
+<table>
+<tr><th>Category</th><th>Count</th><th>Cars</th></tr>
+<tr class="work"><td>Assigned — has session-2 waybill, needs pickup from yard</td><td>6</td><td>CO2052, BO8417, UTLX32642, BO466063, BO600421, EL8063</td></tr>
+<tr class="pool"><td>Pool — no waybill this session, OK at home yard</td><td>5</td><td>BO8300, KSMX101, PRR371604, CBQ171856, CO306607</td></tr>
+<tr class="resident"><td>Resident — pre-spotted at industry, no order yet</td><td>2</td><td>BO133007, EL66410</td></tr>
+<tr class="reserve"><td>Reserve empty — OK at home yard</td><td>2</td><td>REX350, PRR728012</td></tr>
+</table>
+
+<p class="meta" style="margin-top:16px">
+  <strong>Not on session 2 switch lists or waybills:</strong> expected — lists only cover active session-open dispatch (28 cars on D749/NVL/CK1/STG jobs).
+  <strong>Next moves for assigned cars:</strong> from DB state only. <strong>Pool cars:</strong> shipping intervals + order-gen at a future session open.
+</p>
+
+</body>
+</html>

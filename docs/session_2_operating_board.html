@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>HART Session 2 — Operating Board</title>
+<style>
+  body { font-family: Georgia, "Times New Roman", serif; font-size: 10.5pt; margin: 0.5in; color: #111; }
+  h1 { font-size: 16pt; margin: 0 0 4px; }
+  .meta { font-size: 9.5pt; color: #444; margin-bottom: 10px; }
+  .controls { margin: 10px 0; }
+  .controls button { font: inherit; font-size: 10pt; padding: 5px 12px; margin-right: 6px; cursor: pointer;
+    border: 1px solid #666; background: #eee; border-radius: 4px; }
+  .controls button.active { background: #2a5; color: #fff; border-color: #183; }
+  .note { font-size: 9pt; background: #f5f5f0; border: 1px solid #ccc; padding: 8px; margin-bottom: 12px; }
+  table { width: 100%; border-collapse: collapse; font-size: 8.8pt; }
+  th, td { border: 1px solid #999; padding: 3px 5px; vertical-align: top; text-align: left; }
+  th { background: #e8e8e0; }
+  tr.train { background: #eef6ff; }
+  tr.station { background: #fff; }
+  .badge { font-size: 7.5pt; font-weight: bold; padding: 1px 5px; border-radius: 3px; color: #fff; }
+  .b-train { background: #1a6; }
+  .b-station { background: #789; }
+  .st-Ordered { color: #b60; font-weight: bold; }
+  .st-Loaded { color: #063; font-weight: bold; }
+  .st-Empty { color: #667; font-weight: bold; }
+  .conflict { color: #a00; font-weight: bold; }
+  .hidden { display: none; }
+  @media print {
+    .controls { display: none; }
+    tr { break-inside: avoid; }
+    body { margin: 0.4in; }
+  }
+</style>
+</head>
+<body>
+
+<h1>HART Railroad — Session 2 Operating Board</h1>
+<p class="meta">Active fleet: 60 cars · In-train (picked up): 9 · In-station: 51 · Conflicts: 0 · Generated Mon Jul 13, 2026 8:39 PM</p>
+
+<div class="note">
+  <strong>Placement:</strong> <span class="badge b-train">IN-TRAIN</span> = picked up / on a consist (no station).
+  <span class="badge b-station">IN-STATION</span> = sitting at a yard or industry spot.<br>
+  <strong>Session 2 action</strong> = the car's switch-list assignment (job + phase) at session open.
+  <strong>Next step</strong> is derived from stock STS database status (waybill + shipment), not the switch list.
+  A <span class="conflict">conflict</span> means the switch-list assignment disagrees with the live database.
+</div>
+
+<div class="controls">
+  <button data-filter="all" class="active" onclick="flt('all',this)">All (60)</button>
+  <button data-filter="train" onclick="flt('train',this)">In-Train (9)</button>
+  <button data-filter="station" onclick="flt('station',this)">In-Station (51)</button>
+</div>
+
+<table id="board">
+<thead>
+<tr>
+  <th>Car</th><th>Type</th><th>Status</th><th>Placement</th>
+  <th>Waybill</th><th>Shipment</th><th>Route (load → deliver)</th>
+  <th>Session 2 action</th><th>Next step (from DB)</th><th>Conflict</th>
+</tr>
+</thead>
+<tbody>
+<tr class="train" data-placement="train">
+  <td><strong>BO628038</strong></td>
+  <td>HC Hopper 40ft</td>
+  <td><span class="st-Ordered">Ordered</span></td>
+  <td><span class="badge b-train">IN-TRAIN</span> NVL consist</td>
+  <td>002-005</td>
+  <td>CALG-CARBON-OUT-CORP · ACTIVATEDCARBON</td>
+  <td>CALG-CARBON → CALGON-ACAR</td>
+  <td>NVL (phase 7) · 002-005</td>
+  <td>On train → set out to load at CALG-CARBON (Neville Island)</td>
+  <td class="conflict"></td>
+</tr>
+<tr class="train" data-placement="train">
+  <td><strong>BO30963</strong></td>
+  <td>HM Hopper 34ft</td>
+  <td><span class="st-Loaded">Loaded</span></td>
+  <td><span class="badge b-train">IN-TRAIN</span> CK1 consist</td>
+  <td>001-M07</td>
+  <td>COKE-RELOAD-SHEN · COKE</td>
+  <td>SOUTH-SCALE → SHEN-COKE-SHIPPING</td>
+  <td>CK1 (phase 2) · 001-M07</td>
+  <td>On train → deliver to SHEN-COKE-SHIPPING (Shenango Coke Works)</td>
+  <td class="conflict"></td>
+</tr>
+<tr class="train" data-placement="train">
+  <td><strong>BO31000</strong></td>
+  <td>HM Hopper 34ft</td>
+  <td><span class="st-Loaded">Loaded</span></td>
+  <td><span class="badge b-train">IN-TRAIN</span> CK1 consist</td>
+  <td>001-M08</td>
+  <td>COKE-RELOAD-SHEN · COKE</td>
+  <td>SOUTH-SCALE → SHEN-COKE-SHIPPING</td>
+  <td>CK1 (phase 2) · 001-M08</td>
+  <td>On train → deliver to SHEN-COKE-SHIPPING (Shenango Coke Works)</td>
+  <td class="conflict"></td>
+</tr>
+<tr class="train" data-placement="train">
+  <td><strong>BO625238</strong></td>
+  <td>HM Hopper 40ft</td>
+  <td><span class="st-Loaded">Loaded</span></td>
+  <td><span class="badge b-train">IN-TRAIN</span> CK1 consist</td>
+  <td>002-M02</td>
+  <td>COKE-CLEV-BULK · COKE</td>
+  <td>SHEN-COKE-SHIPPING → CLEVWORK-COKE</td>
+  <td>CK1 (phase 2) · 002-M02</td>
+  <td>On train → deliver to CLEVWORK-COKE (McKees Rocks-PA)</td>
+  <td class="conflict"></td>
+</tr>
+<tr class="train" data-placement="train">
+  <td><strong>BO625509</strong></td>
+  <td>HM Hopper 40ft</td>
+  <td><span class="st-Loaded">Loaded</span></td>
+  <td><span class="badge b-train">IN-TRAIN</span> CK1 consist</td>
+  <td>002-M03</td>
+  <td>COKE-CLEV-BULK · COKE</td>
+  <td>SHEN-COKE-SHIPPING → CLEVWORK-COKE</td>
+  <td>CK1 (phase 2) · 002-M03</td>
+  <td>On train → deliver to CLEVWORK-COKE (McKees Rocks-PA)</td>
+  <td class="conflict"></td>
+</tr>
+<tr class="train" data-placement="train">
+  <td><strong>BO625943</strong></td>
+  <td>HM Hopper 40ft</td>
+  <td><span class="st-Loaded">Loaded</span></td>
+  <td><span class="badge b-train">IN-TRAIN</span> CK1 consist</td>
+  <td>002-M04</td>
+  <td>COKE-USS-BULK · COKE</td>
+  <td>SHEN-COKE-SHIPPING → USSTEELE-COKE</td>
+  <td>CK1 (phase 2) · 002-M04</td>
+  <td>On train → deliver to USSTEELE-COKE (Mckeesport-PA)</td>
+  <td class="conflict"></td>
+</tr>
+<tr class="train" data-placement="train">
+  <td><strong>BO73133</strong></td>
+  <td>HM Hopper 45ft</td>
+  <td><span class="st-Loaded">Loaded</span></td>
+  <td><span class="badge b-train">IN-TRAIN</span> CK1 consist</td>
+  <td>002-M01</td>
+  <td>COKE-CLEV-BULK · COKE</td>
+  <td>SHEN-COKE-SHIPPING → CLEVWORK-COKE</td>
+  <td>CK1 (phase 2) · 002-M01</td>
+  <td>On train → deliver to CLEVWORK-COKE (McKees Rocks-PA)</td>
+  <td class="conflict"></td>
+</tr>
+<tr class="train" data-placement="train">
+  <td><strong>NW12988</strong></td>
+  <td>HM Hopper 40ft</td>
+  <td><span class="st-Loaded">Loaded</span></td>
+  <td><span class="badge b-train">IN-TRAIN</span> CK1 consist</td>
+  <td>002-M05</td>
+  <td>COKE-USS-BULK · COKE</td>
+  <td>SHEN-COKE-SHIPPING → USSTEELE-COKE</td>
+  <td>CK1 (phase 2) · 002-M05</td>
+  <td>On train → deliver to USSTEELE-COKE (Mckeesport-PA)</td>
+  <td class="conflict"></td>
+</tr>
+<tr class="train" data-placement="train">
+  <td><strong>URR15003</strong></td>
+  <td>HM Hopper 50ft</td>
+  <td><span class="st-Loaded">Loaded</span></td>
+  <td><span class="badge b-train">IN-TRAIN</span> CK1 consist</td>
+  <td>002-M06</td>
+  <td>COKE-USS-BULK · COKE</td>
+  <td>SHEN-COKE-SHIPPING → USSTEELE-COKE</td>
+  <td>CK1 (phase 2) · 002-M06</td>
+  <td>On train → deliver to USSTEELE-COKE (Mckeesport-PA)</td>
+  <td class="conflict"></td>
+</tr>
+<tr class="station" data-placement="station">
+  <td><strong>BO466063</strong></td>
+  <td>XM Boxcar 40ft</td>
+  <td><span class="st-Ordered">Ordered</span></td>
+  <td><span class="badge b-station">STATION</span> Demmler Yard / DEMMLER-YARD</td>
+  <td>001-015</td>
+  <td>IX-TUBES-GE-GRAYBAR · FLUORESCENTTUBES</td>
+  <td>GE-TUBE → GRAYBAR-TUBE</td>
+  <td>—</td>
+  <td>Pick up → load at GE-TUBE (McKees Rocks-PA)</td>
+  <td class="conflict"></td>
+</tr>
+<tr class="station" data-placement="station">
+  <td><strong>BO600421</strong></td>
+  <td>HC Hopper 40ft</td>
+  <td><span class="st-Ordered">Ordered</span></td>
+  <td><span class="badge b-station">STATION</span> Demmler Yard / DEMMLER-YARD</td>
+  <td>002-004</td>
+  <td>CALG-CARBON-OUT-CORP · ACTIVATEDCARBON</td>
+  <td>CALG-CARBON → CALGON-ACAR</td>
+  <td>—</td>
+  <td>Pick up → load at CALG-CARBON (Neville Island)</td>
+  <td class="conflict"></td>
+</tr>
+<tr class="station" data-placement="station">
+  <td><strong>BO8300</strong></td>
+  <td>FC Coil 55ft</td>
+  <td><span class="st-Ordered">Ordered</span></td>
+  <td><span class="badge b-station">STATION</span> Demmler Yard / DEMMLER-YARD</td>
+  <td>—</td>
+  <td></td>
+  <td>—</td>
+  <td>—</td>
+  <td>Hold — pool car, awaiting order generation</td>
+  <td class="conflict"></td>
+</tr>
+<tr class="station" data-placement="station">
+  <td><strong>BO8417</strong></td>
+  <td>FM Flatcar 53ft</td>
+  <td><span class="st-Ordered">Ordered</span></td>
+  <td><span class="badge b-station">STATION</span> Demmler Yard / DEMMLER-YARD</td>
+  <td>001-004</td>
+  <td>STUK-SPRINGS-OUT-PITTS-FORGE · RAILWAYSPRINGS</td>
+  <td>STUK-TEAM → PITTSFOR-SPRG</td>
+  <td>—</td>
+  <td>Pick up → load at STUK-TEAM (Neville Island)</td>
+  <td class="conflict"></td>
+</tr>
+<tr class="station" data-placement="station">
+  <td><strong>CO2052</strong></td>
+  <td>HP Hopper 40ft</td>
+  <td><span class="st-Ordered">Ordered</span></td>
+  <td><span class="badge b-station">STATION</span> Demmler Yard / DEMMLER-YARD</td>
+  <td>001-001</td>
+  <td>ARIS-PELLETS-IN-NOVACOR · PLASTICPELLETS</td>
+  <td>NOVACOR-PLST → ARIS-PELLETS</td>
+  <td>—</td>
+  <td>Pick up → load at NOVACOR-PLST (McKees Rocks-PA)</td>
+  <td class="conflict"></td>
+</tr>
+<tr class="station" data-placement="station">
+  <td><strong>EL8063</strong></td>
+  <td>FM Flatcar 52ft</td>
+  <td><span class="st-Ordered">Ordered</span></td>
+  <td><span class="badge b-station">STATION</span> Demmler Yard / DEMMLER-YARD</td>
+  <td>002-003</td>
+  <td>IX-STAINLESS-USA-RYERSON · STAINLESSBAR</td>
+  <td>UNIVS-SBAR-MR → RYERSON-SBAR</td>
+  <td>—</td>
+  <td>Pick up → load at UNIVS-SBAR-MR (McKees Rocks-PA)</td>
+  <td class="conflict"></td>
+</tr>
+<tr class="station" data-placement="station">
+  <td><strong>KSMX101</strong></td>
+  <td>HC Hopper 34ft</td>
+  <td><span class="st-Ordered">Ordered</span></td>
+  <td><span class="badge b-station">STATION</span> Demmler Yard / DEMMLER-YARD</td>
+  <td>—</td>
+  <td></td>
+  <td>—</td>
+  <td>—</td>
+  <td>Hold — pool car, awaiting order generation</td>
+  <td class="conflict"></td>
+</tr>
+<tr class="station" data-placement="station">
+  <td><strong>PRR702186</strong></td>
+  <td>HM Hopper 40ft</td>
+  <td><span class="st-Empty">Empty</span></td>
+  <td><span class="badge b-station">STATION</span> Demmler Yard / DEMMLER-YARD</td>
+  <td>—</td>
+  <td></td>
+  <td>—</td>
+  <td>—</td>
+  <td>Reserve empty — available for fill/reposition</td>
+  <td class="conflict"></td>
+</tr>
+<tr class="station" data-placement="station">
+  <td><strong>REX350</strong></td>
+  <td>RM Reefer 50ft</td>
+  <td><span class="st-Empty">Empty</span></td>
+  <td><span class="badge b-station">STATION</span> Demmler Yard / DEMMLER-YARD</td>
+  <td>—</td>
+  <td></td>
+  <td>—</td>
+  <td>—</td>
+  <td>Reserve empty — available for fill/reposition</td>
+  <td class="conflict"></td>
+</tr>
+<tr class="station" data-placement="station">
+  <td><strong>UTLX32642</strong></td>
+  <td>TA Tank 40ft</td>
+  <td><span class="st-Ordered">Ordered</span></td>
+  <td><span class="badge b-station">STATION</span> Demmler Yard / DEMMLER-YARD</td>
+  <td>001-010</td>
+  <td>CALG-CHEM-IN-HOUGHTON · CAUSTICSODA</td>
+  <td>HOUGHTON-CAUS → CALG-CHEMICAL</td>
+  <td>—</td>
+  <td>Pick up → load at HOUGHTON-CAUS (McKees Rocks-PA)</td>
+  <td class="conflict"></td>
+</tr>
+<tr class="station" data-placement="station">
+  <td><strong>BO10389</strong></td>
+  <td>HM Hopper 40ft</td>
+  <td><span class="st-Ordered">Ordered</span></td>
+  <td><span class="badge b-station">STATION</span> McKees Rocks-PA / CLEVWORK-COKE</td>
+  <td>002-E04 (empty repo)</td>
+  <td>reposition</td>
+  <td>to Neville Island / ARIS-CHEMICAL</td>
+  <td>STG-SCULLY (phase 6) · 002-E04</td>
+  <td>Reposition empty to Neville Island / ARIS-CHEMICAL</td>
+  <td class="conflict"></td>
+</tr>
+<tr class="station" data-placement="station">
+  <td><strong>BO11027</strong></td>
+  <td>HM Hopper 40ft</td>
+  <td><span class="st-Ordered">Ordered</span></td>
+  <td><span class="badge b-station">STATION</span> McKees Rocks-PA / CLEVWORK-COKE</td>
+  <td>002-E02 (empty repo)</td>
+  <td>reposition</td>
+  <td>to Neville Island / ARIS-CHEMICAL</td>
+  <td>STG-SCULLY (phase 6) · 002-E02</td>
+  <td>Reposition empty to Neville Island / ARIS-CHEMICAL</td>
+  <td class="conflict"></td>
+</tr>
+<tr class="station" data-placement="station">
+  <td><strong>BO11137</strong></td>
+  <td>HM Hopper 40ft</td>
+  <td><span class="st-Ordered">Ordered</span></td>
+  <td><span class="badge b-station">STATION</span> McKees Rocks-PA / CLEVWORK-COKE</td>
+  <td>002-E01 (empty repo)</td>
+  <td>reposition</td>
+  <td>to Neville Island / ARIS-CHEMICAL</td>
+  <td>STG-SCULLY (phase 6) · 002-E01</td>
+  <td>Reposition empty to Neville Island / ARIS-CHEMICAL</td>
+  <td class="conflict"></td>
+</tr>
+<tr class="station" data-placement="station">
+  <td><strong>GATX31090</strong></td>
+  <td>TA Tank 40ft</td>
+  <td><span class="st-Loaded">Loaded</span></td>
+  <td><span class="badge b-station">STATION</span> McKees Rocks-PA / FERRELLGA-LPG</td>
+  <td>001-005</td>
+  <td>FERR-LPG-IN-TANEYTOWN · LPG</td>
+  <td>FERRELLGA-LPG → FERR-LPG</td>
+  <td>STG-SCULLY (phase 6) · 001-005</td>
+  <td>Pick up → deliver to FERR-LPG (Neville Island)</td>
+  <td class="conflict"></td>
+</tr>
+<tr class="station" data-placement="station">
+  <td><strong>PRR498647</strong></td>
+  <td>TA Tank 40ft</td>
+  <td><span class="st-Loaded">Loaded</span></td>
+  <td><span class="badge b-station">STATION</span> McKees Rocks-PA / FERRELLGA-LPG</td>
+  <td>001-006</td>
+  <td>FERR-LPG-IN-TANEYTOWN · LPG</td>
+  <td>FERRELLGA-LPG → FERR-LPG</td>
+  <td>STG-SCULLY (phase 6) · 001-006</td>
+  <td>Pick up → deliver to FERR-LPG (Neville Island)</td>
+  <td class="conflict"></td>
+</tr>
+<tr class="station" data-placement="station">
+  <td><strong>BO283069</strong></td>
+  <td>XM Boxcar 50ft</td>
+  <td><span class="st-Loaded">Loaded</span></td>
+  <td><span class="badge b-station">STATION</span> McKees Rocks-PA / GE-TUBE</td>
+  <td>001-014</td>
+  <td>IX-TUBES-GE-GRAYBAR · FLUORESCENTTUBES</td>
+  <td>GE-TUBE → GRAYBAR-TUBE</td>
+  <td>STG-SCULLY (phase 6) · 001-014</td>
+  <td>Pick up → deliver to GRAYBAR-TUBE (Mckeesport-PA)</td>
+  <td class="conflict"></td>
+</tr>
+<tr class="station" data-placement="station">
+  <td><strong>SHPX22329</strong></td>
+  <td>TA Tank 40ft</td>
+  <td><span class="st-Loaded">Loaded</span></td>
+  <td><span class="badge b-station">STATION</span> McKees Rocks-PA / HOUGHTON-CAUS</td>
+  <td>001-009</td>
+  <td>CALG-CHEM-IN-HOUGHTON · CAUSTICSODA</td>
+  <td>HOUGHTON-CAUS → CALG-CHEMICAL</td>
+  <td>STG-SCULLY (phase 6) · 001-009</td>
+  <td>Pick up → deliver to CALG-CHEMICAL (Neville Island)</td>
+  <td class="conflict"></td>
+</tr>
+<tr class="station" data-placement="station">
+  <td><strong>CO2063</strong></td>
+  <td>HP Hopper 40ft</td>
+  <td><span class="st-Loaded">Loaded</span></td>
+  <td><span class="badge b-station">STATION</span> McKees Rocks-PA / NOVACOR-PLST</td>
+  <td>001-002</td>
+  <td>ARIS-PELLETS-IN-NOVACOR · PLASTICPELLETS</td>
+  <td>NOVACOR-PLST → ARIS-PELLETS</td>
+  <td>STG-SCULLY (phase 6) · 001-002</td>
+  <td>Pick up → deliver to ARIS-PELLETS (Neville Island)</td>
+  <td class="conflict"></td>
+</tr>
+<tr class="station" data-placement="station">
+  <td><strong>BO133007</strong></td>
+  <td>HK Hopper 50ft</td>
+  <td><span class="st-Loaded">Loaded</span></td>
+  <td><span class="badge b-station">STATION</span> Mckeesport-PA / CONSOLEN-COAL</td>
+  <td>—</td>
+  <td></td>
+  <td>—</td>
+  <td>—</td>
+  <td>Hold — pre-loaded resident, awaiting matching order</td>
+  <td class="conflict"></td>
+</tr>
+<tr class="station" data-placement="station">
+  <td><strong>EL66410</strong></td>
+  <td>XM Boxcar 50ft</td>
+  <td><span class="st-Ordered">Ordered</span></td>
+  <td><span class="badge b-station">STATION</span> Mckeesport-PA / RYERSON-COIL</td>
+  <td>—</td>
+  <td></td>
+  <td>—</td>
+  <td>—</td>
+  <td>Hold — pool car, awaiting order generation</td>
+  <td class="conflict"></td>
+</tr>
+<tr class="station" data-placement="station">
+  <td><strong>BO30222</strong></td>
+  <td>HM Hopper 34ft</td>
+  <td><span class="st-Ordered">Ordered</span></td>
+  <td><span class="badge b-station">STATION</span> Mckeesport-PA / USSTEELE-COKE</td>
+  <td>002-E03 (empty repo)</td>
+  <td>reposition</td>
+  <td>to Neville Island / ARIS-CHEMICAL</td>
+  <td>STG-DEMMLER (phase 5) · 002-E03</td>
+  <td>Reposition empty to Neville Island / ARIS-CHEMICAL</td>
+  <td class="conflict"></td>
+</tr>
+<tr class="station" data-placement="station">
+  <td><strong>BO8476</strong></td>
+  <td>FM Flatcar 53ft</td>
+  <td><span class="st-Loaded">Loaded</span></td>
+  <td><span class="badge b-station">STATION</span> Mckeesport-PA / WASHSTL-PLAT</td>
+  <td>001-012</td>
+  <td>STUK-PLATE-IN-WASH-STL · STEELPLATE</td>
+  <td>WASHSTL-PLAT → STUK-TEAM</td>
+  <td>STG-DEMMLER (phase 5) · 001-012</td>
+  <td>Pick up → deliver to STUK-TEAM (Neville Island)</td>
+  <td class="conflict"></td>
+</tr>
+<tr class="station" data-placement="station">
+  <td><strong>KSMX105</strong></td>
+  <td>HC Hopper 34ft</td>
+  <td><span class="st-Ordered">Ordered</span></td>
+  <td><span class="badge b-station">STATION</span> Neville Island / CALG-CARBON</td>
+  <td>—</td>
+  <td></td>
+  <td>—</td>
+  <td>—</td>
+  <td>Hold — pool car, awaiting order generation</td>
+  <td class="conflict"></td>
+</tr>
+<tr class="station" data-placement="station">
+  <td><strong>RMLI2018</strong></td>
+  <td>XM Boxcar 40ft</td>
+  <td><span class="st-Ordered">Ordered</span></td>
+  <td><span class="badge b-station">STATION</span> Neville Island / STUK-TEAM</td>
+  <td>—</td>
+  <td></td>
+  <td>—</td>
+  <td>—</td>
+  <td>Hold — pool car, awaiting order generation</td>
+  <td class="conflict"></td>
+</tr>
+<tr class="station" data-placement="station">
+  <td><strong>CBQ171856</strong></td>
+  <td>HT Hopper 40ft</td>
+  <td><span class="st-Ordered">Ordered</span></td>
+  <td><span class="badge b-station">STATION</span> Scully Yard / SCULLY-YARD</td>
+  <td>—</td>
+  <td></td>
+  <td>—</td>
+  <td>—</td>
+  <td>Hold — pool car, awaiting order generation</td>
+  <td class="conflict"></td>
+</tr>
+<tr class="station" data-placement="station">
+  <td><strong>CO306607</strong></td>
+  <td>FC Coil 52ft</td>
+  <td><span class="st-Ordered">Ordered</span></td>
+  <td><span class="badge b-station">STATION</span> Scully Yard / SCULLY-YARD</td>
+  <td>—</td>
+  <td></td>
+  <td>—</td>
+  <td>—</td>
+  <td>Hold — pool car, awaiting order generation</td>
+  <td class="conflict"></td>
+</tr>
+<tr class="station" data-placement="station">
+  <td><strong>PRR371604</strong></td>
+  <td>GA Gondola 50ft</td>
+  <td><span class="st-Ordered">Ordered</span></td>
+  <td><span class="badge b-station">STATION</span> Scully Yard / SCULLY-YARD</td>
+  <td>—</td>
+  <td></td>
+  <td>—</td>
+  <td>—</td>
+  <td>Hold — pool car, awaiting order generation</td>
+  <td class="conflict"></td>
+</tr>
+<tr class="station" data-placement="station">
+  <td><strong>PRR728012</strong></td>
+  <td>HM Hopper 40ft</td>
+  <td><span class="st-Empty">Empty</span></td>
+  <td><span class="badge b-station">STATION</span> Scully Yard / SCULLY-YARD</td>
+  <td>—</td>
+  <td></td>
+  <td>—</td>
+  <td>—</td>
+  <td>Reserve empty — available for fill/reposition</td>
+  <td class="conflict"></td>
+</tr>
+<tr class="station" data-placement="station">
+  <td><strong>UTLX36299</strong></td>
+  <td>TA Tank 40ft</td>
+  <td><span class="st-Ordered">Ordered</span></td>
+  <td><span class="badge b-station">STATION</span> Scully Yard / SCULLY-YARD</td>
+  <td>002-001</td>
+  <td>ARIS-CHEM-IN-EXXON · METHYLMETHACRYLATE</td>
+  <td>EXXONCH-MMA → ARIS-CHEMICAL</td>
+  <td>STG-SCULLY (phase 6) · 002-001</td>
+  <td>Pick up → load at EXXONCH-MMA (McKees Rocks-PA)</td>
+  <td class="conflict"></td>
+</tr>
+<tr class="station" data-placement="station">
+  <td><strong>NW12986</strong></td>
+  <td>HC Hopper 40ft</td>
+  <td><span class="st-Empty">Empty</span></td>
+  <td><span class="badge b-station">STATION</span> Shenango Coke Works / SHEN-COKE-SHIPPING</td>
+  <td>—</td>
+  <td></td>
+  <td>—</td>
+  <td>—</td>
+  <td>Reserve empty — available for fill/reposition</td>
+  <td class="conflict"></td>
+</tr>
+<tr class="station" data-placement="station">
+  <td><strong>URR15044</strong></td>
+  <td>HM Hopper 50ft</td>
+  <td><span class="st-Loaded">Loaded</span></td>
+  <td><span class="badge b-station">STATION</span> Shenango Coke Works / SHEN-COKE-SHIPPING</td>
+  <td>—</td>
+  <td></td>
+  <td>—</td>
+  <td>—</td>
+  <td>Hold — pre-loaded resident, awaiting matching order</td>
+  <td class="conflict"></td>
+</tr>
+<tr class="station" data-placement="station">
+  <td><strong>WLE621</strong></td>
+  <td>HM Hopper 40ft</td>
+  <td><span class="st-Loaded">Loaded</span></td>
+  <td><span class="badge b-station">STATION</span> Shenango Coke Works / SHEN-COKE-SHIPPING</td>
+  <td>—</td>
+  <td></td>
+  <td>—</td>
+  <td>—</td>
+  <td>Hold — pre-loaded resident, awaiting matching order</td>
+  <td class="conflict"></td>
+</tr>
+<tr class="station" data-placement="station">
+  <td><strong>BO132392</strong></td>
+  <td>HK Hopper 50ft</td>
+  <td><span class="st-Ordered">Ordered</span></td>
+  <td><span class="badge b-station">STATION</span> South Yard / SOUTH-YARD</td>
+  <td>—</td>
+  <td></td>
+  <td>—</td>
+  <td>—</td>
+  <td>Hold — pool car, awaiting order generation</td>
+  <td class="conflict"></td>
+</tr>
+<tr class="station" data-placement="station">
+  <td><strong>BO467071</strong></td>
+  <td>XM Boxcar 40ft</td>
+  <td><span class="st-Ordered">Ordered</span></td>
+  <td><span class="badge b-station">STATION</span> South Yard / SOUTH-YARD</td>
+  <td>—</td>
+  <td></td>
+  <td>—</td>
+  <td>—</td>
+  <td>Hold — pool car, awaiting order generation</td>
+  <td class="conflict"></td>
+</tr>
+<tr class="station" data-placement="station">
+  <td><strong>BO551470</strong></td>
+  <td>GA Gondola 50ft</td>
+  <td><span class="st-Ordered">Ordered</span></td>
+  <td><span class="badge b-station">STATION</span> South Yard / SOUTH-YARD</td>
+  <td>—</td>
+  <td></td>
+  <td>—</td>
+  <td>—</td>
+  <td>Hold — pool car, awaiting order generation</td>
+  <td class="conflict"></td>
+</tr>
+<tr class="station" data-placement="station">
+  <td><strong>BO631140</strong></td>
+  <td>HC Hopper 34ft</td>
+  <td><span class="st-Ordered">Ordered</span></td>
+  <td><span class="badge b-station">STATION</span> South Yard / SOUTH-YARD</td>
+  <td>—</td>
+  <td></td>
+  <td>—</td>
+  <td>—</td>
+  <td>Hold — pool car, awaiting order generation</td>
+  <td class="conflict"></td>
+</tr>
+<tr class="station" data-placement="station">
+  <td><strong>CO142374</strong></td>
+  <td>HM Hopper 40ft</td>
+  <td><span class="st-Empty">Empty</span></td>
+  <td><span class="badge b-station">STATION</span> South Yard / SOUTH-YARD</td>
+  <td>—</td>
+  <td></td>
+  <td>—</td>
+  <td>—</td>
+  <td>Reserve empty — available for fill/reposition</td>
+  <td class="conflict"></td>
+</tr>
+<tr class="station" data-placement="station">
+  <td><strong>CR477935</strong></td>
+  <td>HT Hopper 40ft</td>
+  <td><span class="st-Ordered">Ordered</span></td>
+  <td><span class="badge b-station">STATION</span> South Yard / SOUTH-YARD</td>
+  <td>—</td>
+  <td></td>
+  <td>—</td>
+  <td>—</td>
+  <td>Hold — pool car, awaiting order generation</td>
+  <td class="conflict"></td>
+</tr>
+<tr class="station" data-placement="station">
+  <td><strong>KSMX110</strong></td>
+  <td>HC Hopper 34ft</td>
+  <td><span class="st-Ordered">Ordered</span></td>
+  <td><span class="badge b-station">STATION</span> South Yard / SOUTH-YARD</td>
+  <td>—</td>
+  <td></td>
+  <td>—</td>
+  <td>—</td>
+  <td>Hold — pool car, awaiting order generation</td>
+  <td class="conflict"></td>
+</tr>
+<tr class="station" data-placement="station">
+  <td><strong>NW32800</strong></td>
+  <td>FM Flatcar 52ft</td>
+  <td><span class="st-Ordered">Ordered</span></td>
+  <td><span class="badge b-station">STATION</span> South Yard / SOUTH-YARD</td>
+  <td>—</td>
+  <td></td>
+  <td>—</td>
+  <td>—</td>
+  <td>Hold — pool car, awaiting order generation</td>
+  <td class="conflict"></td>
+</tr>
+<tr class="station" data-placement="station">
+  <td><strong>NYC47516</strong></td>
+  <td>XM Boxcar 50ft</td>
+  <td><span class="st-Ordered">Ordered</span></td>
+  <td><span class="badge b-station">STATION</span> South Yard / SOUTH-YARD</td>
+  <td>—</td>
+  <td></td>
+  <td>—</td>
+  <td>—</td>
+  <td>Hold — pool car, awaiting order generation</td>
+  <td class="conflict"></td>
+</tr>
+<tr class="station" data-placement="station">
+  <td><strong>RDG99143</strong></td>
+  <td>FC Coil 55ft</td>
+  <td><span class="st-Ordered">Ordered</span></td>
+  <td><span class="badge b-station">STATION</span> South Yard / SOUTH-YARD</td>
+  <td>—</td>
+  <td></td>
+  <td>—</td>
+  <td>—</td>
+  <td>Hold — pool car, awaiting order generation</td>
+  <td class="conflict"></td>
+</tr>
+<tr class="station" data-placement="station">
+  <td><strong>RMP50</strong></td>
+  <td>XM Boxcar 40ft</td>
+  <td><span class="st-Ordered">Ordered</span></td>
+  <td><span class="badge b-station">STATION</span> South Yard / SOUTH-YARD</td>
+  <td>—</td>
+  <td></td>
+  <td>—</td>
+  <td>—</td>
+  <td>Hold — pool car, awaiting order generation</td>
+  <td class="conflict"></td>
+</tr>
+<tr class="station" data-placement="station">
+  <td><strong>BO467439</strong></td>
+  <td>XM Boxcar 40ft</td>
+  <td><span class="st-Ordered">Ordered</span></td>
+  <td><span class="badge b-station">STATION</span> South Yard / SOUTH-YARD</td>
+  <td>002-007</td>
+  <td>STUK-STEEL-IN-METAL-SVC · STEEL</td>
+  <td>METALSVC-STEL → STUK-CRANE</td>
+  <td>D749 (phase 4) · 002-007</td>
+  <td>Pick up → load at METALSVC-STEL (Mckeesport-PA)</td>
+  <td class="conflict"></td>
+</tr>
+<tr class="station" data-placement="station">
+  <td><strong>BO8451</strong></td>
+  <td>FM Flatcar 53ft</td>
+  <td><span class="st-Ordered">Ordered</span></td>
+  <td><span class="badge b-station">STATION</span> South Yard / SOUTH-YARD</td>
+  <td>001-011</td>
+  <td>STUK-PLATE-IN-WASH-STL · STEELPLATE</td>
+  <td>WASHSTL-PLAT → STUK-TEAM</td>
+  <td>D749 (phase 4) · 001-011</td>
+  <td>Pick up → load at WASHSTL-PLAT (Mckeesport-PA)</td>
+  <td class="conflict"></td>
+</tr>
+<tr class="station" data-placement="station">
+  <td><strong>PRR474563</strong></td>
+  <td>FM Flatcar 50ft</td>
+  <td><span class="st-Ordered">Ordered</span></td>
+  <td><span class="badge b-station">STATION</span> South Yard / SOUTH-YARD</td>
+  <td>002-009</td>
+  <td>IX-PLATE-BETHLEHEM-RYERSON · STEELPLATE</td>
+  <td>BETHLEHM-PLAT → RYERSON-STG-MR</td>
+  <td>D749 (phase 4) · 002-009</td>
+  <td>Pick up → load at BETHLEHM-PLAT (Mckeesport-PA)</td>
+  <td class="conflict"></td>
+</tr>
+<tr class="station" data-placement="station">
+  <td><strong>BO283057</strong></td>
+  <td>XM Boxcar 50ft</td>
+  <td><span class="st-Loaded">Loaded</span></td>
+  <td><span class="badge b-station">STATION</span> Neville Island / ARIS-SHIPPING</td>
+  <td>001-013</td>
+  <td>ARIS-RESIN-OUT-OI-TOLEDO · PLASTICRESINS</td>
+  <td>ARIS-SHIPPING → OWENSTOL-PRES</td>
+  <td>NVL (phase 7) · 001-013</td>
+  <td>Pick up → deliver to OWENSTOL-PRES (McKees Rocks-PA)</td>
+  <td class="conflict"></td>
+</tr>
+<tr class="station" data-placement="station">
+  <td><strong>BO600401</strong></td>
+  <td>HC Hopper 40ft</td>
+  <td><span class="st-Loaded">Loaded</span></td>
+  <td><span class="badge b-station">STATION</span> Neville Island / CALG-CARBON</td>
+  <td>001-007</td>
+  <td>CALG-CARBON-OUT-UNIVAR · ACTIVATEDCARBON</td>
+  <td>CALG-CARBON → UNIVAR-ACAR</td>
+  <td>NVL (phase 7) · 001-007</td>
+  <td>Pick up → deliver to UNIVAR-ACAR (McKees Rocks-PA)</td>
+  <td class="conflict"></td>
+</tr>
+<tr class="station" data-placement="station">
+  <td><strong>BO600409</strong></td>
+  <td>HC Hopper 40ft</td>
+  <td><span class="st-Loaded">Loaded</span></td>
+  <td><span class="badge b-station">STATION</span> Neville Island / CALG-CARBON</td>
+  <td>001-008</td>
+  <td>CALG-CARBON-OUT-UNIVAR · ACTIVATEDCARBON</td>
+  <td>CALG-CARBON → UNIVAR-ACAR</td>
+  <td>NVL (phase 7) · 001-008</td>
+  <td>Pick up → deliver to UNIVAR-ACAR (McKees Rocks-PA)</td>
+  <td class="conflict"></td>
+</tr>
+<tr class="station" data-placement="station">
+  <td><strong>BO8405</strong></td>
+  <td>FM Flatcar 53ft</td>
+  <td><span class="st-Loaded">Loaded</span></td>
+  <td><span class="badge b-station">STATION</span> Neville Island / STUK-TEAM</td>
+  <td>001-003</td>
+  <td>STUK-SPRINGS-OUT-PITTS-FORGE · RAILWAYSPRINGS</td>
+  <td>STUK-TEAM → PITTSFOR-SPRG</td>
+  <td>NVL (phase 7) · 001-003</td>
+  <td>Pick up → deliver to PITTSFOR-SPRG (McKees Rocks-PA)</td>
+  <td class="conflict"></td>
+</tr>
+<tr class="station" data-placement="station">
+  <td><strong>UTLX39042</strong></td>
+  <td>TA Tank 40ft</td>
+  <td><span class="st-Ordered">Ordered</span></td>
+  <td><span class="badge b-station">STATION</span> South Yard / SOUTH-YARD</td>
+  <td>002-002</td>
+  <td>ARIS-CHEM-IN-EXXON · METHYLMETHACRYLATE</td>
+  <td>EXXONCH-MMA → ARIS-CHEMICAL</td>
+  <td>NVL (phase 7) · 002-002</td>
+  <td>Pick up → load at EXXONCH-MMA (McKees Rocks-PA)</td>
+  <td class="conflict"></td>
+</tr>
+</tbody>
+</table>
+
+<script>
+function flt(mode, btn) {
+  document.querySelectorAll('.controls button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('#board tbody tr').forEach(tr => {
+    tr.classList.toggle('hidden', mode !== 'all' && tr.dataset.placement !== mode);
+  });
+}
+</script>
+
+</body>
+</html>

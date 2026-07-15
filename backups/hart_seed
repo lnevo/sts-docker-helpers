@@ -328,7 +328,7 @@ insert into `cars` values("19","BO283057","5","4","","Empty","0","Boxcar 50ft","
 #
 insert into `cars` values("20","BO283069","5","4","","Empty","0","Boxcar 50ft","0","4","","","0");
 #
-insert into `cars` values("21","BO371604","6","7","","Empty","0","Gondola 50ft","0","7","","","0");
+insert into `cars` values("21","PRR371604","6","7","","Empty","0","Gondola 50ft","0","7","","","0");
 #
 insert into `cars` values("22","BO466063","5","8","","Empty","0","Boxcar 40ft","0","8","","","0");
 #

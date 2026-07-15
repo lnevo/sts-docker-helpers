@@ -116,8 +116,8 @@
     "enable_yard_balance": true
   },
   "traffic_mult": 2.0,
-  "island_traffic_mult": 1.5,
-  "ix_traffic_mult": 0.5,
+  "island_traffic_mult": 1.3,
+  "ix_traffic_mult": 0.7,
   "default_setout_locations": {
     "North Yard": "NORTH-YARD",
     "West Yard": "WEST-YARD",
@@ -175,9 +175,6 @@
   ],
   "open_hopper_outside_roster_ids": [],
   "covered_hopper_roster_ids": [
-    "BO600401",
-    "BO600409",
-    "BO600421",
     "BO628038",
     "BO631140",
     "KSMX101",
@@ -186,7 +183,11 @@
   ],
   "pneumatic_covered_hopper_roster_ids": [
     "CO2052",
-    "CO2063"
+    "CO2063",
+    "BO600401",
+    "BO600409",
+    "BO600421",
+    "NW12986"
   ],
   "covered_hopper_note_keywords": [
     "covered hopper",
@@ -252,12 +253,12 @@
     "stop_when_staging_ready": true,
     "run_ck1_test": false,
     "seed": 54321,
-    "max_unfilled_before_generate": 20,
+    "max_unfilled_before_generate": 35,
     "staging_jobs": [
       "STG-SCULLY",
       "STG-DEMMLER"
     ],
-    "reposition_fraction": 0.5,
+    "reposition_fraction": 0.65,
     "scale_calibrate_every_sessions": 3,
     "ck1_test": {
       "weigh_required": true,
@@ -274,8 +275,6 @@
     }
   },
   "unavailable_reporting_marks": [
-    "URR15022",
-    "BO625082",
     "BO132315",
     "MSTL52673",
     "URTX63627",
@@ -293,7 +292,9 @@
   "coke_fleet_marks": [
     "BO73133",
     "URR15003",
+    "URR15022",
     "URR15044",
+    "BO625082",
     "BO625238",
     "BO625509",
     "BO625943",
@@ -301,7 +302,6 @@
     "BO11027",
     "BO11137",
     "WLE621",
-    "NW12986",
     "NW12988",
     "BO30222",
     "BO30963",
@@ -353,9 +353,9 @@
       "unloading_location": "USSTEELE-COKE",
       "special_instructions": "Outgoing: weigh at scale; record gross wt.",
       "min_interval": 2,
-      "max_interval": 3,
+      "max_interval": 2,
       "min_amount": 2,
-      "max_amount": 4
+      "max_amount": 3
     },
     {
       "code": "COKE-CLEV-BULK",
@@ -366,9 +366,9 @@
       "unloading_location": "CLEVWORK-COKE",
       "special_instructions": "Outgoing: weigh at scale; record gross wt.",
       "min_interval": 2,
-      "max_interval": 3,
+      "max_interval": 2,
       "min_amount": 2,
-      "max_amount": 4
+      "max_amount": 3
     },
     {
       "code": "COKE-RELOAD-SHEN",
@@ -384,7 +384,7 @@
     }
   ],
   "shipment_car_code_overrides": {
-    "_comment": "Per-lane car-type overrides applied after commodity-based AAR selection. Spread coal across the idle HT fleet so it does not overload the 3-car HK pool.",
+    "_comment": "Per-lane car-type overrides applied after commodity-based AAR selection. Spread coal across the idle HT fleet so it does not overload the 3-car HK pool. Plastic-pellet lanes stay HP (pneumatic roster grew to 6: CO2052/CO2063 + 4 reclassified BO/NW covered hoppers).",
     "CALG-COAL-IN-HILLMAN": "HT"
   },
   "shipment_yard_balance": {
@@ -474,9 +474,9 @@
         {
           "step_number": 90,
           "station": 10,
-          "pickup": true,
+          "pickup": false,
           "setout": true,
-          "remarks": "Demmler Yard \u2014 Pick up for Demmler Yard; Set out at Demmler Yard"
+          "remarks": "Demmler Yard \u2014 Set out at Demmler Yard"
         }
       ]
     },
@@ -488,9 +488,9 @@
         {
           "step_number": 10,
           "station": 9,
-          "pickup": true,
+          "pickup": false,
           "setout": true,
-          "remarks": "Scully Yard \u2014 Pick up for Scully Yard; Set out at Scully Yard"
+          "remarks": "Scully Yard \u2014 Set out at Scully Yard"
         },
         {
           "step_number": 20,
@@ -910,18 +910,6 @@
       "dest_station_id": 8
     },
     {
-      "job": "D749",
-      "step_nbr": 90,
-      "car_status": "",
-      "dest_station_id": 10
-    },
-    {
-      "job": "NVL",
-      "step_nbr": 10,
-      "car_status": "",
-      "dest_station_id": 9
-    },
-    {
       "job": "NVL",
       "step_nbr": 20,
       "car_status": "",
@@ -1191,5 +1179,6 @@
     "sections": [
       "jobs"
     ]
-  }
+  },
+  "pu_criteria": []
 }

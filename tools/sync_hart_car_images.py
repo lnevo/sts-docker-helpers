@@ -38,14 +38,6 @@ PASSENGER_TYPES = frozenset(
     {"Baggage", "Coach", "Combine", "Dining", "Observation", "Caboose", "MOW"}
 )
 
-DEFAULT_SEED_SQL = _default_seed_sql()
-DEFAULT_OUTPUT = _default_photos_dir()
-DEFAULT_CONFIG = DEFAULT_HART_DIR / "hart_seed_config.json"
-
-PASSENGER_TYPES = frozenset(
-    {"Baggage", "Coach", "Combine", "Dining", "Observation", "Caboose", "MOW"}
-)
-
 
 def load_mow_car_ids(config_path: Path) -> dict[str, int]:
     if not config_path.exists():

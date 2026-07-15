@@ -88,12 +88,12 @@ SET min_interval = 99,
     max_amount = 1
 WHERE code IN ('COKE-USS', 'COKE-CLEV');
 
--- Coke outbound bulk — five cars each; interval 1.1 sessions
+-- Coke outbound bulk — both lanes each cycle; 3 cars (83.6 confirming stack)
 UPDATE shipments
-SET min_interval = 1.1,
-    max_interval = 1.1,
-    min_amount = 5,
-    max_amount = 5
+SET min_interval = 2,
+    max_interval = 2,
+    min_amount = 3,
+    max_amount = 3
 WHERE code IN ('COKE-USS-BULK', 'COKE-CLEV-BULK');
 
 -- Coke reload — manual only (one car when selected)
@@ -102,7 +102,7 @@ SET min_interval = 99,
     max_interval = 99,
     min_amount = 1,
     max_amount = 1
-WHERE code = 'COKE-RELOAD-NORTH';
+WHERE code IN ('COKE-RELOAD-SHEN', 'COKE-RELOAD-NORTH');
 
 -- Interchange — general car types
 UPDATE shipments s

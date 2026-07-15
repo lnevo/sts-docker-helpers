@@ -58,6 +58,37 @@ car positions or status** (`cars.current_location_id`, `status`,
 `handled_by_job_id`, `position`, `last_spotted`) — only a snapshot can. Treat it
 as a partial cleanup, not a true rewind.
 
+## Backfilled snapshots (sessions 1–9)
+
+`db_session_1` … `db_session_11` all exist. Sessions **1–9** predate the snapshot
+workflow and were **reconstructed** from the switch-list archives with
+`diagnostics/reconstruct_session_db.php`, not captured live:
+
+```bash
+# for N in 9..1 (independent rebuild from the session-10 base):
+bin/apply_hart_seed.sh --sql-file sts-backups/hart_prod_10   # load base fleet
+docker exec sts-docker-web-1 php /tmp/reconstruct_session_db.php N
+bin/snapshot_session_db.sh --to N                            # -> db_session_N
+```
+
+Each reconstruction sets, for the **start of session N**:
+
+- `cars.current_location_id` / `status` — from the session-N station-report
+  reconstruction (archive observations with nearest-fallback); validated at
+  **70/70** location + status match against sessions 2, 5, and 9.
+- `cars.handled_by_job_id` / `position` — from the session-N switch-list archives
+  (only cars actually worked that session are assigned to a job).
+- `car_orders` — the `hart_prod_10` order set trimmed to waybill prefix ≤ N, with
+  fill state corrected from the archive waybill→car history.
+- `shipments.last_ship_date` capped at N; `settings.session_nbr = N`.
+
+**Fidelity caveat:** car positions/status are accurate. `car_orders` are
+best-effort — orders that were opened *and completed* before session 10 were
+already pruned from the base and are **not** resurrected, and `load_count` is
+carried from the base. For the exact per-session waybill picture, cross-reference
+the archived waybill pages (`session_N/.../waybills`). `db_session_10` is a copy
+of `hart_prod_10`; `db_session_11` was captured live.
+
 ## Notes
 
 - Snapshots/dumps live in `sts-backups/` (bind-mounted to

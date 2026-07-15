@@ -314,6 +314,20 @@ SHIPMENT_INTERVALS_IX_FM = {
     "min_amount": 1,
     "max_amount": 2,
 }
+# After traffic_mult / island_traffic_mult compression, restore floors so scarce
+# fleets are not scheduled hotter than the roster can cycle.
+SCARCE_FLEET_INTERVAL_FLOORS = {
+    # car_code: (local_min, local_max, ix_min, ix_max)
+    "HP": (2, 4, 4, 7),
+    "HC": (2, 5, 3, 6),
+    "GA": (6, 10, 8, 12),
+    "GD": (6, 10, 8, 12),
+    "HK": (4, 7, 4, 8),
+    "HT": (4, 7, 4, 8),
+    "TA": (2, 3, 3, 6),
+    "TL": (2, 3, 3, 6),
+    "RM": (4, 7, 4, 7),
+}
 GONDOLA_CODES = frozenset({"GA", "GD"})
 TANK_CODES = frozenset({"TA", "TL"})
 FLATCAR_FM_CODES = frozenset({"FM"})
@@ -630,14 +644,15 @@ SPUR_COLOR_TO_STS = {
     "blue": "mediumblue",
 }
 
-# Home interchange yard highlight colors (formerly on SCL-OUT / DEM-OUT blocks).
+# Home interchange yards: no highlight colors (operator sheet keeps industry
+# swatches only; SCULLY-YARD / DEMMLER-YARD print white via set_colors "None").
 YARD_LOCATION_COLORS = {
-    "SCULLY-YARD": "pink",
-    "DEMMLER-YARD": "purple",
-    "SCL-YARD": "pink",
-    "DEM-YARD": "purple",
-    "SCL": "pink",
-    "DEM": "purple",
+    "SCULLY-YARD": "None",
+    "DEMMLER-YARD": "None",
+    "SCL-YARD": "None",
+    "DEM-YARD": "None",
+    "SCL": "None",
+    "DEM": "None",
 }
 
 
@@ -1279,6 +1294,29 @@ class SeedBuilder:
             "ix_traffic_mult": ix_mult,
             "changed": changed,
         }
+
+    def enforce_scarce_fleet_interval_floors(self) -> dict:
+        """Raise intervals crushed by traffic_mult so scarce car types can cycle."""
+        raised = 0
+        for row in self.shipment_rows:
+            code = str(row.get("code", ""))
+            if code.startswith("COKE-"):
+                continue
+            car_code = self.car_code_for_id(int(row.get("car_code", 0) or 0))
+            floors = SCARCE_FLEET_INTERVAL_FLOORS.get(car_code)
+            if not floors:
+                continue
+            is_ix = code.startswith("IX-") or str(row.get("_card_kind", "")) == "interchange"
+            min_floor, max_floor = (floors[2], floors[3]) if is_ix else (floors[0], floors[1])
+            cur_min = int(row.get("min_interval", 0) or 0)
+            cur_max = int(row.get("max_interval", 0) or 0)
+            new_min = max(cur_min, min_floor) if cur_min > 0 else min_floor
+            new_max = max(cur_max, max_floor, new_min)
+            if new_min != cur_min or new_max != cur_max:
+                row["min_interval"] = new_min
+                row["max_interval"] = new_max
+                raised += 1
+        return {"raised": raised, "codes": sorted(SCARCE_FLEET_INTERVAL_FLOORS)}
 
     def add_routing(self) -> None:
         instructions = self.config.get("routing_instructions", {})
@@ -2855,6 +2893,7 @@ def main() -> None:
     island_mult = float(config.get("island_traffic_mult", 1.0))
     ix_mult = float(config.get("ix_traffic_mult", 1.0))
     lane_summary = builder.scale_shipment_intervals_for_lane_profile(island_mult, ix_mult)
+    floor_summary = builder.enforce_scarce_fleet_interval_floors()
     builder.assign_car_home_yards()
     builder.apply_unavailable_car_status()
     yard_summary = builder.balance_interchange_shipment_intervals()
@@ -2897,6 +2936,11 @@ def main() -> None:
             f"  island_traffic_mult={lane_summary.get('island_traffic_mult')} "
             f"ix_traffic_mult={lane_summary.get('ix_traffic_mult')} "
             f"lane_interval_fields_scaled={lane_summary.get('changed')}"
+        )
+    if floor_summary.get("raised", 0) > 0:
+        print(
+            f"  scarce_fleet_floors: raised={floor_summary.get('raised')} "
+            f"codes={','.join(floor_summary.get('codes') or [])}"
         )
     if yard_summary.get("enabled"):
         print(
