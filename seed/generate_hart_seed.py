@@ -802,6 +802,7 @@ AAR_PREFIX_DESCRIPTIONS: dict[str, str] = {
     "RM": "refrigerator, mechanical",
     "WF": "work flatcar, MOW service",
     "WC": "work crane car, MOW service",
+    "MS": "scale test car, MOW service",
 }
 
 # Classic AAR class (opsig 1987) -> STS prefix when length suffix is appended.
@@ -1060,9 +1061,8 @@ def aar_prefix_for_waybill(car_type: str, commodity: str, config: dict) -> str |
             # H* wildcard, which also matched the HM coke fleet and starved coke.
             return "HK"
         if commodity_lower == "aggregate":
-            # Aggregate uses covered hoppers (HC, 9-car pool) instead of the
-            # tiny 2-car HT fleet.
-            return "HC"
+            # Aggregate rides gondolas (GA) — open rock/stone service, not covered HC.
+            return "GA"
         return "HC"
     if car_type == "Covered Hopper":
         commodity = commodity.strip()
@@ -1928,7 +1928,7 @@ class SeedBuilder:
         outbound_loading = shenango.get("location_code", "SHEN-COKE-SHIPPING")
         coke_weigh_note = shenango.get(
             "outbound_weigh_note",
-            "Outbound coke: weigh at South Yard scale; record certified gross weight on waybill.",
+            "Outgoing: weigh at scale; record gross wt.",
         )
         for spec in self.config.get("coke_shipments", []):
             commodity_key = spec["commodity"]
@@ -2497,8 +2497,11 @@ class SeedBuilder:
             length = car.get("length", "")
             aar_code = entry.get("aar_code")
             if not aar_code:
-                if "crane" in entry.get("description", "").lower():
+                desc = entry.get("description", "").lower()
+                if "crane" in desc:
                     aar_code = "WC"
+                elif "scale test" in desc:
+                    aar_code = "MS"
                 else:
                     aar_code = "WF"
             aar_code = aar_code_prefix(aar_code)

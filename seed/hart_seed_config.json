@@ -199,7 +199,7 @@
     {
       "roster_id": "COST1",
       "car_id": 78,
-      "aar_code": "WF",
+      "aar_code": "MS",
       "description": "Scale test car"
     },
     {
@@ -384,8 +384,9 @@
     }
   ],
   "shipment_car_code_overrides": {
-    "_comment": "Per-lane car-type overrides applied after commodity-based AAR selection. Spread coal across the idle HT fleet so it does not overload the 3-car HK pool. Plastic-pellet lanes stay HP (pneumatic roster grew to 6: CO2052/CO2063 + 4 reclassified BO/NW covered hoppers).",
-    "CALG-COAL-IN-HILLMAN": "HT"
+    "_comment": "Per-lane car-type overrides after commodity AAR selection. Hillman coal stays on HT until HK grows. Martin aggregate uses GA (open gon) instead of HC covered. Plastic pellets stay HP; BO600*/NW12986 are rostered as pneumatic.",
+    "CALG-COAL-IN-HILLMAN": "HT",
+    "KOSM-AGG-IN-MARTIN": "GA"
   },
   "shipment_yard_balance": {
     "_comment": "Auto-balance Demmler vs Scully shipment intervals from forecast demand routed through each interchange yard vs available home-yard fleet.",

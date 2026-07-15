@@ -202,13 +202,22 @@ else
 fi
 
 # 3. Archive + remove session_state output trees ---------------------------
-mkdir -p "${ARCHIVE_DIR}"
+# Rewind-archive feature is offline for now (matching session_helpers.php).
+# Set REWIND_ARCHIVE_ENABLED=1 to restore tar.gz archiving before remove.
+REWIND_ARCHIVE_ENABLED="${REWIND_ARCHIVE_ENABLED:-0}"
+if [[ "${REWIND_ARCHIVE_ENABLED}" == "1" ]]; then
+  mkdir -p "${ARCHIVE_DIR}"
+fi
 for (( s = TARGET; s <= CURRENT_SESSION; s++ )); do
   tree="${SESSIONS_DIR}/session_${s}"
   if [[ -d "${tree}" ]]; then
-    tarball="${ARCHIVE_DIR}/session_${s}_${TS}.tar.gz"
-    echo "==> Archiving ${tree} -> ${tarball}"
-    tar -czf "${tarball}" -C "${SESSIONS_DIR}" "session_${s}"
+    if [[ "${REWIND_ARCHIVE_ENABLED}" == "1" ]]; then
+      tarball="${ARCHIVE_DIR}/session_${s}_${TS}.tar.gz"
+      echo "==> Archiving ${tree} -> ${tarball}"
+      tar -czf "${tarball}" -C "${SESSIONS_DIR}" "session_${s}"
+    else
+      echo "==> Removing ${tree} (rewind archive disabled)"
+    fi
     rm -rf "${tree}"
   fi
 done
