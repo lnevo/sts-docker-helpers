@@ -229,6 +229,8 @@ insert into `car_codes` values("11","RM","refrigerator, mechanical","");
 #
 insert into `car_codes` values("12","WF","work flatcar, MOW service","");
 #
+insert into `car_codes` values("14","MS","scale test car, MOW service","");
+#
 insert into `car_codes` values("13","WC","work crane car, MOW service","");
 #
 
@@ -465,7 +467,7 @@ insert into `cars` values("75","UTLX39042","10","35","0","Loading","0","Tank 40f
 #
 insert into `cars` values("76","WLE621","3","6","0","Loaded","0","Hopper 40ft","5","6","","0","2");
 #
-insert into `cars` values("78","COST1","12","5","0","Unavailable","0","Scale test car","0","5","","0","0");
+insert into `cars` values("78","COST1","14","5","0","Unavailable","0","Scale test car","0","5","","0","0");
 #
 insert into `cars` values("79","COW86","12","4","0","Unavailable","0","MOW camp car","0","4","","0","0");
 #
