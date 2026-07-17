@@ -643,19 +643,28 @@ SPUR_COLOR_TO_STS = {
     "yellow": "yellow",
     "red": "red",
     "green": "green",
+    "purple": "purple",
     "orange": "orange",
+    "pink": "pink",
     "blue": "mediumblue",
+    "light blue": "lightblue",
+    "lightblue": "lightblue",
+    "grey": "lightgrey",
+    "gray": "lightgrey",
+    "dark blue": "mediumblue",
+    "darkblue": "mediumblue",
+    "medium blue": "mediumblue",
+    "mediumblue": "mediumblue",
 }
 
-# Home interchange yards: no highlight colors (operator sheet keeps industry
-# swatches only; SCULLY-YARD / DEMMLER-YARD print white via set_colors "None").
+# Home interchange yards: Scully=orange (POHC family), Demmler=mediumblue (CSX family).
 YARD_LOCATION_COLORS = {
-    "SCULLY-YARD": "None",
-    "DEMMLER-YARD": "None",
-    "SCL-YARD": "None",
-    "DEM-YARD": "None",
-    "SCL": "None",
-    "DEM": "None",
+    "SCULLY-YARD": "orange",
+    "DEMMLER-YARD": "mediumblue",
+    "SCL-YARD": "orange",
+    "DEM-YARD": "mediumblue",
+    "SCL": "orange",
+    "DEM": "mediumblue",
 }
 
 
@@ -664,14 +673,14 @@ def fixed_location_color(code: str) -> str:
 
 
 def offline_station_color(station_id: int, config: dict) -> str:
-    """POHC offline (McKees Rocks) = pink; CSX offline (Mckeesport) = purple."""
+    """POHC offline (McKees Rocks) = orange; CSX offline (Mckeesport) = mediumblue."""
     offline = config.get("offline_stations", {})
     pohc_offline = int(offline.get("pohc_offline_station_id", 15))
     csx_offline = int(offline.get("csx_offline_station_id", 14))
     if station_id == pohc_offline:
-        return "pink"
+        return "orange"
     if station_id == csx_offline:
-        return "purple"
+        return "mediumblue"
     return ""
 
 
@@ -2780,6 +2789,13 @@ class SeedBuilder:
                     ["railroad_initials", "Initials of the railroad", cfg["railroad_initials"]],
                     ["railroad_name", "Name of the railroad", cfg["railroad_name"]],
                     ["session_nbr", "Session Number", "0"],
+                    # Keep coke lanes out of undifferentiated AUTOMATIC generate;
+                    # they are served by gated/explicit generate_orders steps.
+                    [
+                        "auto_gen_exclude_shipment_prefixes",
+                        "Exclude shipment code prefixes from AUTOMATIC generate (CSV)",
+                        "COKE-",
+                    ],
                 ]
                 emit_backup_table(lines, table, table_ddl("settings"), rows)
             elif table == "shipments":

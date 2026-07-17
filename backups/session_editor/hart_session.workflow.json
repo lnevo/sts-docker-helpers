@@ -15,11 +15,18 @@
                 "variable": "session_nbr",
                 "operator": ">",
                 "value": "0",
+                "commodity": "",
+                "shipment": "",
+                "car_code": "",
+                "loading_location": "",
+                "unloading_location": "",
+                "final_destination": "",
                 "section": "step-4",
-                "section_label": "Setup Session",
+                "section_label": "",
                 "step": "4"
             },
-            "catalog_description": "When true, skip to Setup Session."
+            "catalog_description": "When session_nbr > 0, skip seed restore and continue at increment_session.",
+            "description": "Skip restore when already past seed; still increment the session."
         },
         {
             "function": "restore_database",
@@ -29,27 +36,25 @@
             "catalog_description": "Restore STS from sts/backups/."
         },
         {
-            "function": "section_label",
-            "params": {
-                "label": "Setup Session"
-            },
-            "catalog_description": "Section heading with optional remarks (non-operational)."
-        },
-        {
             "function": "increment_session",
             "params": [],
             "catalog_description": "Advance session number by 1."
         },
         {
-            "function": "generate_switchlists",
+            "function": "generate_wheel_report",
             "params": {
-                "jobs": "D749",
-                "format": "all",
-                "title": "D749",
                 "info": "Starting"
             },
-            "catalog_description": "List #1 \u2014 morning: cars already in-train on D749 from prior Next Day. Print consist as-is.",
-            "description": "D749 Starting \u2014 in-train overnight consist (morning)."
+            "catalog_description": "Snapshot in-train / assigned cars from the live database into this session's wheel report. Each call appends a new phase (Phase 1, Phase 2, \u2026); optional Info labels the phase. Wheel-report phases are numbered independently of station reports.",
+            "description": "Wheel report \u2014 Starting."
+        },
+        {
+            "function": "generate_station_report",
+            "params": {
+                "info": "Starting"
+            },
+            "catalog_description": "Snapshot cars by station from the live database into this session's station report. Each call appends a new phase (Phase 1, Phase 2, \u2026); optional Info labels the phase (like Train Info on switch lists). Station-report phases are numbered independently of wheel reports.",
+            "description": "Station report \u2014 Starting."
         },
         {
             "function": "load_unload",
@@ -66,38 +71,80 @@
             "catalog_description": "Complete offline load/unload (allows correcting bad setouts before industry completion)."
         },
         {
-            "function": "cancel_orders",
+            "function": "section_label",
             "params": {
-                "threshold": "40",
-                "target": "30",
-                "order": "oldest_first",
-                "keep_coke": "1"
+                "label": "Coke Cleveland"
             },
-            "catalog_description": "When unfilled (non-E) orders exceed Threshold, cancel unfilled orders down to Target so the generate max_unfilled gate can reopen. Keeps COKE-* orders by default. Choose Oldest first (stale backlog) or Newest first (drop recent surge).",
-            "description": "Parked: cancel 40\u219230 oldest_first before generate."
+            "catalog_description": "Section heading with optional remarks (non-operational)."
+        },
+        {
+            "function": "if_then",
+            "params": {
+                "variable": "open_orders",
+                "operator": ">=",
+                "value": "8",
+                "commodity": "",
+                "shipment": "COKE-CLEV-BULK",
+                "car_code": "",
+                "loading_location": "",
+                "unloading_location": "",
+                "final_destination": "",
+                "section": "step-11",
+                "section_label": "Coke USS",
+                "step": "11"
+            },
+            "catalog_description": "When true, skip forward to a later section. When false, continue to the next step.",
+            "description": "Skip CLEV when open COKE-CLEV-BULK (MR) orders >= 8."
         },
         {
             "function": "generate_orders",
             "params": {
-                "shipment": "COKE-CLEV-BULK,COKE-USS-BULK",
+                "shipment": "COKE-CLEV-BULK",
                 "increment_session": "",
                 "max_unfilled": "",
                 "max_new": "",
                 "seed": ""
             },
             "catalog_description": "Auto-generate car orders.",
-            "description": "COKE-CLEV-BULK + COKE-USS-BULK every session (both lanes)."
+            "description": "COKE-CLEV-BULK (McKees Rocks) when that shipment's open backlog is under gate."
+        },
+        {
+            "function": "section_label",
+            "params": {
+                "label": "Coke USS"
+            },
+            "catalog_description": "Section heading with optional remarks (non-operational)."
+        },
+        {
+            "function": "if_then",
+            "params": {
+                "variable": "open_orders",
+                "operator": ">=",
+                "value": "8",
+                "commodity": "",
+                "shipment": "COKE-USS-BULK",
+                "car_code": "",
+                "loading_location": "",
+                "unloading_location": "",
+                "final_destination": "",
+                "section": "step-14",
+                "section_label": "Generate Orders",
+                "step": "14"
+            },
+            "catalog_description": "When true, skip forward to a later section. When false, continue to the next step.",
+            "description": "Skip USS when open COKE-USS-BULK (MP) orders >= 8."
         },
         {
             "function": "generate_orders",
             "params": {
-                "shipment": "",
+                "shipment": "COKE-USS-BULK",
                 "increment_session": "",
-                "max_unfilled": "35",
-                "max_new": "12",
+                "max_unfilled": "",
+                "max_new": "",
                 "seed": ""
             },
-            "catalog_description": "Auto-generate car orders."
+            "catalog_description": "Auto-generate car orders.",
+            "description": "COKE-USS-BULK (Mckeesport) when that shipment's open backlog is under gate."
         },
         {
             "function": "section_label",
@@ -107,20 +154,17 @@
             "catalog_description": "Section heading with optional remarks (non-operational)."
         },
         {
-            "function": "reposition_empties",
+            "function": "generate_orders",
             "params": {
-                "mode": "reposition_to_home",
-                "percent": "65",
-                "filters": {
-                    "car_code": "",
-                    "current_station": "",
-                    "current_location": "",
-                    "home_station": "",
-                    "home_location": "",
-                    "off_home_only": ""
-                }
+                "shipment": "",
+                "increment_session": "",
+                "max_unfilled": "40",
+                "max_new": "4",
+                "seed": "",
+                "exclude_prefixes": "COKE-"
             },
-            "catalog_description": "Reposition empty cars: send off-home cars home, or update with a chosen destination."
+            "catalog_description": "Auto-generate car orders.",
+            "description": "Flow throttle: add up to 4 orders only while unfilled backlog is 40 or less. Skips are expected when backlog is high. COKE-* stayed out of AUTOMATIC (gated coke steps above)."
         },
         {
             "function": "fill_orders",
@@ -139,7 +183,25 @@
                     "car_code": ""
                 }
             },
-            "catalog_description": "Auto-assign eligible cars to open orders (same as Fill Car Orders \u2192 Auto Assign). Uses car source checkboxes and optional order/car filters. Set Percent to limit how many orders are filled."
+            "catalog_description": "Auto-assign eligible cars to open orders (same as Fill Car Orders \u2192 Auto Assign). Uses car source checkboxes and optional order/car filters. Set Percent to limit how many orders are filled.",
+            "description": "Fill first so empties only fill traffic gaps."
+        },
+        {
+            "function": "reposition_empties",
+            "params": {
+                "mode": "reposition_to_home",
+                "percent": "25",
+                "filters": {
+                    "car_code": "",
+                    "current_station": "",
+                    "current_location": "",
+                    "home_station": "",
+                    "home_location": "",
+                    "off_home_only": ""
+                }
+            },
+            "catalog_description": "Reposition empty cars: send off-home cars home, or update with a chosen destination.",
+            "description": "Always reposition 25% after fill (winner: fill-then-reposition)."
         },
         {
             "function": "generate_waybills",
@@ -149,32 +211,20 @@
         {
             "function": "section_label",
             "params": {
-                "label": "Reports \u2014 Starting"
+                "label": "D749"
             },
             "catalog_description": "Section heading with optional remarks (non-operational)."
         },
         {
-            "function": "generate_station_report",
+            "function": "generate_switchlists",
             "params": {
-                "info": "Starting"
+                "jobs": "D749",
+                "format": "all",
+                "title": "D749",
+                "info": ""
             },
-            "catalog_description": "Snapshot cars by station from the live database into this session's station report. Each call appends a new phase (Phase 1, Phase 2, \u2026); optional Info labels the phase (like Train Info on switch lists). Station-report phases are numbered independently of wheel reports.",
-            "description": "Station report \u2014 Starting."
-        },
-        {
-            "function": "generate_wheel_report",
-            "params": {
-                "info": "Starting"
-            },
-            "catalog_description": "Snapshot in-train / assigned cars from the live database into this session's wheel report. Each call appends a new phase (Phase 1, Phase 2, \u2026); optional Info labels the phase. Wheel-report phases are numbered independently of station reports.",
-            "description": "Wheel report \u2014 Starting."
-        },
-        {
-            "function": "section_label",
-            "params": {
-                "label": "D749 Starting"
-            },
-            "catalog_description": "Morning: D749 already holds overnight consist in-train. Print Starting, then set out to South Yard."
+            "catalog_description": "List #1 \u2014 morning D749: cars already in-train from prior Return. Print consist as-is.",
+            "description": "D749 \u2014 in-train overnight consist (morning)."
         },
         {
             "function": "set_out_cars",
@@ -195,9 +245,63 @@
             "catalog_description": "Set out cars from a job train. Choose Final Destination to spot each car at its loading or unloading location. Or pick a station / station-location to spot matching train cars there. Optional car filters match the Set Out Cars page. Leave job and location blank for all locals."
         },
         {
+            "function": "pick_up_cars",
+            "params": {
+                "job": "D749",
+                "location": "SOUTH-YARD",
+                "car_filters": {
+                    "pickup_location": "",
+                    "reporting_marks": "",
+                    "car_code": "",
+                    "status": "",
+                    "consignment": "",
+                    "final_destination": "",
+                    "loading_location": "",
+                    "unloading_location": ""
+                }
+            },
+            "catalog_description": "Pick up assigned cars onto a job train. Optional car filters match the Pick Up Cars page. Leave job blank for all locals (staging excluded)."
+        },
+        {
+            "function": "set_out_cars",
+            "params": {
+                "job": "D749",
+                "location": "DEMMLER-YARD",
+                "car_filters": {
+                    "pickup_location": "",
+                    "reporting_marks": "",
+                    "car_code": "",
+                    "status": "",
+                    "consignment": "",
+                    "final_destination": "",
+                    "loading_location": "",
+                    "unloading_location": ""
+                }
+            },
+            "catalog_description": "Set out cars from a job train. Choose Final Destination to spot each car at its loading or unloading location. Or pick a station / station-location to spot matching train cars there. Optional car filters match the Set Out Cars page. Leave job and location blank for all locals."
+        },
+        {
+            "function": "pick_up_cars",
+            "params": {
+                "job": "D749",
+                "location": "DEMMLER-YARD",
+                "car_filters": {
+                    "pickup_location": "",
+                    "reporting_marks": "",
+                    "car_code": "",
+                    "status": "",
+                    "consignment": "",
+                    "final_destination": "",
+                    "loading_location": "",
+                    "unloading_location": ""
+                }
+            },
+            "catalog_description": "Pick up assigned cars onto a job train. Job and location use checkbox dropdowns (multi-select, OR). Optional car filters match the Pick Up Cars page. Leave jobs unchecked for all locals (staging excluded)."
+        },
+        {
             "function": "section_label",
             "params": {
-                "label": "CK1 Switchlist"
+                "label": "CK1"
             },
             "catalog_description": "Section heading with optional remarks (non-operational)."
         },
@@ -216,7 +320,8 @@
                 "title": "CK1",
                 "info": ""
             },
-            "catalog_description": "Print CK1 before D749; South reload setout comes after D749 Starting."
+            "catalog_description": "Print CK1 after NVL Return (end of shift). South setout follows weigh.",
+            "description": "CK1 switchlist \u2014 after NVL Return; independent of D749 leave."
         },
         {
             "function": "pick_up_cars",
@@ -254,67 +359,9 @@
             "catalog_description": "Set out cars from a job train. Choose Final Destination to spot each car at its loading or unloading location. Or pick a station / station-location to spot matching train cars there. Optional car filters match the Set Out Cars page. Leave job and location blank for all locals."
         },
         {
-            "function": "pick_up_cars",
-            "params": {
-                "job": "CK1",
-                "location": "SHEN-COKE-SHIPPING",
-                "car_filters": {
-                    "pickup_location": "",
-                    "reporting_marks": "",
-                    "car_code": "",
-                    "status": "",
-                    "consignment": "",
-                    "final_destination": "",
-                    "loading_location": "",
-                    "unloading_location": ""
-                }
-            },
-            "catalog_description": "Pick up assigned cars onto a job train. Optional car filters match the Pick Up Cars page. Leave job blank for all locals (staging excluded)."
-        },
-        {
-            "function": "calibrate_track_scale",
-            "params": {
-                "every_sessions": "1"
-            },
-            "catalog_description": "Recalibrate the coke track scale. Performs a fresh random calibration when required (first use / out of service) or when the configured number of sessions have elapsed since the last calibration. Set to 1 to calibrate every session (steady ~15% reload routing); higher values let scale drift accumulate so more cars route to reload between calibrations. Run this before the Track Scale weigh step."
-        },
-        {
-            "function": "track_scale",
-            "params": {
-                "job": "CK1",
-                "commodity": "COKE"
-            },
-            "catalog_description": "Weigh loaded cars on a job train (or at the scale) for the selected commodity. Uses track scale config when commodity is blank."
-        },
-        {
             "function": "section_label",
             "params": {
-                "label": "CK1 South Setout"
-            },
-            "catalog_description": "Section heading with optional remarks (non-operational)."
-        },
-        {
-            "function": "set_out_cars",
-            "params": {
-                "job": "CK1",
-                "location": "SOUTH-YARD",
-                "car_filters": {
-                    "pickup_location": "",
-                    "reporting_marks": "",
-                    "car_code": "",
-                    "status": "",
-                    "consignment": "",
-                    "final_destination": "",
-                    "loading_location": "",
-                    "unloading_location": ""
-                }
-            },
-            "catalog_description": "Weighed coke lands at South after D749 Starting \u2014 reload order is a surprise."
-        },
-        {
-            "function": "section_label",
-            "params": {
-                "label": "NVL Outbound"
+                "label": "NVL"
             },
             "catalog_description": "Morning yard turn: assign at Scully, print Outbound, pick up, set out South. Does not begin the session already in-train."
         },
@@ -329,12 +376,22 @@
             "description": "Assign NVL at Scully Yard for Neville Island, Shenango, South, McKeesport, Demmler."
         },
         {
+            "function": "auto_assign_locals",
+            "params": {
+                "jobs": "NVL",
+                "station": "South Yard",
+                "destination": "station::Neville Island,station::Shenango Coke Works"
+            },
+            "catalog_description": "Assign remaining Island/Shenango deliveries still at South Yard (finish these setouts before Return homebound assigns).",
+            "description": "Assign NVL at South Yard for remaining Island/Shenango deliveries (before Return list)."
+        },
+        {
             "function": "generate_switchlists",
             "params": {
                 "jobs": "NVL",
                 "format": "all",
                 "title": "NVL",
-                "info": "Outbound"
+                "info": ""
             },
             "catalog_description": "NVL Outbound \u2014 print assigned cars at Scully ready for pick-up (still in yard). Not an overnight in-train start (only D749 Starting is).",
             "description": "NVL Outbound \u2014 switchlist before pick-up."
@@ -377,76 +434,6 @@
             "description": "Drop McKeesport / Demmler / South Yard cars at South."
         },
         {
-            "function": "section_label",
-            "params": {
-                "label": "D749 Outbound"
-            },
-            "catalog_description": "Section heading with optional remarks (non-operational)."
-        },
-        {
-            "function": "auto_assign_locals",
-            "params": {
-                "jobs": "D749",
-                "station": "South Yard"
-            },
-            "catalog_description": "Assign eligible cars to selected job(s)/train(s). Hold Ctrl/Cmd to select multiple. Optional station filter limits to cars currently at one yard; optional destination filter limits to cars bound for a station/location (same tokens as Pickup final dest). Prefer destination-scoped assigns + Pick Up all over filtered pickups.",
-            "description": "Assign South Yard after NVL McKeesport/Demmler drops + CK1 surprise reload."
-        },
-        {
-            "function": "generate_switchlists",
-            "params": {
-                "jobs": "D749",
-                "format": "all",
-                "title": "D749",
-                "info": "Outbound"
-            },
-            "catalog_description": "Generate printable switch lists for selected jobs.",
-            "description": "D749 Outbound \u2014 after NVL South drops."
-        },
-        {
-            "function": "pick_up_cars",
-            "params": {
-                "job": "D749",
-                "location": "SOUTH-YARD",
-                "car_filters": {
-                    "pickup_location": "",
-                    "reporting_marks": "",
-                    "car_code": "",
-                    "status": "",
-                    "consignment": "",
-                    "final_destination": "",
-                    "loading_location": "",
-                    "unloading_location": ""
-                }
-            },
-            "catalog_description": "Pick up assigned cars onto a job train. Optional car filters match the Pick Up Cars page. Leave job blank for all locals (staging excluded)."
-        },
-        {
-            "function": "set_out_cars",
-            "params": {
-                "job": "D749",
-                "location": "DEMMLER-YARD",
-                "car_filters": {
-                    "pickup_location": "",
-                    "reporting_marks": "",
-                    "car_code": "",
-                    "status": "",
-                    "consignment": "",
-                    "final_destination": "",
-                    "loading_location": "",
-                    "unloading_location": ""
-                }
-            },
-            "catalog_description": "Set out cars from a job train. Choose Final Destination to spot each car at its loading or unloading location. Or pick a station / station-location to spot matching train cars there. Optional car filters match the Set Out Cars page. Leave job and location blank for all locals."
-        },
-        {
-            "function": "section_label",
-            "params": {
-                "label": "NVL Return"
-            },
-            "catalog_description": "Return: finish NI/Shenango (and leftover South\u2192island) setouts, then assign homebound at NI/Shenango/South, snap Return (yard From), pick up all three, set out Scully."
-        },
-        {
             "function": "set_out_cars",
             "params": {
                 "job": "NVL",
@@ -463,16 +450,6 @@
             },
             "catalog_description": "Set out remaining NVL cars at Final Destination (clear the train before Return assigns / snap).",
             "description": "Set out Island and Shenango deliveries at Final Destination."
-        },
-        {
-            "function": "auto_assign_locals",
-            "params": {
-                "jobs": "NVL",
-                "station": "South Yard",
-                "destination": "station::Neville Island,station::Shenango Coke Works"
-            },
-            "catalog_description": "Assign remaining Island/Shenango deliveries still at South Yard (finish these setouts before Return homebound assigns).",
-            "description": "Assign NVL at South Yard for remaining Island/Shenango deliveries (before Return list)."
         },
         {
             "function": "pick_up_cars",
@@ -493,104 +470,16 @@
             "catalog_description": "Pick up remaining Island/Shenango deliveries at South Yard."
         },
         {
-            "function": "set_out_cars",
+            "function": "section_label",
             "params": {
-                "job": "NVL",
-                "car_filters": {
-                    "pickup_location": "",
-                    "reporting_marks": "",
-                    "car_code": "",
-                    "status": "",
-                    "consignment": "",
-                    "final_destination": "",
-                    "loading_location": "",
-                    "unloading_location": ""
-                }
+                "label": "CK1 Scale"
             },
-            "catalog_description": "Set out remaining NVL cars at Final Destination (clear the train before Return assigns / snap).",
-            "description": "Set out Island and Shenango deliveries at Final Destination."
-        },
-        {
-            "function": "auto_assign_locals",
-            "params": {
-                "jobs": "NVL",
-                "station": "Neville Island",
-                "destination": "station::Neville Island,station::Scully Yard,station::McKees Rocks-PA,station::Mckeesport-PA,station::Demmler Yard"
-            },
-            "catalog_description": "Assign eligible cars to selected job(s)/train(s). Hold Ctrl/Cmd to select multiple. Optional station filter limits to cars currently at one yard; optional destination filter limits to cars bound for a station/location (same tokens as Pickup final dest). Prefer destination-scoped assigns + Pick Up all over filtered pickups.",
-            "description": "Assign NVL at Neville Island for island respots plus Scully, McKees Rocks, McKeesport, Demmler."
-        },
-        {
-            "function": "auto_assign_locals",
-            "params": {
-                "jobs": "NVL",
-                "station": "Shenango Coke Works",
-                "destination": "station::Scully Yard,station::McKees Rocks-PA"
-            },
-            "catalog_description": "Assign eligible cars to selected job(s)/train(s). Hold Ctrl/Cmd to select multiple. Optional station filter limits to cars currently at one yard; optional destination filter limits to cars bound for a station/location (same tokens as Pickup final dest). Prefer destination-scoped assigns + Pick Up all over filtered pickups.",
-            "description": "Assign NVL at Shenango for Scully and McKees Rocks."
-        },
-        {
-            "function": "auto_assign_locals",
-            "params": {
-                "jobs": "NVL",
-                "station": "South Yard",
-                "destination": "station::Scully Yard,station::McKees Rocks-PA"
-            },
-            "catalog_description": "Assign NVL at South Yard for homebound (Scully/MR/CSX) \u2014 not island deliveries.",
-            "description": "Assign NVL at South Yard for homebound (Scully/MR/CSX) \u2014 not island deliveries."
-        },
-        {
-            "function": "generate_switchlists",
-            "params": {
-                "jobs": "NVL",
-                "format": "all",
-                "title": "NVL",
-                "info": "Return"
-            },
-            "catalog_description": "NVL Return \u2014 print assigned cars still at NI / Shenango / South (yard 'From', not in-train). Snap after delivery setouts, before pickups.",
-            "description": "NVL Return \u2014 switchlist before pickups (after NI/Shenango setouts)."
+            "catalog_description": "After NVL Outbound: Shenango pickup, calibrate/weigh on CK1, then South Yard setout. NVL Return runs after D749 Return."
         },
         {
             "function": "pick_up_cars",
             "params": {
-                "job": "NVL",
-                "location": "Neville Island",
-                "car_filters": {
-                    "pickup_location": "",
-                    "reporting_marks": "",
-                    "car_code": "",
-                    "status": "",
-                    "consignment": "",
-                    "final_destination": "",
-                    "loading_location": "",
-                    "unloading_location": ""
-                }
-            },
-            "catalog_description": "Pick up all assigned NVL cars at Neville Island."
-        },
-        {
-            "function": "set_out_cars",
-            "params": {
-                "job": "NVL",
-                "car_filters": {
-                    "pickup_location": "",
-                    "reporting_marks": "",
-                    "car_code": "",
-                    "status": "",
-                    "consignment": "",
-                    "final_destination": "",
-                    "loading_location": "",
-                    "unloading_location": ""
-                }
-            },
-            "catalog_description": "Set out cars from a job train. Choose Final Destination to spot each car at its loading or unloading location. Or pick a station / station-location to spot matching train cars there. Optional car filters match the Set Out Cars page. Leave job and location blank for all locals.",
-            "description": "NVL Return \u2014 final-dest setout after Neville PU (island respots) before homebound Shenango/South pulls."
-        },
-        {
-            "function": "pick_up_cars",
-            "params": {
-                "job": "NVL",
+                "job": "CK1",
                 "location": "SHEN-COKE-SHIPPING",
                 "car_filters": {
                     "pickup_location": "",
@@ -603,12 +492,27 @@
                     "unloading_location": ""
                 }
             },
-            "catalog_description": "Pick up all assigned NVL cars at SHEN-COKE-SHIPPING."
+            "catalog_description": "Pick up assigned cars onto a job train. Optional car filters match the Pick Up Cars page. Leave job blank for all locals (staging excluded)."
         },
         {
-            "function": "pick_up_cars",
+            "function": "calibrate_track_scale",
             "params": {
-                "job": "NVL",
+                "every_sessions": "1"
+            },
+            "catalog_description": "Recalibrate the coke track scale. Performs a fresh random calibration when required (first use / out of service) or when the configured number of sessions have elapsed since the last calibration. Set to 1 to calibrate every session (steady ~15% reload routing); higher values let scale drift accumulate so more cars route to reload between calibrations. Run this before the Track Scale weigh step."
+        },
+        {
+            "function": "track_scale",
+            "params": {
+                "job": "CK1",
+                "commodity": "COKE"
+            },
+            "catalog_description": "Weigh loaded cars on a job train (or at the scale) for the selected commodity. Uses track scale config when commodity is blank."
+        },
+        {
+            "function": "set_out_cars",
+            "params": {
+                "job": "CK1",
                 "location": "SOUTH-YARD",
                 "car_filters": {
                     "pickup_location": "",
@@ -621,26 +525,73 @@
                     "unloading_location": ""
                 }
             },
-            "catalog_description": "Pick up assigned cars onto a job train.",
-            "description": "Pick up Island/Shenango deliveries at South."
+            "catalog_description": "Weighed coke lands at South after D749 Starting \u2014 reload order is a surprise."
         },
         {
-            "function": "set_out_cars",
+            "function": "section_label",
             "params": {
-                "job": "NVL",
-                "location": "SCULLY-YARD",
+                "label": "CK1 Return"
+            },
+            "catalog_description": "Same-session return of scale reloads from South to Shenango so HM hoppers clear before the next session."
+        },
+        {
+            "function": "auto_assign_locals",
+            "params": {
+                "jobs": "CK1",
+                "station": "South Yard",
+                "destination": "station::Shenango Coke Works"
+            },
+            "catalog_description": "Assign CK1 at South for COKE-RELOAD-SHEN / Shenango-bound cars after weigh.",
+            "description": "Assign CK1 at South for Shenango reloads."
+        },
+        {
+            "function": "generate_switchlists",
+            "params": {
+                "jobs": "CK1",
+                "format": "all",
+                "title": "CK1",
+                "info": "Return"
+            },
+            "catalog_description": "CK1 Return \u2014 South reload lift back to Shenango.",
+            "description": "CK1 Return \u2014 South reloads to Shenango."
+        },
+        {
+            "function": "pick_up_cars",
+            "params": {
+                "job": "CK1",
+                "location": "SOUTH-YARD",
                 "car_filters": {
                     "pickup_location": "",
                     "reporting_marks": "",
                     "car_code": "",
                     "status": "",
                     "consignment": "",
-                    "final_destination": "",
+                    "final_destination": "station::Shenango Coke Works",
                     "loading_location": "",
                     "unloading_location": ""
                 }
             },
-            "catalog_description": "Set out cars from a job train. Choose Final Destination to spot each car at its loading or unloading location. Or pick a station / station-location to spot matching train cars there. Optional car filters match the Set Out Cars page. Leave job and location blank for all locals."
+            "catalog_description": "Pick up Shenango-bound reload cars at South onto CK1.",
+            "description": "Pick up Shenango reloads at South."
+        },
+        {
+            "function": "set_out_cars",
+            "params": {
+                "job": "CK1",
+                "location": "SHEN-COKE-SHIPPING",
+                "car_filters": {
+                    "pickup_location": "",
+                    "reporting_marks": "",
+                    "car_code": "",
+                    "status": "",
+                    "consignment": "",
+                    "final_destination": "station::Shenango Coke Works",
+                    "loading_location": "",
+                    "unloading_location": ""
+                }
+            },
+            "catalog_description": "Spot CK1 Return reload cars at Shenango shipping tracks.",
+            "description": "Set out reloads at SHEN-COKE-SHIPPING."
         },
         {
             "function": "section_label",
@@ -662,11 +613,11 @@
             "params": {
                 "jobs": "STG-DEMMLER",
                 "format": "all",
-                "title": "D749",
-                "info": "Starting"
+                "title": "",
+                "info": ""
             },
-            "catalog_description": "Print Demmler staging cars as D749 Starting (title override consolidates under D749).",
-            "description": "D749 Starting \u2014 STG-DEMMLER cars printed under D749."
+            "catalog_description": "Print Demmler staging cars (blank title keeps STG-DEMMLER separate from D749 / D749 Return).",
+            "description": "STG-DEMMLER switchlist."
         },
         {
             "function": "pick_up_cars",
@@ -723,6 +674,192 @@
         {
             "function": "section_label",
             "params": {
+                "label": "D749 Return"
+            },
+            "catalog_description": "One list: South MP/Dem lift + Demmler overnight (next-day) consist. Print D749 Return, then work South\u2192Demmler and overnight pick up."
+        },
+        {
+            "function": "auto_assign_locals",
+            "params": {
+                "jobs": "D749",
+                "station": "Demmler Yard"
+            },
+            "catalog_description": "Assign D749 overnight leave traffic at Demmler Yard.",
+            "description": "Assign D749 overnight at Demmler Yard."
+        },
+        {
+            "function": "pick_up_cars",
+            "params": {
+                "job": "D749",
+                "location": "DEMMLER-YARD",
+                "car_filters": {
+                    "pickup_location": "",
+                    "reporting_marks": "",
+                    "car_code": "",
+                    "status": "",
+                    "consignment": "",
+                    "final_destination": "",
+                    "loading_location": "",
+                    "unloading_location": ""
+                }
+            },
+            "catalog_description": "Pick up assigned cars onto a job train. Job and location use checkbox dropdowns (multi-select, OR). Optional car filters match the Pick Up Cars page. Leave jobs unchecked for all locals (staging excluded)."
+        },
+        {
+            "function": "auto_assign_locals",
+            "params": {
+                "jobs": "D749",
+                "station": "South Yard",
+                "destination": "station::Mckeesport-PA,station::Demmler Yard"
+            },
+            "catalog_description": "Assign D749 at South for McKeesport/Demmler (dropped by NVL Outbound / available at South).",
+            "description": "Assign D749 at South for McKeesport/Demmler."
+        },
+        {
+            "function": "generate_switchlists",
+            "params": {
+                "jobs": "D749",
+                "format": "all",
+                "title": "D749",
+                "info": "Return"
+            },
+            "catalog_description": "D749 Return \u2014 South MP/Dem cars + Demmler overnight assigns on one list.",
+            "description": "D749 Return \u2014 South lift + overnight on one list."
+        },
+        {
+            "function": "section_label",
+            "params": {
+                "label": "NVL Return"
+            },
+            "catalog_description": "Return: finish Island/Shenango deliveries, NI work, homebound to Scully. Shenango = setout deliveries only; empties can ride back (no Shenango pickup)."
+        },
+        {
+            "function": "auto_assign_locals",
+            "params": {
+                "jobs": "NVL",
+                "station": "Neville Island",
+                "destination": "station::Neville Island,station::Scully Yard,station::McKees Rocks-PA,station::Mckeesport-PA,station::Demmler Yard"
+            },
+            "catalog_description": "Assign eligible cars to selected job(s)/train(s). Hold Ctrl/Cmd to select multiple. Optional station filter limits to cars currently at one yard; optional destination filter limits to cars bound for a station/location (same tokens as Pickup final dest). Prefer destination-scoped assigns + Pick Up all over filtered pickups.",
+            "description": "Assign NVL at Neville Island for island work, homebound Scully/MR, and McKeesport/Demmler cars that drop at South before Scully."
+        },
+        {
+            "function": "auto_assign_locals",
+            "params": {
+                "jobs": "NVL",
+                "station": "South Yard",
+                "destination": "station::Scully Yard,station::McKees Rocks-PA"
+            },
+            "catalog_description": "Assign NVL at South Yard for homebound (Scully/MR/CSX) \u2014 not island deliveries.",
+            "description": "Assign NVL at South Yard for homebound (Scully/MR/CSX) \u2014 not island deliveries."
+        },
+        {
+            "function": "generate_switchlists",
+            "params": {
+                "jobs": "NVL",
+                "format": "all",
+                "title": "NVL",
+                "info": "Return"
+            },
+            "catalog_description": "NVL Return \u2014 print after island final-dest setouts; homebound still at South / on train for Scully park.",
+            "description": "NVL Return \u2014 NI pickup (incl. MP/Dem for South drop) + South homebound assigns. Shenango is deliver-only."
+        },
+        {
+            "function": "pick_up_cars",
+            "params": {
+                "job": "NVL",
+                "location": "Neville Island",
+                "car_filters": {
+                    "pickup_location": "",
+                    "reporting_marks": "",
+                    "car_code": "",
+                    "status": "",
+                    "consignment": "",
+                    "final_destination": "",
+                    "loading_location": "",
+                    "unloading_location": ""
+                }
+            },
+            "catalog_description": "Pick up all assigned NVL cars at Neville Island."
+        },
+        {
+            "function": "set_out_cars",
+            "params": {
+                "job": "NVL",
+                "location": "SOUTH-YARD",
+                "car_filters": {
+                    "pickup_location": "",
+                    "reporting_marks": "",
+                    "car_code": "",
+                    "status": "",
+                    "consignment": "",
+                    "final_destination": "station::Mckeesport-PA,station::Demmler Yard,station::South Yard",
+                    "loading_location": "",
+                    "unloading_location": ""
+                }
+            },
+            "catalog_description": "Drop McKeesport / Demmler / South Yard cars at South before homebound continues to Scully.",
+            "description": "Drop McKeesport / Demmler / South Yard cars at South."
+        },
+        {
+            "function": "set_out_cars",
+            "params": {
+                "job": "NVL",
+                "car_filters": {
+                    "pickup_location": "",
+                    "reporting_marks": "",
+                    "car_code": "",
+                    "status": "",
+                    "consignment": "",
+                    "final_destination": "",
+                    "loading_location": "",
+                    "unloading_location": ""
+                }
+            },
+            "catalog_description": "Set out remaining NVL cars at Final Destination (clear the train before Return assigns / snap).",
+            "description": "Set out remaining Island / Shenango deliveries at Final Destination."
+        },
+        {
+            "function": "pick_up_cars",
+            "params": {
+                "job": "NVL",
+                "location": "SOUTH-YARD",
+                "car_filters": {
+                    "pickup_location": "",
+                    "reporting_marks": "",
+                    "car_code": "",
+                    "status": "",
+                    "consignment": "",
+                    "final_destination": "",
+                    "loading_location": "",
+                    "unloading_location": ""
+                }
+            },
+            "catalog_description": "Pick up assigned cars onto a job train.",
+            "description": "Pick up homebound Scully / McKees Rocks cars at South."
+        },
+        {
+            "function": "set_out_cars",
+            "params": {
+                "job": "NVL",
+                "location": "SCULLY-YARD",
+                "car_filters": {
+                    "pickup_location": "",
+                    "reporting_marks": "",
+                    "car_code": "",
+                    "status": "",
+                    "consignment": "",
+                    "final_destination": "",
+                    "loading_location": "",
+                    "unloading_location": ""
+                }
+            },
+            "catalog_description": "Park remaining Return cars at Scully Yard.",
+            "description": "Park remaining Return cars at Scully Yard."
+        },
+        {
+            "function": "section_label",
+            "params": {
                 "label": "STG-SCULLY"
             },
             "catalog_description": "Section heading with optional remarks (non-operational)."
@@ -739,8 +876,8 @@
             "params": {
                 "jobs": "STG-SCULLY",
                 "format": "all",
-                "title": "NVL",
-                "info": "Outbound"
+                "title": "",
+                "info": ""
             },
             "catalog_description": "Print Scully staging cars as NVL Outbound (title override consolidates under NVL).",
             "description": "NVL Outbound \u2014 STG-SCULLY cars printed under NVL."
@@ -800,50 +937,7 @@
         {
             "function": "section_label",
             "params": {
-                "label": "Next-day consists"
-            },
-            "catalog_description": "Overnight bookend for D749 only (assign \u2192 print Next Day at yard \u2192 pick up in-train). NVL is not overnighted in-train."
-        },
-        {
-            "function": "auto_assign_locals",
-            "params": {
-                "jobs": "D749",
-                "station": "Demmler Yard"
-            },
-            "catalog_description": "Assign eligible cars to selected job(s)/train(s). Hold Ctrl/Cmd to select multiple. Optional station filter limits to cars currently at one yard; optional destination filter limits to cars bound for a station/location (same tokens as Pickup final dest). Prefer destination-scoped assigns + Pick Up all over filtered pickups."
-        },
-        {
-            "function": "generate_switchlists",
-            "params": {
-                "jobs": "D749",
-                "format": "all",
-                "title": "D749",
-                "info": "Next Day"
-            },
-            "catalog_description": "List #3 \u2014 overnight; matches next session D749 Starting after L/U."
-        },
-        {
-            "function": "pick_up_cars",
-            "params": {
-                "job": "D749",
-                "location": "DEMMLER-YARD",
-                "car_filters": {
-                    "pickup_location": "",
-                    "reporting_marks": "",
-                    "car_code": "",
-                    "status": "",
-                    "consignment": "",
-                    "final_destination": "",
-                    "loading_location": "",
-                    "unloading_location": ""
-                }
-            },
-            "catalog_description": "Pick up assigned cars onto a job train. Optional car filters match the Pick Up Cars page. Leave job blank for all locals (staging excluded)."
-        },
-        {
-            "function": "section_label",
-            "params": {
-                "label": "Reports \u2014 End of session"
+                "label": "Reports"
             },
             "catalog_description": "Section heading with optional remarks (non-operational)."
         },
@@ -864,20 +958,21 @@
             "description": "Wheel report \u2014 End of session."
         },
         {
-            "function": "section_label",
-            "params": {
-                "label": "Finish"
-            },
-            "catalog_description": "Section heading with optional remarks (non-operational)."
-        },
-        {
             "function": "backup_database",
             "params": {
                 "prefix": "hart_session"
             },
             "catalog_description": "Export current DB to sts/backups/{prefix}{session_nbr} and copy RollingStock photos to {prefix}{session_nbr}_photos. Overwrites any prior dump with that name. Use a stable prefix (e.g. hart_session) so each session writes hart_session1, hart_session2, \u2026 Lock from the session overview for a static *_locked checkpoint.",
             "description": "End-of-session dump as hart_session{N} (+ photos)."
+        },
+        {
+            "function": "section_label",
+            "params": {
+                "label": "Finish"
+            },
+            "catalog_description": "Section heading with optional remarks (non-operational)."
         }
     ],
+    "description": "Cal-fix baseline: max_new=4 gate=40 repo=25 fill=100 coke open CLEV>=8 USS>=8 bulk 2-3 + CK1 Return + B2 + cal/orphan fixes | NVL Return after D749 Return",
     "source_workflow": "hart_session.workflow.json"
 }

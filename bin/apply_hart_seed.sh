@@ -150,9 +150,13 @@ CREATE DATABASE ${MYSQL_DATABASE} CHARACTER SET latin1 COLLATE latin1_swedish_ci
 "
 
 mkdir -p "${BACKUP_DIR}"
-if [[ "$(cd "$(dirname "${SQL_FILE}")" && pwd)" != "$(cd "${BACKUP_DIR}" && pwd)" ]]; then
+# BACKUPS_DIR may be a symlink to the same place as --sql-file; avoid cp of identical paths
+# (macOS cp exits 1 for "identical", which would abort under set -e).
+src_dir="$(cd "$(dirname "${SQL_FILE}")" && pwd -P)"
+dst_dir="$(cd "${BACKUP_DIR}" && pwd -P)"
+if [[ "${src_dir}" != "${dst_dir}" || "$(basename "${SQL_FILE}")" != "${BACKUP_NAME}" ]]; then
   echo "==> Copying ${SQL_FILE} -> ${BACKUP_DIR}/${BACKUP_NAME}"
-  cp "${SQL_FILE}" "${BACKUP_DIR}/${BACKUP_NAME}"
+  cp -f "${SQL_FILE}" "${BACKUP_DIR}/${BACKUP_NAME}"
 fi
 
 CONTAINER_SQL="/var/www/html/sts/backups/${BACKUP_NAME}"
@@ -171,6 +175,7 @@ docker exec \
   }
 
   require "/var/www/html/sts/credentials.php";
+  require_once "/var/www/html/sts/restore_sql_helpers.php";
   chdir("/var/www/html/sts");
   $sql_file = getenv("RESTORE_SQL_FILE");
   if ($sql_file && $sql_file[0] !== "/") {
@@ -192,19 +197,10 @@ docker exec \
     exit(1);
   }
 
-  $sql_string = file_get_contents($sql_file);
-  foreach (explode("#", $sql_string) as $sql_cmd) {
-    $sql_cmd = trim($sql_cmd);
-    if ($sql_cmd === "") {
-      continue;
-    }
-    if (!mysqli_query($dbc, $sql_cmd)) {
-      if (stripos($sql_cmd, "drop") === false) {
-        fwrite(STDERR, "SQL error: " . mysqli_error($dbc) . "\n");
-        fwrite(STDERR, substr($sql_cmd, 0, 200) . "...\n");
-        exit(1);
-      }
-    }
+  list($ok, $msg) = sts_restore_sql_file($dbc, $sql_file, basename($sql_file));
+  if (!$ok) {
+    fwrite(STDERR, $msg . "\n");
+    exit(1);
   }
 
   clear_image_folder("./ImageStore/DB_Images/barcodes");
@@ -234,6 +230,21 @@ docker exec \
     print "Track scale cached weights cleared (calibration kept).\n";
   }
 '
+
+# HART layout: keep coke (and similar) out of undifferentiated AUTOMATIC generate.
+# Core STS reads settings.auto_gen_exclude_shipment_prefixes; locked dumps may predate it.
+echo "==> Ensuring auto_gen_exclude_shipment_prefixes=COKE-"
+mysql_exec -e "
+INSERT INTO settings (setting_name, setting_desc, setting_value)
+VALUES (
+  'auto_gen_exclude_shipment_prefixes',
+  'Exclude shipment code prefixes from AUTOMATIC generate (CSV)',
+  'COKE-'
+)
+ON DUPLICATE KEY UPDATE
+  setting_desc = VALUES(setting_desc),
+  setting_value = VALUES(setting_value);
+"
 
 echo ""
 echo "Done. STS: http://localhost:8980/sts/"
