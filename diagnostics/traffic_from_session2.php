@@ -3,7 +3,8 @@
  * traffic_from_session2.php
  *
  * Replay sessions (current+1)..N from a locked baseline DB already loaded
- * (historically end-of-session-2; also works from hart_session3_locked etc.).
+ * (historically end-of-session-2; also works from hart_session_post3_locked /
+ * hart_session3_locked etc.).
  * Prints per-session switchlist job marks + holdup metrics (gen/fill/repo/weigh/reload,
  * unfilled, yard piles) and a score (higher is better).
  *

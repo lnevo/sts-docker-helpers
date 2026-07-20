@@ -84,3 +84,41 @@ sts_helpers_docker_cp_legacy_cli() {
     fi
   done
 }
+
+# Resolve an end-of-session dump for session N under the pre/post scheme:
+#   hart_session_post{N}_locked → hart_session_post{N} →
+#   hart_session{N}_locked → hart_session{N}
+# Prints absolute path; returns 1 when none exist.
+sts_resolve_session_end_dump() {
+  local n="${1:?session number}"
+  local cand
+  for cand in \
+    "hart_session_post${n}_locked" \
+    "hart_session_post${n}" \
+    "hart_session${n}_locked" \
+    "hart_session${n}"; do
+    if [[ -f "${BACKUPS_DIR}/${cand}" ]]; then
+      echo "${BACKUPS_DIR}/${cand}"
+      return 0
+    fi
+  done
+  return 1
+}
+
+# Resolve a start-of-ops (post-generate) dump for session N:
+#   hart_session_pre{N}_locked → hart_session_pre{N} → db_session_{N}_starting
+# Prints absolute path; returns 1 when none exist.
+sts_resolve_session_pre_dump() {
+  local n="${1:?session number}"
+  local cand
+  for cand in \
+    "hart_session_pre${n}_locked" \
+    "hart_session_pre${n}" \
+    "db_session_${n}_starting"; do
+    if [[ -f "${BACKUPS_DIR}/${cand}" ]]; then
+      echo "${BACKUPS_DIR}/${cand}"
+      return 0
+    fi
+  done
+  return 1
+}

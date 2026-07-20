@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Rewind hart_session10_locked → run sessions 11..20 under mandatory train order.
+# Rewind end-of-session-10 (post/legacy locked dump) → run sessions 11..20 under mandatory train order.
 # Sweep flow levers across 3 static generate seeds; score only s11-20.
 set -euo pipefail
 _script_home="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -11,7 +11,11 @@ STAMP="$(date +%Y%m%d_%H%M%S)"
 BASE_WF="${BACKUPS_DIR}/session_editor/hart_flow_fill_gap_best.workflow.json"
 TMP_WF="${BACKUPS_DIR}/session_editor/_s10_flow_case.workflow.json"
 CASE_WF="${BACKUPS_DIR}/session_editor/hart_flow_s10_case.workflow.json"
-LOCK="${BACKUPS_DIR}/hart_session10_locked"
+LOCK="$(sts_resolve_session_end_dump 10 || true)"
+if [[ -z "${LOCK}" ]]; then
+  echo "Missing end-of-session-10 dump (tried hart_session_post10[_locked], hart_session10[_locked])" >&2
+  exit 1
+fi
 LOG="${BACKUPS_DIR}/session_editor/traffic_s10_flow_sweep_${STAMP}.log"
 SCORES="${BACKUPS_DIR}/session_editor/traffic_s10_flow_scores_${STAMP}.tsv"
 SEEDS=(11 22 33)
@@ -19,11 +23,6 @@ SEEDS=(11 22 33)
 WEB_CID="$("${COMPOSE[@]}" ps -q web)"
 DB_CID="$("${COMPOSE[@]}" ps -q db)"
 [[ -n "$WEB_CID" && -n "$DB_CID" ]] || { echo "web/db containers not running"; exit 1; }
-
-# Freeze rewind point once.
-if [[ ! -f "$LOCK" ]]; then
-  cp -f "${BACKUPS_DIR}/hart_session10" "$LOCK"
-fi
 
 docker cp "${DIAGNOSTICS_DIR}/traffic_from_session2.php" "${WEB_CID}:/var/www/html/sts/traffic_from_session2.php"
 docker cp "${STS_DOCKER}/sts/session_helpers.php" "${WEB_CID}:/var/www/html/sts/session_helpers.php"

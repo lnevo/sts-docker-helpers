@@ -43,18 +43,18 @@
         {
             "function": "generate_wheel_report",
             "params": {
-                "info": "Starting"
+                "info": "Pre"
             },
             "catalog_description": "Snapshot in-train / assigned cars from the live database into this session's wheel report. Each call appends a new phase (Phase 1, Phase 2, \u2026); optional Info labels the phase. Wheel-report phases are numbered independently of station reports.",
-            "description": "Wheel report \u2014 Starting."
+            "description": "Wheel report \u2014 Pre."
         },
         {
             "function": "generate_station_report",
             "params": {
-                "info": "Starting"
+                "info": "Pre"
             },
             "catalog_description": "Snapshot cars by station from the live database into this session's station report. Each call appends a new phase (Phase 1, Phase 2, \u2026); optional Info labels the phase (like Train Info on switch lists). Station-report phases are numbered independently of wheel reports.",
-            "description": "Station report \u2014 Starting."
+            "description": "Station report \u2014 Pre."
         },
         {
             "function": "load_unload",
@@ -69,6 +69,22 @@
                 }
             },
             "catalog_description": "Complete offline load/unload (allows correcting bad setouts before industry completion)."
+        },
+        {
+            "function": "generate_station_report",
+            "params": {
+                "info": "Starting"
+            },
+            "catalog_description": "Snapshot cars by station from the live database into this session's station report. Each call appends a new phase (Phase 1, Phase 2, \u2026); optional Info labels the phase (like Train Info on switch lists). Station-report phases are numbered independently of wheel reports.",
+            "description": "Station report \u2014 Starting"
+        },
+        {
+            "function": "generate_wheel_report",
+            "params": {
+                "info": "Starting"
+            },
+            "catalog_description": "Snapshot in-train / assigned cars from the live database into this session's wheel report. Each call appends a new phase (Phase 1, Phase 2, \u2026); optional Info labels the phase. Wheel-report phases are numbered independently of station reports.",
+            "description": "Wheel report \u2014 Starting"
         },
         {
             "function": "section_label",

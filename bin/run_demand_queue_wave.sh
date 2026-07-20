@@ -9,7 +9,11 @@ _script_home="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "${_script_home}/../lib/paths.sh"
 sts_helpers_resolve_paths "${_script_home}/$(basename "${BASH_SOURCE[0]}")"
 
-LOCK="${BACKUPS_DIR}/hart_session3_locked"
+LOCK="$(sts_resolve_session_end_dump 3 || true)"
+if [[ -z "${LOCK}" ]]; then
+  echo "Missing end-of-session-3 dump (tried hart_session_post3[_locked], hart_session3[_locked])" >&2
+  exit 1
+fi
 TARGET_SESSION="${TARGET_SESSION:-13}"
 SCORE_FROM="${SCORE_FROM:-4}"
 # shellcheck disable=SC2206

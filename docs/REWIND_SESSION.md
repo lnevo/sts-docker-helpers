@@ -89,6 +89,39 @@ carried from the base. For the exact per-session waybill picture, cross-referenc
 the archived waybill pages (`session_N/.../waybills`). `db_session_10` is a copy
 of `hart_prod_10`; `db_session_11` was captured live.
 
+## Station / wheel report bookends (Pre → Starting → End)
+
+Catalog car reports for each session should be:
+
+| Info | When |
+|------|------|
+| **Pre** | After `increment_session`, **before** overnight `load_unload` |
+| **Starting** | After `fill_orders` + `reposition_empties` (before waybills / trains) |
+| **End of session** | After the operating recipe finishes |
+
+### Pre / post DB dumps
+
+The HART recipe writes two rolling dumps per session:
+
+| Dump | When |
+|------|------|
+| `hart_session_pre{N}` | After orders / fill / Starting reports / waybills — start of ops |
+| `hart_session_post{N}` | End of session (after End reports) |
+
+Legacy `hart_session{N}` end dumps still resolve. **Lock Backup** on the session
+overview freezes both pre + post to `*_locked` companions. Simulator scripts
+resolve end-of-session baselines via `sts_resolve_session_end_dump` in
+`lib/paths.sh` (`post_locked` → `post` → legacy `locked` → legacy).
+
+Restart Session prefers `hart_session_pre{N}` when present (return to the start
+of the generated session without artificially rewinding through N−1).
+
+Active `hart_session.workflow.json` uses that order. To refresh **Starting** on
+existing sessions 3–10 without rebuilding switchlists, run
+`bin/backfill_starting_after_reposition.sh` (restores each prior end dump,
+replays load_unload→reposition, snaps Starting, then restores that session's
+end dump and finally live end-of-20).
+
 ## Notes
 
 - Snapshots/dumps live in `sts-backups/` (bind-mounted to

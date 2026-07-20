@@ -7,7 +7,11 @@ _script_home="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "${_script_home}/../lib/paths.sh"
 sts_helpers_resolve_paths "${_script_home}/$(basename "${BASH_SOURCE[0]}")"
 
-LOCK="${BACKUPS_DIR}/hart_session2_locked"
+LOCK="$(sts_resolve_session_end_dump 2 || true)"
+if [[ -z "${LOCK}" ]]; then
+  echo "Missing end-of-session-2 dump (tried hart_session_post2[_locked], hart_session2[_locked])" >&2
+  exit 1
+fi
 WF_SRC="${BACKUPS_DIR}/session_editor/hart_session.workflow.json"
 WF_TMP="${BACKUPS_DIR}/session_editor/_traffic_sweep.workflow.json"
 LOG="${BACKUPS_DIR}/session_editor/traffic_from_s2_sweep_$(date +%Y%m%d_%H%M%S).log"
