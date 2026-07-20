@@ -226,12 +226,14 @@ STATIC_BACKUP_TABLES = [
 
 # Shipment order limits for HART — used by STS generate.php (not load/unload times).
 # Tiered profile targeting ~20-24 orders on first Generate Session from fresh seed.
-# General/FM use interval 0-2 + amount 1-1 for session-1 eligibility; HC/HP/GA stay throttled.
+# Amounts are single-car (1-1) for IX and local industries so each generate fires
+# one car per lane (more shipment variety under max_new). Aristech is the
+# exception (1-2); coke bulk amounts come from config. HC/HP/GA stay interval-throttled.
 SHIPMENT_INTERVALS_LOCAL = {
     "min_interval": 0,
-    "max_interval": 2,
+    "max_interval": 1,
     "min_amount": 1,
-    "max_amount": 2,
+    "max_amount": 1,
 }
 SHIPMENT_INTERVALS_LOCAL_GONDOLA = {
     # 5 local GA lanes share only 2 gondolas; stretch the interval so a car has
@@ -239,55 +241,55 @@ SHIPMENT_INTERVALS_LOCAL_GONDOLA = {
     "min_interval": 6,
     "max_interval": 10,
     "min_amount": 1,
-    "max_amount": 2,
+    "max_amount": 1,
 }
 SHIPMENT_INTERVALS_IX = {
     "min_interval": 0,
     "max_interval": 2,
     "min_amount": 1,
-    "max_amount": 2,
+    "max_amount": 1,
 }
 SHIPMENT_INTERVALS_LOCAL_HC = {
-    "min_interval": 2,
-    "max_interval": 5,
+    "min_interval": 0,
+    "max_interval": 1,
     "min_amount": 1,
-    "max_amount": 2,
+    "max_amount": 1,
 }
 SHIPMENT_INTERVALS_IX_HC = {
     "min_interval": 3,
     "max_interval": 6,
     "min_amount": 1,
-    "max_amount": 2,
+    "max_amount": 1,
 }
 SHIPMENT_INTERVALS_LOCAL_HP = {
-    "min_interval": 2,
-    "max_interval": 4,
+    "min_interval": 0,
+    "max_interval": 1,
     "min_amount": 1,
-    "max_amount": 2,
+    "max_amount": 1,
 }
 SHIPMENT_INTERVALS_IX_HP = {
     "min_interval": 4,
     "max_interval": 7,
     "min_amount": 1,
-    "max_amount": 2,
+    "max_amount": 1,
 }
 SHIPMENT_INTERVALS_LOCAL_TANK = {
-    "min_interval": 1,
-    "max_interval": 2,
+    "min_interval": 0,
+    "max_interval": 1,
     "min_amount": 1,
-    "max_amount": 2,
+    "max_amount": 1,
 }
 SHIPMENT_INTERVALS_IX_TANK = {
     "min_interval": 2,
     "max_interval": 4,
     "min_amount": 1,
-    "max_amount": 2,
+    "max_amount": 1,
 }
 SHIPMENT_INTERVALS_IX_GONDOLA = {
     "min_interval": 8,
     "max_interval": 12,
     "min_amount": 1,
-    "max_amount": 2,
+    "max_amount": 1,
 }
 SHIPMENT_INTERVALS_REEFER = {
     # Only 2 reefers on the roster; keep the two RM lanes spaced out enough that a
@@ -295,7 +297,7 @@ SHIPMENT_INTERVALS_REEFER = {
     "min_interval": 4,
     "max_interval": 7,
     "min_amount": 1,
-    "max_amount": 2,
+    "max_amount": 1,
 }
 SHIPMENT_INTERVALS_COAL = {
     # Coal rides the small open-top hopper fleet (3 HK + 2 HT). Space the coal
@@ -303,17 +305,22 @@ SHIPMENT_INTERVALS_COAL = {
     "min_interval": 4,
     "max_interval": 7,
     "min_amount": 1,
-    "max_amount": 2,
+    "max_amount": 1,
 }
 SHIPMENT_INTERVALS_LOCAL_FM = {
     "min_interval": 0,
-    "max_interval": 2,
+    "max_interval": 1,
     "min_amount": 1,
-    "max_amount": 2,
+    "max_amount": 1,
 }
 SHIPMENT_INTERVALS_IX_FM = {
     "min_interval": 0,
     "max_interval": 2,
+    "min_amount": 1,
+    "max_amount": 1,
+}
+# Aristech may take 1–2 cars per generate; applied after interval assignment.
+SHIPMENT_AMOUNTS_ARISTECH = {
     "min_amount": 1,
     "max_amount": 2,
 }
@@ -321,14 +328,16 @@ SHIPMENT_INTERVALS_IX_FM = {
 # fleets are not scheduled hotter than the roster can cycle.
 SCARCE_FLEET_INTERVAL_FLOORS = {
     # car_code: (local_min, local_max, ix_min, ix_max)
-    "HP": (2, 4, 4, 7),
-    "HC": (2, 5, 3, 6),
-    "GA": (6, 10, 8, 12),
-    "GD": (6, 10, 8, 12),
-    "HK": (4, 7, 4, 8),
-    "HT": (4, 7, 4, 8),
-    "TA": (2, 3, 3, 6),
-    "TL": (2, 3, 3, 6),
+    # Local floors kept low so Neville Island industries can fire often;
+    # IX floors stay throttled for scarce fleets.
+    "HP": (0, 1, 4, 7),
+    "HC": (0, 1, 3, 6),
+    "GA": (0, 2, 8, 12),
+    "GD": (0, 2, 8, 12),
+    "HK": (1, 3, 4, 8),
+    "HT": (1, 3, 4, 8),
+    "TA": (0, 1, 3, 6),
+    "TL": (0, 1, 3, 6),
     "RM": (4, 7, 4, 7),
 }
 GONDOLA_CODES = frozenset({"GA", "GD"})
@@ -599,7 +608,7 @@ ISLAND_LOAD_USAGES = frozenset({"Carbon Load", "Shipping Door"})
 ISLAND_BIDIRECTIONAL_TRACK = "IN/OUT"
 POHC_YARD_CODE = "SCULLY-YARD"
 CSX_YARD_CODE = "DEMMLER-YARD"
-STAGING_TRACK = "Staging"
+STAGING_TRACK = "STAGING"
 
 # Legacy proposal CSV codes mapped to home interchange yards.
 PHYSICAL_BLOCK_MAP = {
@@ -643,19 +652,28 @@ SPUR_COLOR_TO_STS = {
     "yellow": "yellow",
     "red": "red",
     "green": "green",
+    "purple": "purple",
     "orange": "orange",
+    "pink": "pink",
     "blue": "mediumblue",
+    "light blue": "lightblue",
+    "lightblue": "lightblue",
+    "grey": "lightgrey",
+    "gray": "lightgrey",
+    "dark blue": "mediumblue",
+    "darkblue": "mediumblue",
+    "medium blue": "mediumblue",
+    "mediumblue": "mediumblue",
 }
 
-# Home interchange yards: no highlight colors (operator sheet keeps industry
-# swatches only; SCULLY-YARD / DEMMLER-YARD print white via set_colors "None").
+# Home interchange yards: Scully=orange (POHC family), Demmler=mediumblue (CSX family).
 YARD_LOCATION_COLORS = {
-    "SCULLY-YARD": "None",
-    "DEMMLER-YARD": "None",
-    "SCL-YARD": "None",
-    "DEM-YARD": "None",
-    "SCL": "None",
-    "DEM": "None",
+    "SCULLY-YARD": "orange",
+    "DEMMLER-YARD": "mediumblue",
+    "SCL-YARD": "orange",
+    "DEM-YARD": "mediumblue",
+    "SCL": "orange",
+    "DEM": "mediumblue",
 }
 
 
@@ -664,14 +682,14 @@ def fixed_location_color(code: str) -> str:
 
 
 def offline_station_color(station_id: int, config: dict) -> str:
-    """POHC offline (McKees Rocks) = pink; CSX offline (Mckeesport) = purple."""
+    """POHC offline (McKees Rocks) = orange; CSX offline (Mckeesport) = mediumblue."""
     offline = config.get("offline_stations", {})
     pohc_offline = int(offline.get("pohc_offline_station_id", 15))
     csx_offline = int(offline.get("csx_offline_station_id", 14))
     if station_id == pohc_offline:
-        return "pink"
+        return "orange"
     if station_id == csx_offline:
-        return "purple"
+        return "mediumblue"
     return ""
 
 
@@ -1442,7 +1460,7 @@ class SeedBuilder:
             )
         # Coke outbound Offline lanes (if not already loaded from proposal CSV)
         if "CLEVWORK-COKE" not in self.location_code_to_id:
-            rpt = "USS Cleveland Works, Cleveland, OH"
+            rpt = "LTV Steel Cleveland Works (Cleveland, OH)"
             self.add_location(
                 "CLEVWORK-COKE",
                 15,
@@ -1452,7 +1470,7 @@ class SeedBuilder:
                 remarks=customer_name_without_location(rpt),
             )
         if "USSTEELE-COKE" not in self.location_code_to_id:
-            rpt = "U.S. Steel Edgar Thomson Works"
+            rpt = "U.S. Steel Edgar Thomson Works (Braddock, PA)"
             self.add_location(
                 "USSTEELE-COKE",
                 14,
@@ -1900,10 +1918,16 @@ class SeedBuilder:
             else:
                 intervals = SHIPMENT_INTERVALS_LOCAL
 
+            ship_code = self.shipment_code(row)
+            min_amount = intervals["min_amount"]
+            max_amount = intervals["max_amount"]
+            if ship_code.startswith("ARIS-"):
+                min_amount = SHIPMENT_AMOUNTS_ARISTECH["min_amount"]
+                max_amount = SHIPMENT_AMOUNTS_ARISTECH["max_amount"]
             self.shipment_rows.append(
                 {
                     "id": self._next_shipment_id,
-                    "code": self.shipment_code(row),
+                    "code": ship_code,
                     "description": self.shipment_description(
                         row,
                         loading_label=loading_label,
@@ -1917,8 +1941,8 @@ class SeedBuilder:
                     "last_ship_date": 0,
                     "min_interval": intervals["min_interval"],
                     "max_interval": intervals["max_interval"],
-                    "min_amount": intervals["min_amount"],
-                    "max_amount": intervals["max_amount"],
+                    "min_amount": min_amount,
+                    "max_amount": max_amount,
                     "special_instructions": "",
                     "remarks": "",
                     "_card_kind": kind,
@@ -2780,6 +2804,13 @@ class SeedBuilder:
                     ["railroad_initials", "Initials of the railroad", cfg["railroad_initials"]],
                     ["railroad_name", "Name of the railroad", cfg["railroad_name"]],
                     ["session_nbr", "Session Number", "0"],
+                    # Keep coke lanes out of undifferentiated AUTOMATIC generate;
+                    # they are served by gated/explicit generate_orders steps.
+                    [
+                        "auto_gen_exclude_shipment_prefixes",
+                        "Exclude shipment code prefixes from AUTOMATIC generate (CSV)",
+                        "COKE-",
+                    ],
                 ]
                 emit_backup_table(lines, table, table_ddl("settings"), rows)
             elif table == "shipments":

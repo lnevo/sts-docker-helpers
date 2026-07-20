@@ -1,0 +1,80 @@
+#!/usr/bin/env bash
+# Restore warm-start DB and clear weigh artifacts, then re-weigh CK1 coke cars.
+set -euo pipefail
+
+_script_home="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+[[ "${_script_home##*/}" != "bin" ]] && _script_home="${_script_home}/bin"
+# shellcheck source=../lib/paths.sh
+source "${_script_home}/../lib/paths.sh"
+sts_helpers_resolve_paths "${_script_home}/$(basename "${BASH_SOURCE[0]}")"
+
+
+SCALE_DIR="${BACKUPS_DIR}/track_scale"
+if [[ ! -d "${SCALE_DIR}" && -d "${HELPERS_ROOT}/track_scale" ]]; then
+  SCALE_DIR="${HELPERS_ROOT}/track_scale"
+fi
+SEED_JSON="${SCALE_DIR}/seed.json"
+SESSION_LOG="${SCALE_DIR}/session.log"
+MARKS="BO31000,WLE621"
+
+WEB_CID="$("${COMPOSE[@]}" ps -q web 2>/dev/null || true)"
+if [[ -z "${WEB_CID}" ]]; then
+  echo "Web container is not running." >&2
+  exit 1
+fi
+
+if [[ ! -f "${APPLY_HART_SEED}" ]]; then
+  echo "apply_hart_seed.sh not found at ${APPLY_HART_SEED}." >&2
+  exit 1
+fi
+
+echo "==> Restoring hart_warm_start database"
+"${APPLY_HART_SEED}" --sql-file "${BACKUPS_DIR}/hart_warm_start"
+
+echo "==> Clearing weigh cache for ${MARKS}"
+python3 - <<PY
+import json
+import csv
+from pathlib import Path
+
+marks = {m.strip().upper() for m in "${MARKS}".split(",") if m.strip()}
+seed_path = Path("${SEED_JSON}")
+if seed_path.exists():
+    seed = json.loads(seed_path.read_text())
+    weights = seed.get("car_weights") or {}
+    logged = seed.get("logged_cars") or []
+    for m in marks:
+        weights.pop(m, None)
+    seed["car_weights"] = weights
+    seed["logged_cars"] = [x for x in logged if str(x).upper() not in marks]
+    seed_path.write_text(json.dumps(seed, indent=2) + "\n")
+    print(f"Cleared seed cache for: {', '.join(sorted(marks))}")
+
+log_path = Path("${SESSION_LOG}")
+if log_path.exists():
+    rows = []
+    with log_path.open(newline="") as f:
+        reader = csv.reader(f)
+        header = next(reader)
+        rows.append(header)
+        removed = 0
+        for row in reader:
+            if len(row) > 4 and row[0] == "weigh" and row[4].upper() in marks:
+                removed += 1
+                continue
+            rows.append(row)
+    with log_path.open("w", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerows(rows)
+    print(f"Removed {removed} prior weigh log row(s) for those cars")
+PY
+
+echo "==> Syncing simulate_ck1_weigh.php into container"
+echo "==> Syncing legacy CK1 weigh CLI into web container"
+sts_helpers_docker_cp_legacy_cli "${WEB_CID}" simulate_ck1_weigh.php
+
+echo "==> Re-weighing CK1 cars"
+docker exec "${WEB_CID}" php /var/www/html/sts/simulate_ck1_weigh.php --marks="${MARKS}"
+
+echo ""
+echo "Done. Check track scale session log and STS weigh UI."

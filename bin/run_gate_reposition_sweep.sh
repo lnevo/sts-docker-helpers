@@ -166,10 +166,19 @@ ws["reposition_fraction"] = round(int("${BEST_REPO}") / 100.0, 2)
 partial = ws.setdefault("partial", {})
 partial["reposition"] = ws["reposition_fraction"]
 cfg_path.write_text(json.dumps(cfg, indent=2) + "\n", encoding="utf-8")
+
+# Keep hart_session in lockstep with start_session (same steps; distinct source_workflow).
+hart = Path("${ROOT}/sts-backups/session_editor/hart_session.workflow.json")
+hart_recipe = json.loads(wf.read_text(encoding="utf-8"))
+hart_recipe["name"] = "hart_session"
+hart_recipe["source_workflow"] = "hart_session.workflow.json"
+hart.write_text(json.dumps(hart_recipe, indent=4) + "\n", encoding="utf-8")
 PY
   docker cp "${WORKFLOW_SRC}" \
     "${WEB_CID}:/var/www/html/sts/backups/session_editor/start_session.workflow.json"
-  echo "==> Updated start_session.workflow.json and hart_seed_config.json warm_start defaults" | tee -a "${LOG}"
+  docker cp "${ROOT}/sts-backups/session_editor/hart_session.workflow.json" \
+    "${WEB_CID}:/var/www/html/sts/backups/session_editor/hart_session.workflow.json"
+  echo "==> Updated start_session + hart_session workflows and hart_seed_config.json warm_start defaults" | tee -a "${LOG}"
 fi
 
 echo "==> Done. Full log: ${LOG}" | tee -a "${LOG}"
