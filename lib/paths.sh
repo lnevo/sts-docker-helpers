@@ -45,6 +45,7 @@ sts_helpers_resolve_paths() {
 
   # Prefer sts-backups (symlink to ~/sts/sts-backups) — same path Docker mounts.
   for candidate in \
+    "${HELPERS_ROOT}/../sts-docker-data/backups" \
     "${HELPERS_ROOT}/../sts-backups" \
     "${HELPERS_ROOT}/sts-backups" \
     "${HELPERS_ROOT}/backups"; do
