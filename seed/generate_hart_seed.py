@@ -463,6 +463,17 @@ def roster_ids_with_final_images(
     return roster_ids
 
 
+def load_added_cars(hart_dir: Path) -> dict[str, dict[str, str]]:
+    """Cars added by tools/add_hart_cars.py, keyed by roster id, with fixed STS ids."""
+    path = hart_dir / "sts_added_cars.csv"
+    if not path.is_file():
+        path = Path(__file__).resolve().parent / "inputs" / "sts_added_cars.csv"
+    if not path.is_file():
+        return {}
+    with path.open(encoding="utf-8", newline="") as fh:
+        return {row["roster_id"]: row for row in csv.DictReader(fh)}
+
+
 def sql_str(value: str | None) -> str:
     if value is None:
         return "NULL"
@@ -2439,12 +2450,17 @@ class SeedBuilder:
         )
         roster_metadata = load_roster_metadata(metadata_csv, roster_xml)
 
+        added_cars = load_added_cars(roster_xml.parent)
+
         root = ET.parse(roster_xml).getroot()
         for car in root.findall("cars/car"):
             car_type = car.get("type", "")
             if car_type in PASSENGER_TYPES:
                 continue
             roster_id = car.get("id", "")
+            if roster_id in added_cars:
+                # Fixed id from tools/add_hart_cars.py; does not shift the sequence.
+                continue
             if roster_id not in image_roster_ids:
                 # Preserve STS car IDs for synced RollingStock/{id}.jpg files.
                 self._next_car_id += 1
@@ -2487,6 +2503,27 @@ class SeedBuilder:
                 }
             )
             self._next_car_id += 1
+
+        for entry in added_cars.values():
+            car_id = int(entry["sts_car_id"])
+            code = entry["aar_code"]
+            self.fleet_code_counts[code] = self.fleet_code_counts.get(code, 0) + 1
+            self.freight_car_ids.add(car_id)
+            self.car_rows.append(
+                {
+                    "id": car_id,
+                    "reporting_marks": entry["reporting_marks"],
+                    "car_code_id": self.ensure_car_code(code),
+                    "current_location_id": south_id,
+                    "position": None,
+                    "status": "Empty",
+                    "handled_by_job_id": None,
+                    "remarks": entry["remarks"],
+                    "load_count": 0,
+                    "home_location": south_id,
+                    "RFID_code": None,
+                }
+            )
 
     def add_mow_equipment(
         self,

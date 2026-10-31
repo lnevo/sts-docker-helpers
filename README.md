@@ -41,6 +41,7 @@ Run from **Car Cards project root** (thin wrappers) or directly from **`sts-dock
 | `apply_shipment_tune.sh` | Tune shipment order intervals in the live DB |
 | `rewind_ck1_weigh.sh` | CK1 weigh simulation / rewind |
 | `build_hart_seed_package.sh` | Assemble portable `hart_seed_package/` |
+| `tools/add_hart_cars.py` | Add new cars to the seed and the running database, with fixed ids (run by hart-ops `bin/cars publish`) |
 
 ### Examples
 
