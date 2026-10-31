@@ -63,7 +63,7 @@ Offline routing stations renamed (location codes unchanged):
 - Align D749 phase-2/3 dry-run with **post-fill, post-assign** session-open state consistently (session 5 after begin_session still shows 1 D749 phase).
 - CK1 phase 1 empty when Shenango already holds coke — may need to snapshot **before** CK1 runs in warm start, or separate “session start” CK1 list from “end of session” state.
 - Root `switchlists/index.html` lists sessions ≤ current DB session; older session folders may predate begin_session+fill workflow.
-- Switch list output lives in **Car Cards** `switchlists/` (not this repo); only generators live here.
+- Generated switch lists are output, not source; only generators are tracked here.
 
 ## Commands
 
@@ -72,7 +72,7 @@ Offline routing stations renamed (location codes unchanged):
 ./bin/run_session_simulations.sh --sessions 3
 
 # From sim backup → operate one session
-./bin/apply_hart_seed.sh --sql-file ~/sts/sts-backups/sim_warm_start
+./bin/apply_hart_seed.sh --sql-file external/sts-docker-data/backups/sim_warm_start
 ./bin/begin_session.sh --run-stg-scully --switchlists
 ./bin/play_operating_session.sh
 

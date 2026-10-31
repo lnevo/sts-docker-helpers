@@ -438,7 +438,7 @@ def main() -> None:
 
     print(
         "\nRegenerate SQL seed with:\n"
-        "  python3 generate_hart_seed.py --output sts-backups/hart_seed"
+        "  python3 generate_hart_seed.py --output sts-docker-data/backups/hart_seed"
     )
 
 

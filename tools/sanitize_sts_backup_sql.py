@@ -19,8 +19,8 @@ HART-safe pattern (same as generate_hart_seed.py):
 Also normalizes bare `drop table` to `drop table if exists` for other tables.
 
 Usage:
-  python3 sanitize_sts_backup_sql.py sts-backups/hart_session2_locked
-  python3 sanitize_sts_backup_sql.py --all   # hart_* dumps under sts-backups
+  python3 sanitize_sts_backup_sql.py sts-docker-data/backups/hart_session2_locked
+  python3 sanitize_sts_backup_sql.py --all   # hart_* dumps under sts-docker-data/backups
 """
 
 from __future__ import annotations
@@ -34,8 +34,10 @@ from pathlib import Path
 
 TOOLS_DIR = Path(__file__).resolve().parent
 HELPERS_ROOT = TOOLS_DIR.parent
-CARDS_ROOT = HELPERS_ROOT.parent
-DEFAULT_BACKUPS = CARDS_ROOT / "sts-backups"
+sys.path.insert(0, str(HELPERS_ROOT / "lib"))
+from sts_paths import backups_dir  # noqa: E402
+
+DEFAULT_BACKUPS = backups_dir()
 
 JOB_NAMES = ("CK1", "D749", "NVL", "YM1", "STG-DEMMLER", "STG-SCULLY", "STG")
 JOB_CANON = {n.lower(): n for n in JOB_NAMES}
@@ -282,7 +284,7 @@ def main() -> int:
     parser.add_argument(
         "--all",
         action="store_true",
-        help="Sanitize hart_seed / hart_seed0 / hart_session* under sts-backups",
+        help="Sanitize hart_seed / hart_seed0 / hart_session* under sts-docker-data/backups",
     )
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument(

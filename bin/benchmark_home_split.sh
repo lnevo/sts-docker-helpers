@@ -2,11 +2,14 @@
 # Benchmark car home-split scenarios: regenerate seed per mode, run 10x10 sims.
 set -euo pipefail
 
-ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
-SEED_DIR="${ROOT}/sts-docker-helpers/seed"
-BACKUP="${ROOT}/sts-backups/hart_seed0"
-WORKFLOW="${ROOT}/sts-backups/session_editor/start_session.workflow.json"
-COMPOSE="${ROOT}/sts-docker/docker-compose.yml"
+_script_home="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=../lib/paths.sh
+source "${_script_home}/../lib/paths.sh"
+sts_helpers_resolve_paths "${_script_home}/$(basename "${BASH_SOURCE[0]}")"
+SEED_DIR="${HELPERS_ROOT}/seed"
+BACKUP="${BACKUPS_DIR}/hart_seed0"
+WORKFLOW="${BACKUPS_DIR}/session_editor/start_session.workflow.json"
+COMPOSE="${STS_DOCKER}/docker-compose.yml"
 
 MODES=(south_only demand ix_focus moderate)
 ROUNDS="${1:-10}"
@@ -30,7 +33,7 @@ for mode in "${MODES[@]}"; do
     --home-split "${mode}" \
     --output "${BACKUP}"
 
-  docker cp "${ROOT}/sts-docker-helpers/diagnostics/home_split_benchmark.php" \
+  docker cp "${HELPERS_ROOT}/diagnostics/home_split_benchmark.php" \
     "${WEB_CID}:/var/www/html/sts/home_split_benchmark.php"
 
   docker exec "${WEB_CID}" php /var/www/html/sts/home_split_benchmark.php \

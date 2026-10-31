@@ -262,7 +262,7 @@ docker cp "${LOG_DIR}/${FINAL}.workflow.json" \
 docker exec "${WEB_CID}" sh -c 'echo hart_session.workflow.json > /var/www/html/sts/backups/session_editor/ACTIVE'
 
 # Also sync host mirrors from winner case (keep name hart_session)
-python3 - "${LOG_DIR}/${FINAL}.workflow.json" <<'PY'
+python3 - "${LOG_DIR}/${FINAL}.workflow.json" "${BACKUPS_DIR}/session_editor" "${HELPERS_ROOT}/backups/session_editor" <<'PY'
 import json
 from copy import deepcopy
 from pathlib import Path
@@ -271,8 +271,8 @@ src = Path(sys.argv[1])
 data = json.loads(src.read_text())
 data["name"] = "hart_session"
 data["source_workflow"] = "hart_session.workflow.json"
-editor = Path("/Users/lnevo/Desktop/HART/Car Cards/sts-backups/session_editor")
-helpers = Path("/Users/lnevo/Desktop/HART/Car Cards/sts-docker-helpers/backups/session_editor")
+editor = Path(sys.argv[2])
+helpers = Path(sys.argv[3])
 for path in (
     editor / "hart_session.workflow.json",
     editor / "start_session.workflow.json",

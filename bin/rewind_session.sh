@@ -4,14 +4,14 @@
 #
 # STS keeps no automatic per-session DB snapshot, so a reliable rewind requires a
 # snapshot captured at the end of the target-1 session (see snapshot_session_db.sh):
-#   sts-backups/db_session_<PREV>
+#   sts-docker-data/backups/db_session_<PREV>
 #
 # What this does (default = remove the current session_nbr):
-#   1. Safety-dump the current DB to sts-backups/rewind_undo_<timestamp>
-#   2. Restore sts-backups/db_session_<PREV> (full # -delimited replay; photos
+#   1. Safety-dump the current DB to sts-docker-data/backups/rewind_undo_<timestamp>
+#   2. Restore sts-docker-data/backups/db_session_<PREV> (full # -delimited replay; photos
 #      and calibration are left untouched)
 #   3. Archive + remove the session_state output tree(s) for the removed
-#      session(s) into sts-backups/rewind_archive/
+#      session(s) into sts-docker-data/backups/rewind_archive/
 #   4. Verify settings.session_nbr == PREV
 #
 # Usage:

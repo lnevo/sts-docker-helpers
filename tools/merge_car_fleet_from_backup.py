@@ -18,7 +18,9 @@ from pathlib import Path
 
 TOOLS_DIR = Path(__file__).resolve().parent
 HELPERS_ROOT = TOOLS_DIR.parent
-CARDS_ROOT = HELPERS_ROOT.parent
+sys.path.insert(0, str(HELPERS_ROOT / "lib"))
+from sts_paths import backups_dir  # noqa: E402
+
 
 FLEET_TABLES = ("car_codes", "cars", "pool", "owners", "ownership")
 
@@ -41,27 +43,24 @@ CAR_INSERT_RE = re.compile(
 
 def default_fleet_backup() -> Path:
     for candidate in (
-        CARDS_ROOT / "sts-backups" / "session10",
-        Path.home() / "sts" / "sts-backups" / "session10",
+        backups_dir() / "session10",
         HELPERS_ROOT / "backups" / "session10",
     ):
         if candidate.is_file():
             return candidate
-    return CARDS_ROOT / "sts-backups" / "session10"
+    return backups_dir() / "session10"
 
 
 def default_seed_sql() -> Path:
     for candidate in (
-        CARDS_ROOT / "sts-backups" / "hart_seed0",
-        Path.home() / "sts" / "sts-backups" / "hart_seed0",
+        backups_dir() / "hart_seed0",
         HELPERS_ROOT / "backups" / "hart_seed0",
-        CARDS_ROOT / "sts-backups" / "hart_seed",
-        Path.home() / "sts" / "sts-backups" / "hart_seed",
+        backups_dir() / "hart_seed",
         HELPERS_ROOT / "backups" / "hart_seed",
     ):
         if candidate.is_file():
             return candidate
-    return CARDS_ROOT / "sts-backups" / "hart_seed0"
+    return backups_dir() / "hart_seed0"
 
 
 def split_backup(text: str) -> list[str]:
@@ -250,7 +249,7 @@ def main() -> None:
         "--fleet-backup",
         type=Path,
         default=default_fleet_backup(),
-        help="STS backup with a known-good car fleet (default: sts-backups/session10)",
+        help="STS backup with a known-good car fleet (default: sts-docker-data/backups/session10)",
     )
     parser.add_argument(
         "--output",

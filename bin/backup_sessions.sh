@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
 # Snapshot (and restore) the STS session state to a timestamped archive.
 #
-# Live session state now lives on the host-mounted sts-backups volume at
+# Live session state now lives on the host-mounted sts-docker-data/backups volume at
 # sts/backups/session_state/sessions (see session_web_root() in
 # session_helpers.php), so it already persists across container recreation. This
 # helper keeps timestamped .tar.gz snapshots alongside it (in session_state/) so
 # you can roll back to an earlier state.
 #
 # The archive is written into the mounted backups dir
-# (~/sts/sts-backups -> /var/www/html/sts/backups) under session_state/, so it
-# persists on the host and shows up in sts-backups/session_state/.
+# (external/sts-docker-data/backups -> /var/www/html/sts/backups) under session_state/, so it
+# persists on the host and shows up in sts-docker-data/backups/session_state/.
 set -euo pipefail
 
 _script_home="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

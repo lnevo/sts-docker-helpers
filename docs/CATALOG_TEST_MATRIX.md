@@ -14,7 +14,7 @@ bin/run_catalog_tests.sh
 
 Outputs:
 
-- `sts-backups/session_editor/WORKFLOW_TEST_ALL_TYPES.recipe.json`
+- `sts-docker-data/backups/session_editor/WORKFLOW_TEST_ALL_TYPES.recipe.json`
 - `sts-docker-helpers/docs/WORKFLOW_TEST_ALL_TYPES.recipe.json` (mirror)
 
 ## Build Switch Lists ↔ STS GUI

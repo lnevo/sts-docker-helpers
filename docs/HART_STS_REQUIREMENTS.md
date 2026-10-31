@@ -113,10 +113,10 @@ Through POHC↔CSX moves use the same Offline party pattern as island locals, bu
 | Change type | Files |
 |-------------|-------|
 | Jobs / steps / criteria | [`hart_seed_config.json`](hart_seed_config.json), [`generate_hart_seed.py`](generate_hart_seed.py) |
-| Regenerate seed | `python3 generate_hart_seed.py` → [`sts-backups/hart_seed`](sts-backups/hart_seed) |
+| Regenerate seed | `python3 generate_hart_seed.py` → `sts-docker-data/backups/hart_seed` |
 | Shipment intervals | [`tune_shipment_orders.sql`](tune_shipment_orders.sql), [`balance_shipment_yards.py`](balance_shipment_yards.py) |
 | Live DB patch | One-off `*_migration.sql` (see [`coke_shipment_migration.sql`](coke_shipment_migration.sql), [`ym1_job_steps_migration.sql`](ym1_job_steps_migration.sql), [`ck1_job_steps_migration.sql`](ck1_job_steps_migration.sql)) |
-| Track scale | [`sts-backups/track_scale/track_scale_config.json`](sts-backups/track_scale/track_scale_config.json), `sts-docker/sts/track_scale*.php` |
+| Track scale | `sts-docker-data/backups/track_scale/track_scale_config.json`, `sts-docker/sts/track_scale*.php` |
 
 ---
 

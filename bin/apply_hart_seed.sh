@@ -21,7 +21,7 @@ Usage: apply_hart_seed.sh [options]
 
 Generate (optional) and restore hart_seed0 into the running STS Docker stack.
 Uses the same # -delimited SQL restore logic as STS Database Maintenance -> Restore.
-Optionally syncs car photos from Car Cards into sts-backups/hart_seed0_photos/.
+Optionally syncs car photos from CarImagesFinal into sts-docker-data/backups/hart_seed0_photos/.
 Photos are always restored from that folder when it exists (same as STS Restore).
 
 The default name hart_seed0 carries session token 0 so Session Overview
@@ -30,15 +30,15 @@ The default name hart_seed0 carries session token 0 so Session Overview
 Options:
   --generate         Run generate_hart_seed.py before restoring
   --merge-fleet      After --generate, copy car fleet from --fleet-backup (default: session10)
-  --fleet-backup PATH  STS backup with car roster (default: sts-backups/session10)
+  --fleet-backup PATH  STS backup with car roster (default: sts-docker-data/backups/session10)
   --sync-images      Run sync_hart_car_images.py before restoring (refresh _photos folder)
-  --sql-file PATH    SQL file to restore (default: sts-backups/hart_seed0)
+  --sql-file PATH    SQL file to restore (default: sts-docker-data/backups/hart_seed0)
   -h, --help         Show this help
 
 Requires the build-profile web + db containers to be running:
   cd sts-docker && docker compose --profile build up -d
 
-The sts-backups directory is bind-mounted into the container at
+The sts-docker-data/backups directory is bind-mounted into the container at
 /var/www/html/sts/backups, so the file is visible without docker cp.
 EOF
 }

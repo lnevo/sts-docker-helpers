@@ -1,7 +1,7 @@
 <?php
 /**
  * Save STS operational steps CSV from the browser editor.
- * Writes to switchlists/ and sts/backups/ (host-mounted sts-backups).
+ * Writes to switchlists/ and sts/backups/ (host-mounted sts-docker-data/backups).
  */
 
 header('Content-Type: application/json; charset=utf-8');

@@ -21,19 +21,12 @@ sts_helpers_resolve_paths() {
   if [[ -n "${STS_DOCKER:-}" && -d "${STS_DOCKER}" ]]; then
     STS_DOCKER="$(cd "${STS_DOCKER}" && pwd)"
   else
-    local candidate
-    for candidate in \
-      "${HELPERS_ROOT}/sts-docker" \
-      "${HELPERS_ROOT}/../sts-docker" \
-      "${HELPERS_ROOT}/../external/sts-docker"; do
-      if [[ -d "${candidate}" ]]; then
-        STS_DOCKER="$(cd "${candidate}" && pwd)"
-        break
-      fi
-    done
+    if [[ -d "${HELPERS_ROOT}/../sts-docker" ]]; then
+      STS_DOCKER="$(cd "${HELPERS_ROOT}/../sts-docker" && pwd)"
+    fi
   fi
   if [[ -z "${STS_DOCKER:-}" || ! -d "${STS_DOCKER}" ]]; then
-    echo "sts-docker not found. Symlink or clone github.com/lnevo/sts-docker to ./sts-docker or set STS_DOCKER." >&2
+    echo "sts-docker not found. Expected it at ../sts-docker, or set STS_DOCKER." >&2
     return 1
   fi
 
@@ -45,26 +38,13 @@ sts_helpers_resolve_paths() {
   TOOLS_DIR="${HELPERS_ROOT}/tools"
   MIGRATIONS_DIR="${HELPERS_ROOT}/migrations"
 
-  if [[ -n "${STS_BACKUPS_DIR:-}" && -d "${STS_BACKUPS_DIR}" ]]; then
-    BACKUPS_DIR="$(cd "${STS_BACKUPS_DIR}" && pwd)"
-  else
-    # Prefer sts-docker-data mirror (consolidation) over live ~/sts symlinks.
-    for candidate in \
-      "${HELPERS_ROOT}/../sts-docker-data/backups" \
-      "${HELPERS_ROOT}/../external/sts-docker-data/backups" \
-      "${HELPERS_ROOT}/../sts-backups" \
-      "${HELPERS_ROOT}/sts-backups" \
-      "${HELPERS_ROOT}/backups"; do
-      if [[ -d "${candidate}" ]]; then
-        BACKUPS_DIR="$(cd "${candidate}" && pwd)"
-        break
-      fi
-    done
+  # Backups live beside the runtime in sts-docker-data/backups. Never create them here.
+  local backups="${STS_BACKUPS_DIR:-${STS_DOCKER}/../sts-docker-data/backups}"
+  if [[ ! -d "${backups}" ]]; then
+    echo "STS backups not found at ${backups}. Set STS_BACKUPS_DIR." >&2
+    return 1
   fi
-  if [[ -z "${BACKUPS_DIR:-}" ]]; then
-    BACKUPS_DIR="${HELPERS_ROOT}/backups"
-    mkdir -p "${BACKUPS_DIR}"
-  fi
+  BACKUPS_DIR="$(cd "${backups}" && pwd)"
 
   STS_WEB="${STS_DOCKER}/sts"
   LEGACY_STS="${HELPERS_ROOT}/sts"
