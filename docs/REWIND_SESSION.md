@@ -11,7 +11,7 @@ the previous session**. Two host-side helpers support this:
 
 | Script | Purpose |
 |--------|---------|
-| `bin/snapshot_session_db.sh` | Write a full `#`-delimited SQL dump of the current DB to `sts-backups/db_session_<N>` |
+| `bin/snapshot_session_db.sh` | Write a full `#`-delimited SQL dump of the current DB to `sts-docker-data/backups/db_session_<N>` |
 | `bin/rewind_session.sh` | Delete a session and restore the DB to the end of the previous session |
 
 Both operate on the running Docker stack (`sts-docker-web-1` / `sts-docker-db-1`)
@@ -23,7 +23,7 @@ At the **end of each operating session**, before generating/working the next one
 snapshot the DB:
 
 ```bash
-bin/snapshot_session_db.sh          # writes sts-backups/db_session_<current N>
+bin/snapshot_session_db.sh          # writes sts-docker-data/backups/db_session_<current N>
 ```
 
 This is the enabling prerequisite — with a `db_session_<N>` on hand, rewinding the
@@ -40,11 +40,11 @@ bin/rewind_session.sh --snapshot NAME   # restore an explicitly named dump
 
 Each rewind:
 
-1. Safety-dumps the current DB to `sts-backups/rewind_undo_<timestamp>`.
+1. Safety-dumps the current DB to `sts-docker-data/backups/rewind_undo_<timestamp>`.
 2. Restores `db_session_<PREV>` (full SQL replay; car photos and track-scale
    calibration are left untouched).
 3. Archives + removes the `session_state/session_<N>` output tree(s) into
-   `sts-backups/rewind_archive/`.
+   `sts-docker-data/backups/rewind_archive/`.
 4. Verifies `settings.session_nbr == PREV`.
 
 To undo a rewind, restore the printed `rewind_undo_<timestamp>` dump.
@@ -66,7 +66,7 @@ workflow and were **reconstructed** from the switch-list archives with
 
 ```bash
 # for N in 9..1 (independent rebuild from the session-10 base):
-bin/apply_hart_seed.sh --sql-file sts-backups/hart_prod_10   # load base fleet
+bin/apply_hart_seed.sh --sql-file sts-docker-data/backups/hart_prod_10   # load base fleet
 docker exec sts-docker-web-1 php /tmp/reconstruct_session_db.php N
 bin/snapshot_session_db.sh --to N                            # -> db_session_N
 ```
@@ -124,7 +124,7 @@ end dump and finally live end-of-20).
 
 ## Notes
 
-- Snapshots/dumps live in `sts-backups/` (bind-mounted to
+- Snapshots/dumps live in `sts-docker-data/backups/` (bind-mounted to
   `/var/www/html/sts/backups` in the web container), so they are visible to the
   STS Database Maintenance → Restore UI as well.
 - The restore replays the same `#`-delimited format used by `apply_hart_seed.sh`

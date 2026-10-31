@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Generate STS restore SQL for the HART layout from Car Cards source files.
+"""Generate STS restore SQL for the HART layout from the HART source files.
 
 Reads roster, waybill, and spot data from this directory and writes a backup-format
 SQL file compatible with STS Database Maintenance -> Restore (same format as files
-in sts-backups/). Default output is hart_seed0 so the filename carries session
+in sts-docker-data/backups/). Default output is hart_seed0 so the filename carries session
 token 0 (Restart Session can discover it when restarting session 1).
 """
 
@@ -13,11 +13,15 @@ import argparse
 import csv
 import json
 import re
+import sys
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
 SEED_DIR = Path(__file__).resolve().parent
 REPO_ROOT = SEED_DIR.parent
+sys.path.insert(0, str(REPO_ROOT / "lib"))
+from sts_paths import backups_dir  # noqa: E402
+
 CARDS_ROOT = REPO_ROOT.parent
 INPUTS_DIR = SEED_DIR / "inputs"
 DEFAULT_CONFIG = SEED_DIR / "hart_seed_config.json"
@@ -36,13 +40,7 @@ def resolve_default_hart_dir() -> Path:
 def resolve_default_output() -> Path:
     # Name ends with session token 0 so Restart Session (session 1) can find
     # this dump by number without hardcoded prefixes (see session_restart_*).
-    for candidate in (
-        CARDS_ROOT / "sts-backups" / "hart_seed0",
-        REPO_ROOT / "backups" / "hart_seed0",
-    ):
-        candidate.parent.mkdir(parents=True, exist_ok=True)
-        return candidate
-    return CARDS_ROOT / "sts-backups" / "hart_seed0"
+    return backups_dir() / "hart_seed0"
 
 
 DEFAULT_HART_DIR = resolve_default_hart_dir()

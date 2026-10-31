@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Capture a full, restorable DB snapshot for the current (or a named) operating
 # session. Writes a `#`-delimited SQL dump (same format as STS Database
-# Maintenance -> Backup) to sts-backups/db_session_<N>.
+# Maintenance -> Backup) to sts-docker-data/backups/db_session_<N>.
 #
 # This is the enabling prerequisite for rewind_session.sh: to reliably roll a
 # session back you must have captured the DB state at the END of the previous

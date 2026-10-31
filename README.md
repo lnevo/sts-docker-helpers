@@ -2,7 +2,7 @@
 
 Self-contained HART STS toolkit: seed generation, database restore, warm-start simulation, switch list generation, and live session prep.
 
-Works with [sts-docker](https://github.com/lnevo/sts-docker) (clone or symlink as `./sts-docker` next to this tree or under the Car Cards project).
+Works with [sts-docker](https://github.com/lnevo/sts-docker) (at `external/sts-docker`, next to this repo).
 
 ## Layout
 
@@ -20,11 +20,11 @@ sts-docker-helpers/
   docs/                Design notes
 ```
 
-Docker bind-mounts `~/sts/sts-backups` (symlink as `../sts-backups` from Car Cards). Scripts write `hart_seed` and session backups there.
+Docker bind-mounts `external/sts-docker-data/backups`. Scripts write `hart_seed` and session backups there.
 
 ## Commands
 
-Run from **Car Cards project root** (thin wrappers) or directly from **`sts-docker-helpers/bin/`**:
+Run from **`external/sts-helpers/`** (the repo root, or its `bin/`):
 
 | Script | Purpose |
 |--------|---------|
@@ -71,11 +71,11 @@ Workflow from an STS user perspective:
 - **`docs/BEGIN_SESSION_STEPS.md`** — session-open prep and switch list capture point
 - **`docs/FULL_OPERATING_SESSION.md`** — one complete cycle (warm start → begin → lists → play)
 
-Editor recipes and CSVs live under **`sts-backups/session_editor/`** (Docker bind-mount).
+Editor recipes and CSVs live under **`external/sts-docker-data/backups/session_editor/`** (Docker bind-mount).
 
 ## Requirements
 
 - Python 3.10+, Docker, `pip install openpyxl` (matrix import)
-- `CarImagesFinal/` at Car Cards project root for car photos in generated seed
+- `ops/car-cards/car-images/CarImagesFinal/` in the hart repo for car photos in generated seed
 
 See `docs/HART_STS_REQUIREMENTS.md` for layout design notes.

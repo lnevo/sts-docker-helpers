@@ -117,7 +117,7 @@ def write_legend_sheet(workbook: Workbook) -> None:
         ("Notes", "Sequence numbers are intentionally omitted — map moves here first, then assign steps."),
         ("", "Blank cells = no criteria for that pair on this job."),
         ("", "After editing: python3 import_hart_job_matrix.py → updates config + migration SQL."),
-        ("", "Then: python3 generate_hart_seed.py to refresh sts-backups/hart_seed."),
+        ("", "Then: python3 generate_hart_seed.py to refresh sts-docker-data/backups/hart_seed."),
     ]
     for row_idx, (label, detail) in enumerate(lines, start=2):
         sheet.cell(row=row_idx, column=1, value=label)

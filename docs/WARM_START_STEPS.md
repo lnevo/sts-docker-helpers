@@ -129,7 +129,7 @@ Switch lists are **not** captured during warm start. Warm start only establishes
 ./bin/apply_warm_start.sh --tracked --sessions 3 --max-sessions 12
 
 # Restore warm-start end state later
-./bin/apply_hart_seed.sh --sql-file ~/sts/sts-backups/sim_warm_start
+./bin/apply_hart_seed.sh --sql-file external/sts-docker-data/backups/sim_warm_start
 ```
 
 See also: **`BEGIN_SESSION_STEPS.md`**, **`FULL_OPERATING_SESSION.md`**.

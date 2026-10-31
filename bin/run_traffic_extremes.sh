@@ -2,14 +2,17 @@
 # Sweep shipment demand (traffic_mult) and run sims to find bottleneck thresholds.
 set -euo pipefail
 
-ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
-SEED_DIR="${ROOT}/sts-docker-helpers/seed"
-BACKUP="${ROOT}/sts-backups/hart_seed0"
-WORKFLOW="${ROOT}/sts-backups/session_editor/start_session.workflow.json"
-COMPOSE="${ROOT}/sts-docker/docker-compose.yml"
+_script_home="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=../lib/paths.sh
+source "${_script_home}/../lib/paths.sh"
+sts_helpers_resolve_paths "${_script_home}/$(basename "${BASH_SOURCE[0]}")"
+SEED_DIR="${HELPERS_ROOT}/seed"
+BACKUP="${BACKUPS_DIR}/hart_seed0"
+WORKFLOW="${BACKUPS_DIR}/session_editor/start_session.workflow.json"
+COMPOSE="${STS_DOCKER}/docker-compose.yml"
 ROUNDS="${1:-5}"
 SESSIONS="${2:-8}"
-LOG_DIR="${ROOT}/sts-backups/session_editor"
+LOG_DIR="${BACKUPS_DIR}/session_editor"
 LOG="${LOG_DIR}/traffic_extremes_$(date +%Y%m%d_%H%M%S).log"
 
 # Demand multipliers: >1 = shorter intervals = more orders per session.
@@ -22,14 +25,14 @@ if [[ -z "${WEB_CID}" ]]; then
 fi
 
 deploy_runtime() {
-  docker cp "${ROOT}/sts-docker-helpers/diagnostics/track_scale_10x10.php" \
+  docker cp "${HELPERS_ROOT}/diagnostics/track_scale_10x10.php" \
     "${WEB_CID}:/var/www/html/sts/track_scale_10x10.php"
   # Deploy the whole track_scale plugin as a unit (baked into the image, not mounted).
-  docker cp "${ROOT}/sts-docker/sts/plugins/track_scale/." \
+  docker cp "${STS_DOCKER}/sts/plugins/track_scale/." \
     "${WEB_CID}:/var/www/html/sts/plugins/track_scale/"
-  docker cp "${ROOT}/sts-docker/sts/warm_start_helpers.php" \
+  docker cp "${STS_DOCKER}/sts/warm_start_helpers.php" \
     "${WEB_CID}:/var/www/html/sts/warm_start_helpers.php"
-  docker cp "${ROOT}/sts-docker/sts/operational_steps_catalog.php" \
+  docker cp "${STS_DOCKER}/sts/operational_steps_catalog.php" \
     "${WEB_CID}:/var/www/html/sts/operational_steps_catalog.php"
   docker cp "${WORKFLOW}" \
     "${WEB_CID}:/var/www/html/sts/backups/session_editor/start_session.workflow.json"
@@ -53,7 +56,7 @@ for mult in "${MULTS[@]}"; do
     --traffic-mult "${mult}" \
     --output "${BACKUP}" >> "${LOG}" 2>&1
 
-  "${ROOT}/sts-docker-helpers/bin/apply_hart_seed.sh" >> "${LOG}" 2>&1
+  "${HELPERS_ROOT}/bin/apply_hart_seed.sh" >> "${LOG}" 2>&1
 
   OUT="$(docker exec "${WEB_CID}" php /var/www/html/sts/track_scale_10x10.php \
     /var/www/html/sts/backups/session_editor/start_session.workflow.json \
@@ -92,6 +95,6 @@ done
 
 echo "==> Restoring baseline seed (traffic_mult=1.0, moderate home split)" | tee -a "${LOG}"
 python3 "${SEED_DIR}/generate_hart_seed.py" --traffic-mult 1.0 --output "${BACKUP}" >> "${LOG}" 2>&1
-"${ROOT}/sts-docker-helpers/bin/apply_hart_seed.sh" >> "${LOG}" 2>&1
+"${HELPERS_ROOT}/bin/apply_hart_seed.sh" >> "${LOG}" 2>&1
 
 echo "==> Done. Full log: ${LOG}" | tee -a "${LOG}"

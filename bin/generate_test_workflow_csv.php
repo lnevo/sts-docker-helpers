@@ -56,7 +56,7 @@ $json = operational_steps_encode_recipe_json($recipe);
 
 $outputs = [];
 if ($allOutputs) {
-    $backups = dirname($root) . '/sts-backups/session_editor';
+    $backups = (getenv('STS_BACKUPS_DIR') ?: dirname($root) . '/sts-docker-data/backups') . '/session_editor';
     if (is_dir($backups)) {
         $outputs[] = $backups . '/WORKFLOW_TEST_ALL_TYPES.recipe.json';
     }

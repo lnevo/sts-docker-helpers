@@ -7,12 +7,16 @@ import argparse
 import csv
 import json
 import re
+import sys
 import subprocess
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
 TOOLS_DIR = Path(__file__).resolve().parent
 REPO_ROOT = TOOLS_DIR.parent
+sys.path.insert(0, str(REPO_ROOT / "lib"))
+from sts_paths import backups_dir  # noqa: E402
+
 SEED_DIR = REPO_ROOT / "seed"
 INPUTS_DIR = SEED_DIR / "inputs"
 DEFAULT_METADATA = INPUTS_DIR / "image_metadata.csv"
@@ -22,18 +26,15 @@ DEFAULT_CONFIG = SEED_DIR / "hart_seed_config.json"
 
 
 def _default_seed_sql() -> Path:
-    home = Path.home()
     for candidate in (
+        backups_dir() / "hart_seed0",
         REPO_ROOT / "backups/hart_seed0",
-        REPO_ROOT / "sts-backups/hart_seed0",
-        home / "sts/sts-backups/hart_seed0",
+        backups_dir() / "hart_seed",
         REPO_ROOT / "backups/hart_seed",
-        REPO_ROOT / "sts-backups/hart_seed",
-        home / "sts/sts-backups/hart_seed",
     ):
         if candidate.is_file():
             return candidate
-    return REPO_ROOT / "backups/hart_seed0"
+    return backups_dir() / "hart_seed0"
 
 
 DEFAULT_SEED_SQL = _default_seed_sql()

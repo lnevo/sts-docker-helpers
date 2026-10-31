@@ -2,15 +2,18 @@
 # Sweep order-generation gate (max_unfilled) and empty-reposition percent.
 set -euo pipefail
 
-ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
-SEED_DIR="${ROOT}/sts-docker-helpers/seed"
-BACKUP="${ROOT}/sts-backups/hart_seed0"
-WORKFLOW_SRC="${ROOT}/sts-backups/session_editor/start_session.workflow.json"
-WORKFLOW_TMP="${ROOT}/sts-backups/session_editor/_gate_sweep.workflow.json"
-COMPOSE="${ROOT}/sts-docker/docker-compose.yml"
+_script_home="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=../lib/paths.sh
+source "${_script_home}/../lib/paths.sh"
+sts_helpers_resolve_paths "${_script_home}/$(basename "${BASH_SOURCE[0]}")"
+SEED_DIR="${HELPERS_ROOT}/seed"
+BACKUP="${BACKUPS_DIR}/hart_seed0"
+WORKFLOW_SRC="${BACKUPS_DIR}/session_editor/start_session.workflow.json"
+WORKFLOW_TMP="${BACKUPS_DIR}/session_editor/_gate_sweep.workflow.json"
+COMPOSE="${STS_DOCKER}/docker-compose.yml"
 ROUNDS="${1:-3}"
 SESSIONS="${2:-20}"
-LOG_DIR="${ROOT}/sts-backups/session_editor"
+LOG_DIR="${BACKUPS_DIR}/session_editor"
 LOG="${LOG_DIR}/gate_reposition_sweep_$(date +%Y%m%d_%H%M%S).log"
 
 GATES=(20 30 35)
@@ -23,14 +26,14 @@ if [[ -z "${WEB_CID}" ]]; then
 fi
 
 deploy_runtime() {
-  docker cp "${ROOT}/sts-docker-helpers/diagnostics/track_scale_10x10.php" \
+  docker cp "${HELPERS_ROOT}/diagnostics/track_scale_10x10.php" \
     "${WEB_CID}:/var/www/html/sts/track_scale_10x10.php"
   for f in session_helpers.php master_switchlist_helpers.php operational_steps_catalog.php \
     warm_start_helpers.php; do
-    docker cp "${ROOT}/sts-docker/sts/${f}" "${WEB_CID}:/var/www/html/sts/${f}"
+    docker cp "${STS_DOCKER}/sts/${f}" "${WEB_CID}:/var/www/html/sts/${f}"
   done
   # Track scale lives in a plugin; deploy the whole plugin dir as a unit.
-  docker cp "${ROOT}/sts-docker/sts/plugins/track_scale/." \
+  docker cp "${STS_DOCKER}/sts/plugins/track_scale/." \
     "${WEB_CID}:/var/www/html/sts/plugins/track_scale/"
 }
 
@@ -63,7 +66,7 @@ echo | tee -a "${LOG}"
 
 echo "==> Generate + restore hart_seed (traffic_mult from config, yard balance on)" | tee -a "${LOG}"
 python3 "${SEED_DIR}/generate_hart_seed.py" --output "${BACKUP}" >> "${LOG}" 2>&1
-"${ROOT}/sts-docker-helpers/bin/apply_hart_seed.sh" --merge-fleet >> "${LOG}" 2>&1
+"${HELPERS_ROOT}/bin/apply_hart_seed.sh" --merge-fleet >> "${LOG}" 2>&1
 deploy_runtime
 
 printf "%-6s %-5s | %-5s %-5s %-5s %-5s | %-5s %-5s | %-6s %-6s %-6s | %-4s %-4s | %s\n" \
@@ -168,7 +171,7 @@ partial["reposition"] = ws["reposition_fraction"]
 cfg_path.write_text(json.dumps(cfg, indent=2) + "\n", encoding="utf-8")
 
 # Keep hart_session in lockstep with start_session (same steps; distinct source_workflow).
-hart = Path("${ROOT}/sts-backups/session_editor/hart_session.workflow.json")
+hart = Path("${BACKUPS_DIR}/session_editor/hart_session.workflow.json")
 hart_recipe = json.loads(wf.read_text(encoding="utf-8"))
 hart_recipe["name"] = "hart_session"
 hart_recipe["source_workflow"] = "hart_session.workflow.json"
@@ -176,7 +179,7 @@ hart.write_text(json.dumps(hart_recipe, indent=4) + "\n", encoding="utf-8")
 PY
   docker cp "${WORKFLOW_SRC}" \
     "${WEB_CID}:/var/www/html/sts/backups/session_editor/start_session.workflow.json"
-  docker cp "${ROOT}/sts-backups/session_editor/hart_session.workflow.json" \
+  docker cp "${BACKUPS_DIR}/session_editor/hart_session.workflow.json" \
     "${WEB_CID}:/var/www/html/sts/backups/session_editor/hart_session.workflow.json"
   echo "==> Updated start_session + hart_session workflows and hart_seed_config.json warm_start defaults" | tee -a "${LOG}"
 fi

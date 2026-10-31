@@ -5,10 +5,13 @@ from __future__ import annotations
 
 import copy
 import json
+import sys
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[2]
-EDITOR = ROOT / "sts-backups" / "session_editor"
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "lib"))
+from sts_paths import backups_dir  # noqa: E402
+
+EDITOR = backups_dir() / "session_editor"
 BASE = EDITOR / "hart_session.workflow.json"
 
 # name -> (max_new, gate, repo_pct|'dynamic', fill_pct, mr_gate, mp_gate)

@@ -170,7 +170,7 @@ All operational shell scripts live under `sts-docker-helpers/bin/`. Top-level wr
 - Python 3.10+
 - For matrix Excel import: `pip install openpyxl`
 - [sts-docker](https://github.com/lnevo/sts-docker) running with `--profile build`
-- For restore/photos: `sts-backups` bind-mounted in the container
+- For restore/photos: `sts-docker-data/backups` bind-mounted in the container
 
 ## Generate seed SQL
 
@@ -198,10 +198,10 @@ See `sts-docker-helpers/README.md` for full command reference.
 
 ## Rebuild this package
 
-From the parent Car Cards project:
+From `external/` in the hart repo:
 
 ```bash
-./build_hart_seed_package.sh
+sts-helpers/build_hart_seed_package.sh
 ```
 EOF
 
