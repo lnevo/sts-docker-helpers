@@ -24,7 +24,8 @@ sts_helpers_resolve_paths() {
     local candidate
     for candidate in \
       "${HELPERS_ROOT}/sts-docker" \
-      "${HELPERS_ROOT}/../sts-docker"; do
+      "${HELPERS_ROOT}/../sts-docker" \
+      "${HELPERS_ROOT}/../external/sts-docker"; do
       if [[ -d "${candidate}" ]]; then
         STS_DOCKER="$(cd "${candidate}" && pwd)"
         break
@@ -36,24 +37,30 @@ sts_helpers_resolve_paths() {
     return 1
   fi
 
-  COMPOSE=(docker compose -f "${STS_DOCKER}/docker-compose.yml" --profile build)
+  local compose_files=(-f "${STS_DOCKER}/docker-compose.yml")
+  COMPOSE=(docker compose "${compose_files[@]}" --profile build)
 
   APPLY_HART_SEED="${BIN_DIR}/apply_hart_seed.sh"
   SEED_DIR="${HELPERS_ROOT}/seed"
   TOOLS_DIR="${HELPERS_ROOT}/tools"
   MIGRATIONS_DIR="${HELPERS_ROOT}/migrations"
 
-  # Prefer sts-backups (symlink to ~/sts/sts-backups) — same path Docker mounts.
-  for candidate in \
-    "${HELPERS_ROOT}/../sts-docker-data/backups" \
-    "${HELPERS_ROOT}/../sts-backups" \
-    "${HELPERS_ROOT}/sts-backups" \
-    "${HELPERS_ROOT}/backups"; do
-    if [[ -d "${candidate}" ]]; then
-      BACKUPS_DIR="$(cd "${candidate}" && pwd)"
-      break
-    fi
-  done
+  if [[ -n "${STS_BACKUPS_DIR:-}" && -d "${STS_BACKUPS_DIR}" ]]; then
+    BACKUPS_DIR="$(cd "${STS_BACKUPS_DIR}" && pwd)"
+  else
+    # Prefer sts-docker-data mirror (consolidation) over live ~/sts symlinks.
+    for candidate in \
+      "${HELPERS_ROOT}/../sts-docker-data/backups" \
+      "${HELPERS_ROOT}/../external/sts-docker-data/backups" \
+      "${HELPERS_ROOT}/../sts-backups" \
+      "${HELPERS_ROOT}/sts-backups" \
+      "${HELPERS_ROOT}/backups"; do
+      if [[ -d "${candidate}" ]]; then
+        BACKUPS_DIR="$(cd "${candidate}" && pwd)"
+        break
+      fi
+    done
+  fi
   if [[ -z "${BACKUPS_DIR:-}" ]]; then
     BACKUPS_DIR="${HELPERS_ROOT}/backups"
     mkdir -p "${BACKUPS_DIR}"
