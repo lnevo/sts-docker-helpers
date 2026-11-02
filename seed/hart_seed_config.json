@@ -274,16 +274,6 @@
       "load_unload": 0.8
     }
   },
-  "unavailable_reporting_marks": [
-    "BO132315",
-    "MSTL52673",
-    "URTX63627",
-    "RDG107333",
-    "MOW0017",
-    "COST1",
-    "COW86",
-    "CO377700"
-  ],
   "open_hopper_hk_marks": [
     "BO132392",
     "BO133007",
