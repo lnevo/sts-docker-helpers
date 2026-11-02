@@ -939,6 +939,16 @@ def infer_car_class(row: dict[str, str]) -> str:
     return ""
 
 
+def load_out_of_service(metadata_path: Path) -> list[str]:
+    """Roster ids held out of service in the car repository (image_metadata.csv)."""
+    with metadata_path.open(newline="", encoding="utf-8") as handle:
+        return [
+            row["roster_id"]
+            for row in csv.DictReader(handle)
+            if row.get("out_of_service") == "yes" and row.get("roster_id")
+        ]
+
+
 def load_roster_metadata(
     metadata_csv: Path,
     roster_xml: Path,
@@ -1148,9 +1158,7 @@ class SeedBuilder:
 
         self.layout_parties = set(config.get("layout_party_names", []))
         self.coke_fleet_marks = frozenset(config.get("coke_fleet_marks", []))
-        self.unavailable_marks = frozenset(
-            config.get("unavailable_reporting_marks", [])
-        )
+        self.unavailable_marks: frozenset[str] = frozenset()
 
     def location_color(self, *, code: str = "", industry: str = "") -> str:
         """Industry highlight colors apply only to Neville Island industry spots."""
@@ -2935,6 +2943,7 @@ def main() -> None:
         config.setdefault("car_home_split", {})["mode"] = args.home_split
     industry_colors = load_industry_location_colors(hart_dir)
     builder = SeedBuilder(config, industry_colors=industry_colors)
+    builder.unavailable_marks = frozenset(load_out_of_service(hart_dir / "image_metadata.csv"))
     builder.load_shipping_proposals(
         DEFAULT_SCULLY_MAP, DEFAULT_SHIPMENT_RENAMES, DEFAULT_IX_MAP
     )
