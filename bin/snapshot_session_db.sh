@@ -42,6 +42,7 @@ fi
 CURRENT_SESSION="$(docker exec "${WEB_CID}" php -r '
   chdir("/var/www/html/sts");
   require "credentials.php";
+  mysqli_report(MYSQLI_REPORT_OFF);
   $d = mysqli_connect($server_name, $user_name, $password, $db_name);
   if (!$d) { fwrite(STDERR, mysqli_connect_error()); exit(1); }
   $r = mysqli_query($d, "select setting_value from settings where setting_name = \"session_nbr\"");
