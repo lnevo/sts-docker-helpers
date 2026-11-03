@@ -44,7 +44,7 @@ if (isset($options['ck1-test'])) {
     $overrides['run_ck1_test'] = true;
 }
 if (isset($options['tracked'])) {
-    $overrides = array_merge($overrides, warm_start_tracked_sim_overrides());
+    $overrides = array_merge($overrides, hart_tracked_sim_overrides());
 }
 $config = warm_start_merge_config($overrides);
 
