@@ -170,5 +170,8 @@ def task_wait(task_id: str, timeout: int = 3600, out=None) -> dict:
 
 
 def run_task(path: str, body: Any = None, timeout: int = 3600) -> dict:
+    tmo = os.environ.get("STS_TASK_TIMEOUT", "").strip()
+    if tmo and path != "/admin/restore":
+        body = {**(body or {}), "timeout_seconds": int(tmo)}
     task = post(path, body)
     return task_wait(task["task_id"], timeout)

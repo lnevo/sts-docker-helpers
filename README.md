@@ -107,9 +107,13 @@ The core pipeline drives STS through its REST API v1
   set. Never point the simulation helpers at the live stack.
 - **Task output:** long jobs (restore, warm start, begin/play, workflow run) are
   API tasks; their log streams to the console. `STS_TASK_KEEP_TS=1` keeps the
-  log timestamps.
+  log timestamps. `STS_TASK_TIMEOUT=<seconds>` sends `timeout_seconds` with every
+  task except restores (default: no cap).
+- **Switch-list output / aliases:** `run_session_simulations.sh` clears generated
+  output with `DELETE /sessions/output`; `validate_hart_seed_references.sh`
+  resolves legacy aliases with `GET /locations/{code}`.
 
-Use the API: `apply_hart_seed.sh`, `apply_warm_start.sh` (except `--ck1-test`),
+Use the API: `apply_hart_seed.sh`, `apply_warm_start.sh` (including `--ck1-test`, sent as `config` overrides),
 `begin_session.sh`, `play_operating_session.sh`, `run_catalog_workflow.sh`,
 `run_session_simulations.sh`, `snapshot_session_db.sh`,
 `validate_hart_seed_references.sh`, `apply_hart_job_descriptions.sh`,
@@ -123,12 +127,8 @@ Still docker by design, and why:
   `rewind_session.sh`, `backup_sessions.sh`, `sync_operational_steps.sh`,
   `fix_temp_permissions.sh`: dev tools that run PHP inside the container or
   touch its files directly.
-- `apply_warm_start.sh --ck1-test`: no API equivalent.
 - `run_catalog_tests.sh`: `validate_catalog_api.php` and the OpenAPI/recipe
   generators read the PHP source.
-- `run_session_simulations.sh` cleans the container's `switchlists/` dir, and
-  `validate_hart_seed_references.sh` checks legacy location aliases, with docker
-  (no API route).
 - `tools/add_hart_cars.py` needs the new car to get the seed's id; the API
   assigns ids, so it fails loudly when they differ.
 

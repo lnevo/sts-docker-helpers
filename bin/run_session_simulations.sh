@@ -63,15 +63,7 @@ mkdir -p "${OUTPUT_ROOT}"
 clean_switchlists() {
   echo "==> Cleaning switchlists (local + container)"
   find "${OUTPUT_ROOT}" -mindepth 1 -maxdepth 1 -exec rm -rf {} +
-  # No API route clears the container's switchlists dir, so this one step stays on docker.
-  local web_cid
-  web_cid="$("${COMPOSE[@]}" ps -q web 2>/dev/null || true)"
-  if [[ -n "${web_cid}" ]]; then
-    docker exec "${web_cid}" sh -c 'rm -rf /var/www/html/switchlists/* 2>/dev/null || true'
-    docker exec "${web_cid}" mkdir -p /var/www/html/switchlists
-  else
-    echo "WARNING: web container not found; container switchlists dir not cleaned" >&2
-  fi
+  sts_api DELETE /sessions/output >/dev/null
 }
 
 if [[ "${APPLY_JOB_DESCRIPTIONS}" -eq 1 ]]; then
