@@ -30,7 +30,7 @@ $session_before = warm_start_get_session($dbc);
 warm_start_log('Playing operating session ' . $session_before);
 
 $result = warm_start_play_operating_session($dbc);
-$config = warm_start_merge_config(warm_start_tracked_sim_overrides());
+$config = warm_start_merge_config(hart_tracked_sim_overrides());
 $summary = warm_start_summarize($dbc);
 $scully_backlog = warm_start_staging_backlog_for_job($dbc, 'STG-SCULLY', $config);
 

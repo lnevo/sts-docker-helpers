@@ -60,6 +60,7 @@ db_session_nbr() {
   docker exec "${WEB_CID}" php -r '
     chdir("/var/www/html/sts");
     require "credentials.php";
+    mysqli_report(MYSQLI_REPORT_OFF);
     $d = mysqli_connect($server_name, $user_name, $password, $db_name);
     if (!$d) { fwrite(STDERR, mysqli_connect_error()); exit(1); }
     $r = mysqli_query($d, "select setting_value from settings where setting_name = \"session_nbr\"");
@@ -154,6 +155,7 @@ if [[ "${HAVE_SNAPSHOT}" -eq 1 ]]; then
   docker exec -e RESTORE_NAME="${SNAPSHOT_NAME}" "${WEB_CID}" php -r '
     chdir("/var/www/html/sts");
     require "credentials.php";
+    mysqli_report(MYSQLI_REPORT_OFF);
     $dbc = mysqli_connect($server_name, $user_name, $password, $db_name);
     if (!$dbc) { fwrite(STDERR, mysqli_connect_error() . "\n"); exit(1); }
     $file = "./backups/" . getenv("RESTORE_NAME");
@@ -180,6 +182,7 @@ else
   docker exec -e RW_TARGET="${TARGET}" -e RW_PREV="${PREV}" "${WEB_CID}" php -r '
     chdir("/var/www/html/sts");
     require "credentials.php";
+    mysqli_report(MYSQLI_REPORT_OFF);
     $dbc = mysqli_connect($server_name, $user_name, $password, $db_name);
     if (!$dbc) { fwrite(STDERR, mysqli_connect_error() . "\n"); exit(1); }
     $t = (int) getenv("RW_TARGET");

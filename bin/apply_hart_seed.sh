@@ -186,6 +186,8 @@ docker exec \
     exit(1);
   }
 
+  mysqli_report(MYSQLI_REPORT_OFF);
+
   $dbc = mysqli_connect(
     getenv("MYSQL_HOST"),
     getenv("MYSQL_USER"),
