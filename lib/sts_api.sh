@@ -9,7 +9,7 @@
 #   sts_session_nbr              current session number from GET /session
 #   sts_api_guard                print the target once and refuse a wrong stack
 #
-# Environment: STS_API_URL, STS_API_TOKEN, STS_API_TOKEN_FILE, STS_EXPECT_STACK.
+# Environment: STS_API_URL, STS_API_TOKEN, STS_API_TOKEN_FILE, STS_EXPECT_STACK, STS_TASK_TIMEOUT.
 # Base URL default: COMPOSE_PROJECT_NAME=sts-sandbox -> :8981, otherwise :8980.
 
 sts_api_base() {
@@ -180,8 +180,18 @@ open(sys.argv[2], "w").write(str(len(log)))
 }
 
 # sts_task_run METHOD PATH [JSON]: start a task route and wait for it; prints the task result JSON via STS_TASK_RESULT.
+# STS_TASK_TIMEOUT (seconds, default unset = no cap) is sent as timeout_seconds for every task
+# route except restores (killing a restore half way would leave a broken database).
 sts_task_run() {
   local out id
+  if [[ -n "${STS_TASK_TIMEOUT:-}" && "${2:-}" != "/admin/restore" ]]; then
+    set -- "$1" "$2" "$(printf '%s' "${3:-}" | python3 -c '
+import json, sys
+raw = sys.stdin.read().strip()
+b = json.loads(raw) if raw else {}
+b["timeout_seconds"] = int(sys.argv[1])
+print(json.dumps(b))' "${STS_TASK_TIMEOUT}")"
+  fi
   out="$(sts_api "$@")" || return 1
   id="$(sts_api_get_field "${out}" task_id)"
   [[ -n "${id}" ]] || { echo "No task_id in response: ${out}" >&2; return 1; }

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Validate hart_seed integrity and PHP/runtime location-code aliases.
+# Validate hart_seed integrity and location-code aliases.
 set -euo pipefail
 
 _script_home="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -16,26 +16,13 @@ SEED_NAME="hart_seed0"
 [[ -f "${BACKUPS_DIR}/${SEED_NAME}" ]] || SEED_NAME="hart_seed"
 STS_TASK_QUIET=1 sts_task_run POST /admin/restore "{\"backup\":\"${SEED_NAME}\",\"photos\":false,\"full\":true}"
 
-# Legacy location-code aliases (SCL, DEM, ...) are resolved by the PHP runtime
-# (warm_start_location_id_by_code); no API route exposes them, so this one check
-# stays on docker exec.
+# Legacy location-code aliases (SCL, DEM, ...) resolve through GET /locations/{code}.
 ALIAS_ERRORS=""
-WEB_CID="$("${COMPOSE[@]}" ps -q web 2>/dev/null || true)"
-if [[ -n "${WEB_CID}" ]]; then
-  ALIAS_ERRORS="$(docker exec "${WEB_CID}" php -r '
-chdir("/var/www/html/sts");
-require "open_db.php";
-require "operational_steps_catalog.php";
-$dbc = open_db();
-foreach (["SCL", "DEM", "SOUTH", "NIL-SHEN-COKE"] as $code) {
-    if (warm_start_location_id_by_code($dbc, $code) <= 0) {
-        echo "Legacy alias does not resolve: {$code}\n";
-    }
-}
-')"
-else
-  echo "WARNING: web container not found; legacy alias check skipped" >&2
-fi
+for code in SCL DEM SOUTH NIL-SHEN-COKE; do
+  if ! sts_api GET "/locations/${code}" >/dev/null 2>&1; then
+    ALIAS_ERRORS+="Legacy alias does not resolve: ${code}"$'\n'
+  fi
+done
 
 LOCATIONS_JSON="$(sts_api_raw GET '/locations?limit=1000')"
 SHIPMENTS_JSON="$(sts_api_raw GET '/shipments?limit=1000')"
