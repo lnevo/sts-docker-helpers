@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# Dev tool: uses docker directly by design (not the REST API).
 # Sweep traffic gate levers from locked end-of-session-2 restore.
 set -euo pipefail
 

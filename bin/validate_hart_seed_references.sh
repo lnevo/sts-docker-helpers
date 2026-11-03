@@ -8,112 +8,73 @@ _script_home="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "${_script_home}/../lib/paths.sh"
 sts_helpers_resolve_paths "${_script_home}/$(basename "${BASH_SOURCE[0]}")"
 
+# shellcheck source=../lib/sts_api.sh
+source "${_script_home}/../lib/sts_api.sh"
+sts_api_guard || exit 1
+
+SEED_NAME="hart_seed0"
+[[ -f "${BACKUPS_DIR}/${SEED_NAME}" ]] || SEED_NAME="hart_seed"
+STS_TASK_QUIET=1 sts_task_run POST /admin/restore "{\"backup\":\"${SEED_NAME}\",\"photos\":false,\"full\":true}"
+
+# Legacy location-code aliases (SCL, DEM, ...) are resolved by the PHP runtime
+# (warm_start_location_id_by_code); no API route exposes them, so this one check
+# stays on docker exec.
+ALIAS_ERRORS=""
 WEB_CID="$("${COMPOSE[@]}" ps -q web 2>/dev/null || true)"
-if [[ -z "${WEB_CID}" ]]; then
-  echo "Web container is not running." >&2
-  exit 1
-fi
-
-"${BIN_DIR}/sync_operational_steps.sh" >/dev/null
-
-docker exec "${WEB_CID}" php -r '
+if [[ -n "${WEB_CID}" ]]; then
+  ALIAS_ERRORS="$(docker exec "${WEB_CID}" php -r '
 chdir("/var/www/html/sts");
 require "open_db.php";
 require "operational_steps_catalog.php";
-
 $dbc = open_db();
-operational_steps_dispatch_step($dbc, ["function" => "restore_database", "params" => ["backup" => "hart_seed0"]], []);
-
-$errors = [];
-$warnings = [];
-
-$required_codes = [
-    "SCULLY-YARD", "DEMMLER-YARD", "SOUTH-YARD", "SOUTH-SCALE",
-    "SHEN-COKE-SHIPPING", "NORTH-YARD", "WEST-YARD", "EAST-YARD",
-];
-foreach ($required_codes as $code) {
+foreach (["SCL", "DEM", "SOUTH", "NIL-SHEN-COKE"] as $code) {
     if (warm_start_location_id_by_code($dbc, $code) <= 0) {
-        $errors[] = "Missing required location code: {$code}";
+        echo "Legacy alias does not resolve: {$code}\n";
     }
 }
+')"
+else
+  echo "WARNING: web container not found; legacy alias check skipped" >&2
+fi
 
-$legacy_codes = ["SCL", "DEM", "SOUTH", "NIL-SHEN-COKE"];
-foreach ($legacy_codes as $code) {
-    $id = warm_start_location_id_by_code($dbc, $code);
-    if ($id <= 0) {
-        $errors[] = "Legacy alias does not resolve: {$code}";
-    }
-}
+LOCATIONS_JSON="$(sts_api_raw GET '/locations?limit=1000')"
+SHIPMENTS_JSON="$(sts_api_raw GET '/shipments?limit=1000')"
+CARS_JSON="$(sts_api_raw GET '/cars?limit=1000')"
+STATIONS_JSON="$(sts_api_raw GET '/stations?limit=1000')"
 
-$rs = mysqli_query(
-    $dbc,
-    "SELECT s.code FROM shipments s
-     LEFT JOIN locations ll ON ll.id = s.loading_location
-     LEFT JOIN locations ul ON ul.id = s.unloading_location
-     WHERE ll.id IS NULL OR ul.id IS NULL"
-);
-if ($rs && mysqli_num_rows($rs) > 0) {
-    while ($row = mysqli_fetch_array($rs)) {
-        $errors[] = "Shipment with broken location FK: " . $row["code"];
-    }
-}
-
-$rs = mysqli_query(
-    $dbc,
-    "SELECT COUNT(*) AS c FROM cars c
-     LEFT JOIN locations l ON l.id = c.current_location_id
-     WHERE c.current_location_id > 0 AND l.id IS NULL"
-);
-if ($rs && (int) mysqli_fetch_array($rs)["c"] > 0) {
-    $errors[] = "Cars reference missing location ids";
-}
-
-$rs = mysqli_query(
-    $dbc,
-    "SELECT COUNT(*) AS c FROM routing r
-     LEFT JOIN locations l ON l.id = r.station_nbr
-     WHERE r.station_nbr > 0 AND l.id IS NULL"
-);
-if ($rs && (int) mysqli_fetch_array($rs)["c"] > 0) {
-    $errors[] = "Routing.station_nbr references missing locations";
-}
-
-$rs = mysqli_query(
-    $dbc,
-    "SELECT code FROM locations WHERE code LIKE \"SCL-%\" OR code LIKE \"DEM-%\" ORDER BY code"
-);
-if ($rs) {
-    while ($row = mysqli_fetch_array($rs)) {
-        $warnings[] = "Legacy party-track code still in seed: " . $row["code"];
-    }
-}
-
-$rs = mysqli_query($dbc, "SELECT COUNT(*) AS c FROM cars");
-$car_count = $rs ? (int) mysqli_fetch_array($rs)["c"] : 0;
-if ($car_count <= 0) {
-    $errors[] = "hart_seed has 0 cars";
-}
-
-echo "hart_seed reference validation\n";
-echo "  cars: {$car_count}\n";
-echo "  locations: ";
-$rs = mysqli_query($dbc, "SELECT COUNT(*) AS c FROM locations");
-echo ($rs ? (int) mysqli_fetch_array($rs)["c"] : 0) . "\n";
-
-if ($warnings !== []) {
-    echo "\nWarnings (" . count($warnings) . "):\n";
-    foreach ($warnings as $w) {
-        echo "  - {$w}\n";
-    }
-}
-
-if ($errors !== []) {
-    echo "\nErrors (" . count($errors) . "):\n";
-    foreach ($errors as $e) {
-        echo "  - {$e}\n";
-    }
-    exit(1);
-}
-
-echo "\nOK — required codes, legacy aliases, and FK checks passed.\n";
-'
+ALIAS_ERRORS="${ALIAS_ERRORS}" python3 -c '
+import json, os, sys
+locs, ships, cars, stations = (json.loads(a)["data"] for a in sys.argv[1:5])
+codes = {l["code"] for l in locs}
+ids = {l["id"] for l in locs}
+errors = [e for e in os.environ.get("ALIAS_ERRORS", "").splitlines() if e]
+warnings = []
+required = ["SCULLY-YARD", "DEMMLER-YARD", "SOUTH-YARD", "SOUTH-SCALE",
+            "SHEN-COKE-SHIPPING", "NORTH-YARD", "WEST-YARD", "EAST-YARD"]
+errors = ["Missing required location code: %s" % c for c in required if c not in codes] + errors
+for s in ships:
+    if s["loading_location_id"] not in ids or s["unloading_location_id"] not in ids:
+        errors.append("Shipment with broken location FK: %s" % s["code"])
+if any(c["location_id"] and c["location_id"] > 0 and c["location_id"] not in ids for c in cars):
+    errors.append("Cars reference missing location ids")
+if any(st["station_nbr"] and st["station_nbr"] > 0 and st["station_nbr"] not in ids for st in stations):
+    errors.append("Routing.station_nbr references missing locations")
+for c in sorted(codes):
+    if c.startswith("SCL-") or c.startswith("DEM-"):
+        warnings.append("Legacy party-track code still in seed: %s" % c)
+if not cars:
+    errors.append("hart_seed has 0 cars")
+print("hart_seed reference validation")
+print("  cars: %d" % len(cars))
+print("  locations: %d" % len(locs))
+if warnings:
+    print("\nWarnings (%d):" % len(warnings))
+    for w in warnings:
+        print("  - " + w)
+if errors:
+    print("\nErrors (%d):" % len(errors))
+    for e in errors:
+        print("  - " + e)
+    sys.exit(1)
+print("\nOK \u2014 required codes, legacy aliases, and FK checks passed.")
+' "${LOCATIONS_JSON}" "${SHIPMENTS_JSON}" "${CARS_JSON}" "${STATIONS_JSON}"

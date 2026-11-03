@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Add new HART cars to the STS seed, and to the running STS database if it is up.
+"""Add new HART cars to the STS seed, and to the running STS (POST /cars) if it is up.
 
     add_hart_cars.py NW32800 [more roster ids]
 
@@ -15,21 +15,21 @@ import argparse
 import csv
 import json
 import re
-import subprocess
 import sys
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
 HELPERS = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(HELPERS / "seed"))
+sys.path.insert(0, str(HELPERS / "lib"))
 
 import generate_hart_seed as seed  # noqa: E402
+import sts_api  # noqa: E402
 
 HART_ROOT = HELPERS.parents[1]
 INPUTS = HELPERS / "seed/inputs"
 ADDED = INPUTS / "sts_added_cars.csv"
 BACKUPS = HART_ROOT / "external/sts-docker-data/backups"
-COMPOSE = HART_ROOT / "external/sts-docker/docker-compose.yml"
 FINAL = HART_ROOT / "ops/car-cards/CarImagesFinal"
 SOUTH_YARD = "4"
 OWNER = "1"
@@ -68,6 +68,15 @@ def car_rows(sql: str) -> dict[str, tuple[str, str]]:
     }
 
 
+def pools_for(code_id: str, sql: str) -> list[str]:
+    """Shipment pools of the cars that already have this car code."""
+    peers = {cid for cid, (_, code) in car_rows(sql).items() if code == code_id}
+    return sorted(
+        {pool for pool, cid in re.findall(r'insert into `pool` values\("(\d+)","(\d+)"\)', sql)
+         if cid in peers}
+    )
+
+
 def statements(car_id: str, marks: str, code_id: str, remarks: str, sql: str) -> list[str]:
     """INSERTs for one car, in the seed's value order."""
     out = [
@@ -75,34 +84,43 @@ def statements(car_id: str, marks: str, code_id: str, remarks: str, sql: str) ->
         f'"Empty","0","{remarks}","0","{SOUTH_YARD}","","","0");',
         f'insert into `ownership` values("{car_id}","{OWNER}","on");',
     ]
-    peers = {cid for cid, (_, code) in car_rows(sql).items() if code == code_id}
-    pools = sorted(
-        {pool for pool, cid in re.findall(r'insert into `pool` values\("(\d+)","(\d+)"\)', sql)
-         if cid in peers}
-    )
-    out.extend(f'insert into `pool` values("{pool}","{car_id}");' for pool in pools)
+    out.extend(f'insert into `pool` values("{pool}","{car_id}");' for pool in pools_for(code_id, sql))
     return out
 
 
 def live_db_running() -> bool:
+    """True when STS answers on the API (the web and db containers are up)."""
     try:
-        result = subprocess.run(
-            ["docker", "compose", "-f", str(COMPOSE), "--profile", "build",
-             "ps", "--status", "running", "-q", "db"],
-            capture_output=True, text=True, timeout=20, check=False,
-        )
-    except (OSError, subprocess.TimeoutExpired):
+        data = sts_api.get("/health")
+    except sts_api.ApiError:
         return False
-    return result.returncode == 0 and bool(result.stdout.strip())
+    return bool(data) and data.get("db") == "ok"
 
 
-def apply_live(lines: list[str]) -> None:
-    sql = "start transaction;\n" + "\n".join(lines) + "\ncommit;\n"
-    subprocess.run(
-        ["docker", "compose", "-f", str(COMPOSE), "--profile", "build", "exec", "-T", "db",
-         "mariadb", "-usts_user", "-psts_password", "sts_db3"],
-        input=sql, text=True, check=True,
-    )
+def apply_live(cars: list[tuple[str, str, str, str, list[str]]]) -> None:
+    """POST /cars for (car_id, marks, code_id, remarks, pools); the new id must match car_id.
+
+    The API assigns ids itself. Photos are named by car id, so an id that differs from the
+    seed's is an error, not something to carry on with.
+    """
+    for car_id, marks, code_id, remarks, pools in cars:
+        created = sts_api.post("/cars", {
+            "reporting_marks": marks,
+            "car_code_id": int(code_id),
+            "location_id": int(SOUTH_YARD),
+            "home_location_id": int(SOUTH_YARD),
+            "status": "Empty",
+            "remarks": remarks,
+            "load_count": 0,
+            "owner_id": int(OWNER),
+            "on_off_rr": "on",
+            "pools": [int(p) for p in pools],
+        })
+        if str(created.get("id")) != car_id:
+            raise SystemExit(
+                f"{marks}: STS gave it id {created.get('id')}, the seed expects {car_id}. "
+                "The running database is out of step with the seed; fix or remove the car by hand."
+            )
 
 
 def save_photo(car_id: str, roster_id: str, seed_path: Path) -> None:
@@ -168,8 +186,10 @@ def main() -> int:
         next_id += 1
 
     lines: list[str] = []
+    live_cars: list[tuple[str, str, str, str, list[str]]] = []
     for roster_id, car_id, code, marks, code_id, remarks in pending:
         lines.extend(statements(car_id, marks, code_id, remarks, sql))
+        live_cars.append((car_id, marks, code_id, remarks, pools_for(code_id, sql)))
         added.append(
             dict(zip(COLUMNS, (roster_id, car_id, code, marks, remarks)))
         )
@@ -180,7 +200,7 @@ def main() -> int:
 
     use_live = not args.no_live and live_db_running()
     if use_live:
-        apply_live(lines)
+        apply_live(live_cars)
         print("Added to the running STS database.")
     else:
         print("STS is not running; the seed is updated and the running database was not.")

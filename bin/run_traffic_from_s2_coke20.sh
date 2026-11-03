@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# Dev tool: uses docker directly by design (not the REST API).
 # Coke-balance + gen_loose plan sweep from locked end-of-session-2.
 # Compares odd/even stagger (one lane/session) vs both lanes every session,
 # with amount/interval levers aimed at equal MR (CLEV) vs MP (USS) outbound.

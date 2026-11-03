@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# Dev tool: uses docker directly by design (not the REST API).
 # NVL / Shenango mainstay shipment tuning — compares island vs IX demand profiles.
 set -euo pipefail
 

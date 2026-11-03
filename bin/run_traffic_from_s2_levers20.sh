@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# Dev tool: uses docker directly by design (not the REST API).
 # 20-lever traffic diagnosis from locked end-of-session-2.
 # Isolates: max_new / reposition / max_unfilled gate / coke demand / IX boost /
 # stagger — then ranks by SCORE and tags holdup (shipments/gate, stuck yards,

@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# Dev tool: uses docker directly by design (not the REST API).
 # Sweep shipment demand (traffic_mult) and run sims to find bottleneck thresholds.
 set -euo pipefail
 

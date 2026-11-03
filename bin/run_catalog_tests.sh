@@ -1,11 +1,16 @@
 #!/usr/bin/env bash
 # Validate catalog API parity and regenerate WORKFLOW_TEST_ALL_TYPES.recipe.json.
+# Build tooling: validate_catalog_api.php and the OpenAPI/recipe generators read the PHP source,
+# so they run via docker exec by design; the workflow check and run go through the REST API.
 set -euo pipefail
 
 _script_home="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=../lib/paths.sh
 source "${_script_home}/../lib/paths.sh"
 sts_helpers_resolve_paths "${_script_home}/$(basename "${BASH_SOURCE[0]}")"
+
+# shellcheck source=../lib/sts_api.sh
+source "${_script_home}/../lib/sts_api.sh"
 
 WEB_CID="$("${COMPOSE[@]}" ps -q web 2>/dev/null || true)"
 if [[ -z "${WEB_CID}" ]]; then
@@ -38,7 +43,9 @@ docker cp "${WEB_CID}:/tmp/WORKFLOW_TEST_ALL_TYPES.recipe.json" "${EDITOR_DIR}/W
 
 cp -f "${EDITOR_DIR}/WORKFLOW_TEST_ALL_TYPES.recipe.json" "${HELPERS_ROOT}/docs/WORKFLOW_TEST_ALL_TYPES.recipe.json"
 
-docker cp "${EDITOR_DIR}/WORKFLOW_TEST_ALL_TYPES.recipe.json" "${WEB_CID}:/var/www/html/sts/backups/session_editor/WORKFLOW_TEST_ALL_TYPES.recipe.json"
+# The editor dir is the bind-mounted backups/session_editor, so the file is already in place;
+# confirm STS sees it as a saved workflow (GET /workflows/{name}).
+sts_api GET /workflows/WORKFLOW_TEST_ALL_TYPES.recipe.json >/dev/null
 
 echo "Catalog tests OK — ${EDITOR_DIR}/WORKFLOW_TEST_ALL_TYPES.recipe.json"
 

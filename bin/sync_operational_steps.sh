@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# Dev tool: uses docker directly by design (not the REST API).
 # Hot-deploy sts/ to container. Session editor workflows live only in sts-docker-data/backups/session_editor/.
 set -euo pipefail
 

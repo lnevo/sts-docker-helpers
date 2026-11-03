@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# Dev tool: uses docker directly by design (not the REST API).
 # Rewind the STS database: delete an operating session and return the DB to the
 # END of the previous session.
 #

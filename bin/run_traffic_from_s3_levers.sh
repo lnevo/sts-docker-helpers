@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# Dev tool: uses docker directly by design (not the REST API).
 # Aggressive lever sweep from locked end-of-session-3 → sessions 4..TO.
 # Restores hart_session3_locked for each case; ranks by SCORE; optionally
 # re-runs the winner and leaves it live on the DB (--apply-best).

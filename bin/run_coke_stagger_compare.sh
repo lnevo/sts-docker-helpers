@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# Dev tool: uses docker directly by design (not the REST API).
 # Compare coke bulk both-every-session vs odd/even stagger.
 set -euo pipefail
 

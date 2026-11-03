@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# Dev tool: uses docker directly by design (not the REST API).
 # Reset hart_seed, deploy benchmark runner, run 10x10 workflow sampling with track-scale stats.
 set -euo pipefail
 

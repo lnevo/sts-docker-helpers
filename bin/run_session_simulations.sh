@@ -53,12 +53,9 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-WEB_CID="$("${COMPOSE[@]}" ps -q web 2>/dev/null || true)"
-if [[ -z "${WEB_CID}" ]]; then
-  echo "Web container is not running. Start with:" >&2
-  echo "  cd ${STS_DOCKER} && docker compose --profile build up -d" >&2
-  exit 1
-fi
+# shellcheck source=../lib/sts_api.sh
+source "${_script_home}/../lib/sts_api.sh"
+sts_api_guard || exit 1
 
 OUTPUT_ROOT="${HELPERS_ROOT}/../switchlists"
 mkdir -p "${OUTPUT_ROOT}"
@@ -66,8 +63,15 @@ mkdir -p "${OUTPUT_ROOT}"
 clean_switchlists() {
   echo "==> Cleaning switchlists (local + container)"
   find "${OUTPUT_ROOT}" -mindepth 1 -maxdepth 1 -exec rm -rf {} +
-  docker exec "${WEB_CID}" sh -c 'rm -rf /var/www/html/switchlists/* 2>/dev/null || true'
-  docker exec "${WEB_CID}" mkdir -p /var/www/html/switchlists
+  # No API route clears the container's switchlists dir, so this one step stays on docker.
+  local web_cid
+  web_cid="$("${COMPOSE[@]}" ps -q web 2>/dev/null || true)"
+  if [[ -n "${web_cid}" ]]; then
+    docker exec "${web_cid}" sh -c 'rm -rf /var/www/html/switchlists/* 2>/dev/null || true'
+    docker exec "${web_cid}" mkdir -p /var/www/html/switchlists
+  else
+    echo "WARNING: web container not found; container switchlists dir not cleaned" >&2
+  fi
 }
 
 if [[ "${APPLY_JOB_DESCRIPTIONS}" -eq 1 ]]; then
@@ -90,10 +94,7 @@ if [[ "${TRACKED}" -eq 1 ]]; then
   WARM_ARGS+=(--tracked)
 fi
 
-WARM_SESSION="$(
-  sts_helpers_docker_exec_www "${WEB_CID}" php -r \
-    'chdir("/var/www/html/sts"); require "open_db.php"; $d=open_db(); $r=mysqli_query($d,"SELECT setting_value FROM settings WHERE setting_name=\"session_nbr\""); echo mysqli_fetch_row($r)[0];'
-)"
+WARM_SESSION="$(sts_session_nbr)"
 
 if [[ "${RUN_WARM_START}" -eq 1 ]]; then
   echo ""
@@ -102,10 +103,7 @@ if [[ "${RUN_WARM_START}" -eq 1 ]]; then
   echo "========================================"
   "${BIN_DIR}/apply_warm_start.sh" "${WARM_ARGS[@]}" --backup-name "sim_warm_start"
 
-  WARM_SESSION="$(
-    sts_helpers_docker_exec_www "${WEB_CID}" php -r \
-      'chdir("/var/www/html/sts"); require "open_db.php"; $d=open_db(); $r=mysqli_query($d,"SELECT setting_value FROM settings WHERE setting_name=\"session_nbr\""); echo mysqli_fetch_row($r)[0];'
-  )"
+  WARM_SESSION="$(sts_session_nbr)"
   echo "==> Warm start complete at session ${WARM_SESSION} (STG-SCULLY backlog expected)"
 else
   echo ""
@@ -129,10 +127,7 @@ for ((n = 1; n <= SESSIONS; n++)); do
   # per-phase D749/NVL lists.
   "${BIN_DIR}/run_catalog_workflow.sh"
 
-  DB_SESSION="$(
-    sts_helpers_docker_exec_www "${WEB_CID}" php -r \
-      'chdir("/var/www/html/sts"); require "open_db.php"; $d=open_db(); $r=mysqli_query($d,"SELECT setting_value FROM settings WHERE setting_name=\"session_nbr\""); echo mysqli_fetch_row($r)[0];'
-  )"
+  DB_SESSION="$(sts_session_nbr)"
   DELTA=$((DB_SESSION - PREV_SESSION))
   if [[ "${DELTA}" -ne 1 ]]; then
     echo "ERROR: session jumped ${PREV_SESSION} → ${DB_SESSION} (expected +1)" >&2

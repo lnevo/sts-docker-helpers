@@ -1,34 +1,26 @@
 #!/usr/bin/env python3
-"""Pull jobs, pickup criteria, locations, and shipments from live STS DB into hart_seed_config.json."""
+"""Pull jobs, pickup criteria, locations, and shipments from live STS into hart_seed_config.json.
+
+Reads through the REST API (GET /jobs, /locations, /shipments, /commodities, /car-codes);
+see lib/sts_api.py for the base URL and token.
+"""
 
 from __future__ import annotations
 
 import argparse
 import json
-import os
-import subprocess
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
 TOOLS_DIR = Path(__file__).resolve().parent
 REPO_ROOT = TOOLS_DIR.parent
+sys.path.insert(0, str(REPO_ROOT / "lib"))
+
+import sts_api  # noqa: E402
+
 SEED_DIR = REPO_ROOT / "seed"
 ALL_SECTIONS = ("jobs", "pickup_criteria", "locations", "shipments")
-
-
-def resolve_sts_docker_dir() -> Path:
-    if os.environ.get("STS_DOCKER"):
-        return Path(os.environ["STS_DOCKER"]).resolve()
-    for candidate in (
-        REPO_ROOT / "sts-docker",
-        REPO_ROOT.parent / "sts-docker",
-    ):
-        if (candidate / "docker-compose.yml").is_file():
-            return candidate.resolve()
-    raise SystemExit(
-        "sts-docker not found. Clone github.com/lnevo/sts-docker to ./sts-docker or set STS_DOCKER."
-    )
 
 
 def resolve_default_config() -> Path:
@@ -39,43 +31,6 @@ def resolve_default_config() -> Path:
 
 
 DEFAULT_CONFIG = resolve_default_config()
-
-def docker_mysql_query(sql: str) -> str:
-    compose = resolve_sts_docker_dir() / "docker-compose.yml"
-    db_cid = subprocess.check_output(
-        ["docker", "compose", "-f", str(compose), "--profile", "build", "ps", "-q", "db"],
-        text=True,
-    ).strip()
-    if not db_cid:
-        raise SystemExit(
-            "STS database container is not running.\n"
-            "Start with: cd sts-docker && docker compose --profile build up -d"
-        )
-    return subprocess.check_output(
-        [
-            "docker",
-            "exec",
-            "-i",
-            db_cid,
-            "mariadb",
-            "-usts_user",
-            "-psts_password",
-            "sts_db3",
-            "-N",
-            "-B",
-            "-e",
-            sql,
-        ],
-        text=True,
-    )
-
-
-def parse_rows(raw: str) -> list[list[str]]:
-    raw = raw.strip()
-    if not raw:
-        return []
-    return [line.split("\t") for line in raw.splitlines()]
-
 
 def parse_optional_int(value: str) -> int | None:
     value = value.strip()
@@ -103,135 +58,80 @@ def save_config(path: Path, config: dict) -> None:
 
 
 def fetch_lookup_maps() -> tuple[dict[int, str], dict[int, str], dict[int, str]]:
-    commodities: dict[int, str] = {}
-    for row in parse_rows(docker_mysql_query("SELECT Id, Code FROM commodities")):
-        commodities[int(row[0])] = row[1]
-
-    car_codes: dict[int, str] = {}
-    for row in parse_rows(docker_mysql_query("SELECT Id, code FROM car_codes")):
-        car_codes[int(row[0])] = row[1]
-
-    locations: dict[int, str] = {}
-    for row in parse_rows(docker_mysql_query("SELECT Id, code FROM locations")):
-        locations[int(row[0])] = row[1]
-
+    commodities = {int(r["id"]): r["code"] for r in sts_api.get_all("/commodities")}
+    car_codes = {int(r["id"]): r["code"] for r in sts_api.get_all("/car-codes")}
+    locations = {int(r["id"]): r["code"] for r in sts_api.get_all("/locations")}
     return commodities, car_codes, locations
-
-
-def docker_web_php(php_code: str) -> str:
-    compose = resolve_sts_docker_dir() / "docker-compose.yml"
-    web_cid = subprocess.check_output(
-        ["docker", "compose", "-f", str(compose), "--profile", "build", "ps", "-q", "web"],
-        text=True,
-    ).strip()
-    if not web_cid:
-        raise SystemExit(
-            "STS web container is not running.\n"
-            "Start with: cd sts-docker && docker compose --profile build up -d"
-        )
-    return subprocess.check_output(
-        ["docker", "exec", web_cid, "php", "-r", php_code],
-        text=True,
-    )
 
 
 def normalize_db_text(value: str) -> str:
     return (value or "").replace("\r\n", "\n").replace("\r", "\n")
 
 
-def fetch_jobs() -> list[dict]:
-    raw = docker_web_php(
-        r'''
-chdir("/var/www/html/sts");
-require "open_db.php";
-$dbc = open_db();
-$jobs = [];
-$rs = mysqli_query($dbc, "SELECT Id, name, description FROM jobs ORDER BY Id");
-while ($row = mysqli_fetch_assoc($rs)) {
-    $name = $row["name"];
-    $safe_name = str_replace("`", "``", $name);
-    $steps = [];
-    $step_rs = mysqli_query(
-        $dbc,
-        "SELECT step_number, station, pickup, setout, remarks FROM `{$safe_name}` ORDER BY step_number"
-    );
-    while ($step = mysqli_fetch_assoc($step_rs)) {
-        $steps[] = [
-            "step_number" => (int) $step["step_number"],
-            "station" => (int) $step["station"],
-            "pickup" => strtoupper($step["pickup"]) === "T",
-            "setout" => strtoupper($step["setout"]) === "T",
-            "remarks" => $step["remarks"] ?? "",
-        ];
-    }
-    $jobs[] = [
-        "id" => (int) $row["Id"],
-        "name" => $name,
-        "description" => $row["description"] ?? "",
-        "steps" => $steps,
-    ];
-}
-echo json_encode($jobs, JSON_UNESCAPED_UNICODE);
-'''
-    )
-    jobs = json.loads(raw)
-    for job in jobs:
-        job["description"] = normalize_db_text(job["description"])
-        for step in job.get("steps", []):
-            step["remarks"] = normalize_db_text(step.get("remarks", ""))
+def fetch_job_details() -> list[dict]:
+    """GET /jobs/{id} for every job, ordered by id (steps and pickup criteria included)."""
+    listing = sorted(sts_api.get_all("/jobs"), key=lambda j: int(j["id"]))
+    return [sts_api.get(f"/jobs/{j['id']}") for j in listing]
+
+
+def fetch_jobs(details: list[dict] | None = None) -> list[dict]:
+    jobs = []
+    for detail in details if details is not None else fetch_job_details():
+        steps = [
+            {
+                "step_number": int(step["step_number"]),
+                "station": int(step["station_id"]),
+                "pickup": bool(step["pickup"]),
+                "setout": bool(step["setout"]),
+                "remarks": normalize_db_text(step.get("remarks") or ""),
+            }
+            # Same order as the old SQL export (ORDER BY on the text column), so the
+            # committed seed config doesn't churn: "100" sorts before "95".
+            for step in sorted(detail.get("steps", []), key=lambda st: str(st["step_number"]))
+        ]
+        jobs.append(
+            {
+                "id": int(detail["id"]),
+                "name": detail["name"],
+                "description": normalize_db_text(detail.get("description") or ""),
+                "steps": steps,
+            }
+        )
     return jobs
 
 
-def fetch_pickup_criteria() -> list[dict]:
-    rows: list[dict] = []
-    for (
-        job_name,
-        step_nbr,
-        car_status,
-        commodity_id,
-        car_code_id,
-        dest_station_id,
-    ) in parse_rows(
-        docker_mysql_query(
-            "SELECT job_id, step_nbr, car_status, commodity_id, car_code_id, "
-            "dest_station_id FROM pu_criteria ORDER BY id"
-        )
-    ):
-        entry: dict = {
-            "job": job_name,
-            "step_nbr": int(step_nbr),
-            "car_status": car_status or "",
-            "dest_station_id": int(dest_station_id),
-        }
-        commodity = parse_optional_int(commodity_id)
-        car_code = parse_optional_int(car_code_id)
-        if commodity is not None:
-            entry["commodity_id"] = commodity
-        if car_code is not None:
-            entry["car_code_id"] = car_code
-        rows.append(entry)
-    return rows
+def fetch_pickup_criteria(details: list[dict] | None = None) -> list[dict]:
+    rows: list[tuple[int, dict]] = []
+    for detail in details if details is not None else fetch_job_details():
+        for crit in detail.get("pickup_criteria", []):
+            entry: dict = {
+                "job": detail["name"],
+                "step_nbr": int(crit["step_number"]),
+                "car_status": crit.get("car_status") or "",
+                "dest_station_id": int(crit["dest_station_id"]),
+            }
+            if crit.get("commodity_id") is not None:
+                entry["commodity_id"] = int(crit["commodity_id"])
+            if crit.get("car_code_id") is not None:
+                entry["car_code_id"] = int(crit["car_code_id"])
+            rows.append((int(crit["id"]), entry))
+    return [entry for _, entry in sorted(rows, key=lambda r: r[0])]
 
 
 def fetch_locations() -> list[dict]:
     rows: list[dict] = []
-    for loc_id, code, station, track, spot, rpt_station, remarks, color in parse_rows(
-        docker_mysql_query(
-            "SELECT Id, code, station, track, spot, rpt_station, remarks, color "
-            "FROM locations ORDER BY Id"
-        )
-    ):
+    for loc in sorted(sts_api.get_all("/locations"), key=lambda r: int(r["id"])):
         entry: dict = {
-            "id": int(loc_id),
-            "code": code,
-            "station": int(station),
-            "track": track or "",
-            "spot": spot or "",
-            "rpt_station": rpt_station or "",
-            "remarks": remarks or "",
+            "id": int(loc["id"]),
+            "code": loc["code"],
+            "station": int(loc["station_id"]),
+            "track": loc.get("track") or "",
+            "spot": loc.get("spot") or "",
+            "rpt_station": loc.get("rpt_station") or "",
+            "remarks": loc.get("remarks") or "",
         }
-        if color:
-            entry["color"] = color
+        if loc.get("color"):
+            entry["color"] = loc["color"]
         rows.append(entry)
     return rows
 
@@ -242,61 +142,26 @@ def fetch_shipments(
     locations: dict[int, str],
 ) -> list[dict]:
     rows: list[dict] = []
-    for (
-        ship_id,
-        code,
-        description,
-        consignment,
-        car_code_id,
-        loading_id,
-        unloading_id,
-        min_interval,
-        max_interval,
-        min_amount,
-        max_amount,
-        special_instructions,
-        remarks,
-        min_load_time,
-        max_load_time,
-        min_unload_time,
-        max_unload_time,
-    ) in parse_rows(
-        docker_mysql_query(
-            "SELECT Id, code, description, consignment, car_code, loading_location, "
-            "unloading_location, min_interval, max_interval, min_amount, max_amount, "
-            "special_instructions, remarks, min_load_time, max_load_time, "
-            "min_unload_time, max_unload_time FROM shipments ORDER BY Id"
-        )
-    ):
-        loading_code = locations.get(int(loading_id), "")
-        unloading_code = locations.get(int(unloading_id), "")
-        commodity_code = commodities.get(int(consignment), "")
-        car_code = car_codes.get(int(car_code_id), "XM")
+    for ship in sorted(sts_api.get_all("/shipments"), key=lambda r: int(r["id"])):
         entry: dict = {
-            "id": int(ship_id),
-            "code": code,
-            "description": description or "",
-            "commodity": commodity_code,
-            "consignment_id": int(consignment),
-            "car_code": car_code,
-            "loading_location": loading_code,
-            "unloading_location": unloading_code,
-            "min_interval": float(min_interval),
-            "max_interval": float(max_interval),
-            "min_amount": int(float(min_amount)),
-            "max_amount": int(float(max_amount)),
-            "special_instructions": special_instructions or "",
-            "remarks": remarks or "",
+            "id": int(ship["id"]),
+            "code": ship["code"],
+            "description": ship.get("description") or "",
+            "commodity": commodities.get(int(ship["commodity_id"]), ""),
+            "consignment_id": int(ship["commodity_id"]),
+            "car_code": car_codes.get(int(ship["car_code_id"]), "XM"),
+            "loading_location": locations.get(int(ship["loading_location_id"]), ""),
+            "unloading_location": locations.get(int(ship["unloading_location_id"]), ""),
+            "min_interval": float(ship["min_interval"]),
+            "max_interval": float(ship["max_interval"]),
+            "min_amount": int(float(ship["min_amount"])),
+            "max_amount": int(float(ship["max_amount"])),
+            "special_instructions": ship.get("special_instructions") or "",
+            "remarks": ship.get("remarks") or "",
         }
-        for key, raw in (
-            ("min_load_time", min_load_time),
-            ("max_load_time", max_load_time),
-            ("min_unload_time", min_unload_time),
-            ("max_unload_time", max_unload_time),
-        ):
-            parsed = parse_optional_int(raw)
-            if parsed is not None:
-                entry[key] = parsed
+        for key in ("min_load_time", "max_load_time", "min_unload_time", "max_unload_time"):
+            if ship.get(key) is not None:
+                entry[key] = int(ship[key])
         rows.append(entry)
     return rows
 
@@ -354,14 +219,16 @@ def apply_sections(
     summary: dict[str, int | bool] = {}
     commodities, car_codes, location_codes = fetch_lookup_maps()
 
+    details = fetch_job_details() if sections & {"jobs", "pickup_criteria"} else []
+
     if "jobs" in sections:
-        jobs = fetch_jobs()
+        jobs = fetch_jobs(details)
         config["jobs"] = jobs
         summary["jobs"] = len(jobs)
         summary["job_steps"] = sum(len(job["steps"]) for job in jobs)
 
     if "pickup_criteria" in sections:
-        criteria = fetch_pickup_criteria()
+        criteria = fetch_pickup_criteria(details)
         config["pickup_criteria"] = criteria
         summary["pickup_criteria"] = len(criteria)
 
@@ -402,7 +269,7 @@ def main() -> None:
     parser.add_argument(
         "--dry-run",
         action="store_true",
-        help="Fetch from DB and print summary without writing config",
+        help="Fetch from STS and print summary without writing config",
     )
     parser.add_argument(
         "--backup",
@@ -445,6 +312,5 @@ def main() -> None:
 if __name__ == "__main__":
     try:
         main()
-    except subprocess.CalledProcessError as exc:
-        print(exc.stderr or str(exc), file=sys.stderr)
-        raise SystemExit(exc.returncode) from exc
+    except sts_api.ApiError as exc:
+        raise SystemExit(str(exc)) from exc

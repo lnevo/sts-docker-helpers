@@ -18,7 +18,7 @@ fill unfilled car orders, reposition empties, auto-assign jobs.
 
 Exits with an error if STG-SCULLY backlog remains and --run-stg-scully was not passed.
 
-Session prep options (passed to begin_operating_session.php):
+Session prep options (sent to POST /admin/sessions/begin):
   --run-stg-scully     Run STG-SCULLY staging before session prep (required if backlog exists)
   --no-increment       Keep current session number
   --no-fill            Skip filling unfilled car orders (default: fill all eligible)
@@ -51,18 +51,50 @@ for arg in "$@"; do
   esac
 done
 
-WEB_CID="$("${COMPOSE[@]}" ps -q web 2>/dev/null || true)"
-if [[ -z "${WEB_CID}" ]]; then
-  echo "Web container is not running. Start with:" >&2
-  echo "  cd ${STS_DOCKER} && docker compose --profile build up -d" >&2
-  exit 1
-fi
+# shellcheck source=../lib/sts_api.sh
+source "${_script_home}/../lib/sts_api.sh"
 
-echo "==> Syncing legacy begin-session CLI into web container"
-sts_helpers_docker_cp_legacy_cli "${WEB_CID}" begin_operating_session.php
+# Map the CLI flags onto POST /admin/sessions/begin (defaults match begin_operating_session.php).
+BODY="$(python3 - "${PHP_ARGS[@]+"${PHP_ARGS[@]}"}" <<'PY'
+import json, sys
+body, options = {}, {}
+for arg in sys.argv[1:]:
+    if arg == "--run-stg-scully":
+        options["run_stg_scully"] = True
+    elif arg == "--no-increment":
+        body["increment"] = False
+    elif arg == "--no-reposition":
+        body["reposition"] = False
+    elif arg == "--no-assign":
+        body["assign"] = False
+    elif arg == "--no-fill":
+        body["fill"] = False
+    elif arg == "--no-load-unload":
+        body["load_unload"] = False
+    elif arg == "--generate":
+        body["generate"] = True
+    elif arg.startswith("--repo-fraction="):
+        body["reposition_fraction"] = float(arg.split("=", 1)[1])
+    elif arg.startswith("--fill-fraction="):
+        body["fill_fraction"] = float(arg.split("=", 1)[1])
+    elif arg.startswith("--backup="):
+        name = "".join(c for c in arg.split("=", 1)[1] if c.isalnum() or c in "_-")
+        if name:
+            body["backup"] = name
+    else:
+        sys.exit("Unknown option: " + arg)
+if options:
+    body["options"] = options
+print(json.dumps(body))
+PY
+)"
 
+sts_api_guard || exit 1
 echo "==> Beginning operating session"
-sts_helpers_docker_exec_www "${WEB_CID}" php /var/www/html/sts/begin_operating_session.php "${PHP_ARGS[@]}"
+STS_TASK_DROP='^(task [^ ]+ \(.*\) started|task finished|backup written: .*)$' \
+  sts_task_run POST /admin/sessions/begin "${BODY}"
+backup="$(sts_api_get_field "${STS_TASK_RESULT}" result.output.backup)"
+[[ -n "${backup}" ]] && printf '\nBackup written: %s\n' "${backup}"
 
 if [[ "${GENERATE_SWITCHLISTS}" -eq 1 ]]; then
   # --switchlists previously called generate_master_switchlists.php, which only

@@ -32,40 +32,20 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-WEB_CID="$("${COMPOSE[@]}" ps -q web 2>/dev/null || true)"
-if [[ -z "${WEB_CID}" ]]; then
-  echo "Web container is not running." >&2
-  exit 1
-fi
+# shellcheck source=../lib/sts_api.sh
+source "${_script_home}/../lib/sts_api.sh"
+sts_api_guard || exit 1
 
 # Current operating session number from the settings table.
-CURRENT_SESSION="$(docker exec "${WEB_CID}" php -r '
-  chdir("/var/www/html/sts");
-  require "credentials.php";
-  mysqli_report(MYSQLI_REPORT_OFF);
-  $d = mysqli_connect($server_name, $user_name, $password, $db_name);
-  if (!$d) { fwrite(STDERR, mysqli_connect_error()); exit(1); }
-  $r = mysqli_query($d, "select setting_value from settings where setting_name = \"session_nbr\"");
-  $x = $r ? mysqli_fetch_row($r) : null;
-  echo (int) ($x[0] ?? 0);
-')"
+CURRENT_SESSION="$(sts_session_nbr)"
 
 SESSION_LABEL="${FORCE_SESSION:-${CURRENT_SESSION}}"
 BACKUP_NAME="${CUSTOM_NAME:-db_session_${SESSION_LABEL}}"
 
 echo "==> Snapshotting DB (session_nbr=${CURRENT_SESSION}) -> backups/${BACKUP_NAME}"
-docker exec -e SNAP_NAME="${BACKUP_NAME}" "${WEB_CID}" php -r '
-  chdir("/var/www/html/sts");
-  require "open_db.php";
-  require "backup_tables.php";
-  $dbc = open_db();
-  $name = getenv("SNAP_NAME");
-  backup_tables($dbc, $name);
-  $cars = mysqli_fetch_row(mysqli_query($dbc, "select count(*) from cars"))[0];
-  $orders = mysqli_fetch_row(mysqli_query($dbc, "select count(*) from car_orders"))[0];
-  $sess = mysqli_fetch_row(mysqli_query($dbc, "select setting_value from settings where setting_name=\"session_nbr\""))[0];
-  fwrite(STDERR, "    cars={$cars} car_orders={$orders} session_nbr={$sess}\n");
-'
+sts_api POST /admin/backups "{\"name\":\"${BACKUP_NAME}\",\"overwrite\":true}" >/dev/null
+_total() { sts_api_raw GET "$1" | python3 -c 'import json,sys; print(json.load(sys.stdin)["meta"]["total"])'; }
+echo "    cars=$(_total '/cars?limit=1') car_orders=$(_total '/car-orders?status=all&limit=1') session_nbr=$(sts_session_nbr)" >&2
 
 SNAP_PATH="${BACKUPS_DIR}/${BACKUP_NAME}"
 if [[ -f "${SNAP_PATH}" ]]; then
