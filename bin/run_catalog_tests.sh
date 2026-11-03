@@ -26,7 +26,7 @@ docker exec -e STS_HELPERS_ROOT=/var/www/html "${WEB_CID}" php /tmp/validate_cat
 echo "==> Regenerating OpenAPI catalog schemas"
 docker cp "${STS_DOCKER}/sts/generate_operational_steps_openapi_catalog.php" "${WEB_CID}:/var/www/html/sts/generate_operational_steps_openapi_catalog.php"
 docker cp "${STS_DOCKER}/sts/operational_steps_catalog.php" "${WEB_CID}:/var/www/html/sts/operational_steps_catalog.php"
-docker exec "${WEB_CID}" php /var/www/html/sts/generate_operational_steps_openapi_catalog.php /var/www/html/sts/operational_steps_catalog.openapi.generated.yaml
+docker exec "${WEB_CID}" php /var/www/html/sts/generate_operational_steps_openapi_catalog.php --core-only /var/www/html/sts/operational_steps_catalog.openapi.generated.yaml
 docker cp "${WEB_CID}:/var/www/html/sts/operational_steps_catalog.openapi.generated.yaml" "${STS_DOCKER}/sts/operational_steps_catalog.openapi.generated.yaml"
 
 EDITOR_DIR="${BACKUPS_DIR}/session_editor"

@@ -45,5 +45,6 @@ docker cp "${STS_DOCKER}/sts/run_catalog_workflow.php" \
   "${WEB_CID}:/var/www/html/sts/run_catalog_workflow.php"
 
 # Run as www-data so session output stays writable by Apache/PHP.
+# STS_SIM_SEED (optional) makes the run reproducible; passed through to the container.
 sts_helpers_docker_exec_www "${WEB_CID}" \
-  php /var/www/html/sts/run_catalog_workflow.php ${CONTAINER_ARG:+"${CONTAINER_ARG}"}
+  env STS_SIM_SEED="${STS_SIM_SEED:-}" php /var/www/html/sts/run_catalog_workflow.php ${CONTAINER_ARG:+"${CONTAINER_ARG}"}
