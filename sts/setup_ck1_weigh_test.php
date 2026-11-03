@@ -29,7 +29,7 @@ if (is_readable($seed_path)) {
 
 track_scale_sync_session_calibration($dbc);
 if (!track_scale_is_calibration_locked($dbc)) {
-    warm_start_simulate_scale_calibration($dbc);
+    track_scale_simulate_calibration($dbc);
 }
 
 $ck1_id = warm_start_job_id($dbc, 'CK1');
