@@ -1,3 +1,4 @@
+# shellcheck shell=bash
 # Client for the STS REST API v1. Source this file (lib/paths.sh must be sourced
 # first so BACKUPS_DIR is known; the token falls back to it).
 #
@@ -184,9 +185,12 @@ sts_task_run() {
   out="$(sts_api "$@")" || return 1
   id="$(sts_api_get_field "${out}" task_id)"
   [[ -n "${id}" ]] || { echo "No task_id in response: ${out}" >&2; return 1; }
+  # Set for callers: the task id and the final task record.
+  # shellcheck disable=SC2034
   STS_TASK_ID="${id}"
   sts_task_wait "${id}"
   local rc=$?
+  # shellcheck disable=SC2034
   STS_TASK_RESULT="$(sts_api GET "/tasks/${id}" 2>/dev/null || true)"
   return "${rc}"
 }
