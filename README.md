@@ -109,8 +109,9 @@ The core pipeline drives STS through its REST API v1
   API tasks; their log streams to the console. `STS_TASK_KEEP_TS=1` keeps the
   log timestamps. `STS_TASK_TIMEOUT=<seconds>` sends `timeout_seconds` with every
   task except restores (default: no cap).
-- **Switch-list output / aliases:** `run_session_simulations.sh` clears generated
-  output with `DELETE /sessions/output`; `validate_hart_seed_references.sh`
+- **Switch-list output / aliases:** `run_session_simulations.sh --clear-session-output`
+  also deletes stored session output with `DELETE /sessions/output` (off by
+  default, as before); `validate_hart_seed_references.sh`
   resolves legacy aliases with `GET /locations/{code}`.
 
 Use the API: `apply_hart_seed.sh`, `apply_warm_start.sh` (including `--ck1-test`, sent as `config` overrides),

@@ -14,6 +14,7 @@ WARM_MIN=3
 WARM_MAX=12
 TRACKED=1
 RESTORE_SEED=1
+CLEAR_SESSION_OUTPUT=0
 RUN_WARM_START=1
 APPLY_JOB_DESCRIPTIONS=1
 
@@ -35,6 +36,8 @@ Options:
   --no-warm-start        Skip initial warm start (continue mid-simulation)
   --no-tracked           Use staging-stop warm start instead of tracked locals
   --no-job-descriptions  Skip apply_hart_job_descriptions.sh
+  --clear-session-output On restore, also delete the stored session output
+                         (backups/session_state/sessions) via DELETE /sessions/output
   -h, --help             Show this help
 EOF
 }
@@ -48,6 +51,7 @@ while [[ $# -gt 0 ]]; do
     --no-warm-start) RUN_WARM_START=0; shift ;;
     --no-tracked) TRACKED=0; shift ;;
     --no-job-descriptions) APPLY_JOB_DESCRIPTIONS=0; shift ;;
+    --clear-session-output) CLEAR_SESSION_OUTPUT=1; shift ;;
     -h|--help) usage; exit 0 ;;
     *) echo "Unknown option: $1" >&2; usage >&2; exit 1 ;;
   esac
@@ -61,9 +65,14 @@ OUTPUT_ROOT="${HELPERS_ROOT}/../switchlists"
 mkdir -p "${OUTPUT_ROOT}"
 
 clean_switchlists() {
-  echo "==> Cleaning switchlists (local + container)"
+  echo "==> Cleaning switchlists (local)"
   find "${OUTPUT_ROOT}" -mindepth 1 -maxdepth 1 -exec rm -rf {} +
-  sts_api DELETE /sessions/output >/dev/null
+  # The old container dir (/var/www/html/switchlists) no longer exists, so that
+  # step was a no-op. Stored session output is only cleared when asked for.
+  if [[ "${CLEAR_SESSION_OUTPUT}" -eq 1 ]]; then
+    echo "==> Clearing stored session output (DELETE /sessions/output)"
+    sts_api DELETE /sessions/output >/dev/null
+  fi
 }
 
 if [[ "${APPLY_JOB_DESCRIPTIONS}" -eq 1 ]]; then
