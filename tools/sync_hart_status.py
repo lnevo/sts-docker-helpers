@@ -3,7 +3,7 @@
 
     sync_hart_status.py [--check] [--no-live]
 
-Updates the seed, and the running STS database if it is up. --check only reports.
+Updates the seed, and the running STS (through the API) if it is up. --check only reports.
 Reads seed/inputs/image_metadata.csv, which `bin/cars publish` copies in.
 
 Follows STS add_remove.php: a car taken off keeps its status in ownership.on_off_rr,
@@ -14,14 +14,14 @@ from __future__ import annotations
 
 import argparse
 import re
-import subprocess
 import sys
 from pathlib import Path
 
 HELPERS = Path(__file__).resolve().parents[1]
-sys.path[:0] = [str(HELPERS / "seed"), str(HELPERS / "tools")]
+sys.path[:0] = [str(HELPERS / "seed"), str(HELPERS / "tools"), str(HELPERS / "lib")]
 
 import add_hart_cars as sts  # noqa: E402
+import sts_api  # noqa: E402
 from generate_hart_seed import load_out_of_service  # noqa: E402
 
 UNAVAILABLE = "Unavailable"
@@ -59,24 +59,18 @@ def apply_to_seed(sql: str, changes: list[tuple[str, str, str, str]]) -> str:
 
 
 def live_cars() -> list[tuple[str, str, str, str]]:
-    query = (
-        "select c.id, c.reporting_marks, c.status, coalesce(o.on_off_rr, 'on') "
-        "from cars c left join ownership o on o.car_id = c.id;"
-    )
-    result = subprocess.run(
-        ["docker", "compose", "-f", str(sts.COMPOSE), "--profile", "build", "exec", "-T", "db",
-         "mariadb", "-usts_user", "-psts_password", "-N", "-B", "sts_db3", "-e", query],
-        capture_output=True, text=True, check=True,
-    )
-    return [tuple(line.split("\t")) for line in result.stdout.splitlines() if line]
+    """(id, marks, status, on_off_rr) for every car, from GET /cars and GET /ownership."""
+    on_off = {str(o["car_id"]): o["on_off_rr"] for o in sts_api.get_all("/ownership")}
+    return [
+        (str(c["id"]), c["reporting_marks"], c["status"], on_off.get(str(c["id"]), "on") or "on")
+        for c in sts_api.get_all("/cars")
+    ]
 
 
-def live_statements(changes: list[tuple[str, str, str, str]]) -> list[str]:
-    out = []
+def apply_live_changes(changes: list[tuple[str, str, str, str]]) -> None:
     for car_id, _, status, on_off in changes:
-        out.append(f"update cars set status = '{status}' where id = {car_id};")
-        out.append(f"update ownership set on_off_rr = '{on_off}' where car_id = {car_id};")
-    return out
+        sts_api.patch(f"/cars/{car_id}", {"status": status})
+        sts_api.put(f"/ownership/{car_id}", {"on_off_rr": on_off})
 
 
 def describe(name: str, changes: list[tuple[str, str, str, str]]) -> None:
@@ -110,7 +104,7 @@ def main() -> int:
     if args.check:
         return 0
     if live_changes:
-        sts.apply_live(live_statements(live_changes))
+        apply_live_changes(live_changes)
     if seed_changes:
         seed_path.write_text(apply_to_seed(sql, seed_changes), encoding="utf-8")
     return 0

@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# Dev tool: uses docker directly by design (not the REST API).
 # Rewind end-of-session-10 (post/legacy locked dump) → run sessions 11..20 under mandatory train order.
 # Sweep flow levers across 3 static generate seeds; score only s11-20.
 set -euo pipefail

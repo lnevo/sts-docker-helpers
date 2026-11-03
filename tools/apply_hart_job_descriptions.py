@@ -1,51 +1,22 @@
 #!/usr/bin/env python3
-"""Apply job descriptions from hart_seed_config.json to the live STS database."""
+"""Apply job descriptions from hart_seed_config.json to the running STS (PATCH /jobs/{job})."""
 
 from __future__ import annotations
 
 import argparse
 import json
-import subprocess
 import sys
+import urllib.parse
 from pathlib import Path
 
 TOOLS_DIR = Path(__file__).resolve().parent
 REPO_ROOT = TOOLS_DIR.parent
 SEED_DIR = REPO_ROOT / "seed"
+sys.path.insert(0, str(REPO_ROOT / "lib"))
+
+import sts_api  # noqa: E402
+
 DEFAULT_JOBS = ("D749", "NVL", "CK1", "STG-SCULLY", "STG-DEMMLER")
-
-
-def resolve_sts_docker_dir() -> Path:
-    import os
-
-    if os.environ.get("STS_DOCKER"):
-        return Path(os.environ["STS_DOCKER"]).resolve()
-    for candidate in (
-        REPO_ROOT / "sts-docker",
-        REPO_ROOT.parent / "sts-docker",
-    ):
-        if (candidate / "docker-compose.yml").is_file():
-            return candidate.resolve()
-    raise SystemExit(
-        "sts-docker not found. Clone github.com/lnevo/sts-docker to ./sts-docker or set STS_DOCKER."
-    )
-
-
-def docker_web_php(php_code: str) -> str:
-    compose = resolve_sts_docker_dir() / "docker-compose.yml"
-    web_cid = subprocess.check_output(
-        ["docker", "compose", "-f", str(compose), "--profile", "build", "ps", "-q", "web"],
-        text=True,
-    ).strip()
-    if not web_cid:
-        raise SystemExit(
-            "STS web container is not running.\n"
-            "Start with: cd sts-docker && docker compose --profile build up -d"
-        )
-    return subprocess.check_output(
-        ["docker", "exec", web_cid, "php", "-r", php_code],
-        text=True,
-    )
 
 
 def load_config(path: Path) -> dict:
@@ -54,62 +25,25 @@ def load_config(path: Path) -> dict:
 
 
 def apply_job_descriptions(config: dict, job_names: set[str]) -> list[str]:
-  updated: list[str] = []
-  jobs_payload = []
-  for job in config.get("jobs", []):
-      name = job.get("name", "")
-      if name not in job_names:
-          continue
-      jobs_payload.append(
-          {
-              "name": name,
-              "description": job.get("description", ""),
-          }
-      )
-
-  if not jobs_payload:
-      raise SystemExit("No matching jobs found in config.")
-
-  payload_json = json.dumps(jobs_payload, ensure_ascii=False)
-  raw = docker_web_php(
-      r'''
-chdir("/var/www/html/sts");
-require "open_db.php";
-$payload = json_decode(''' + json.dumps(payload_json) + r''', true);
-if (!is_array($payload)) {
-    fwrite(STDERR, "Invalid payload\n");
-    exit(1);
-}
-$dbc = open_db();
-$updated = [];
-foreach ($payload as $job) {
-    $name = (string) ($job["name"] ?? "");
-    $description = (string) ($job["description"] ?? "");
-    if ($name === "") {
-        continue;
-    }
-    $name_esc = mysqli_real_escape_string($dbc, $name);
-    $desc_esc = mysqli_real_escape_string($dbc, $description);
-    $sql = 'UPDATE jobs SET description = "' . $desc_esc . '" WHERE name = "' . $name_esc . '"';
-    if (!mysqli_query($dbc, $sql)) {
-        fwrite(STDERR, "Failed to update {$name}: " . mysqli_error($dbc) . "\n");
-        exit(1);
-    }
-    if (mysqli_affected_rows($dbc) > 0) {
-        $updated[] = $name;
-    } else {
-        $rs = mysqli_query($dbc, 'SELECT 1 FROM jobs WHERE name = "' . $name_esc . '" LIMIT 1');
-        if (!$rs || mysqli_num_rows($rs) === 0) {
-            fwrite(STDERR, "Job not found: {$name}\n");
-            exit(1);
-        }
-        $updated[] = $name . " (unchanged)";
-    }
-}
-echo json_encode($updated, JSON_UNESCAPED_UNICODE);
-'''
-  )
-  return json.loads(raw)
+    updated: list[str] = []
+    jobs = [j for j in config.get("jobs", []) if j.get("name", "") in job_names]
+    if not jobs:
+        raise SystemExit("No matching jobs found in config.")
+    for job in jobs:
+        name = job["name"]
+        description = job.get("description", "") or ""
+        try:
+            current = sts_api.get(f"/jobs/{urllib.parse.quote(name, safe='')}")
+        except sts_api.ApiError as exc:
+            if exc.status == 404:
+                raise SystemExit(f"Job not found: {name}") from None
+            raise
+        if (current.get("description") or "") == description:
+            updated.append(f"{name} (unchanged)")
+            continue
+        sts_api.patch(f"/jobs/{urllib.parse.quote(name, safe='')}", {"description": description})
+        updated.append(name)
+    return updated
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -140,4 +74,7 @@ def main(argv: list[str] | None = None) -> int:
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    try:
+        sys.exit(main())
+    except sts_api.ApiError as exc:
+        raise SystemExit(str(exc)) from exc

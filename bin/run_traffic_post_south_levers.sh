@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# Dev tool: uses docker directly by design (not the REST API).
 # Focused lever sweep after South→Neville unclog.
 # Sessions 3-10 from hart_session2_locked; ~15 cases around remaining knobs
 # (max_new / gate / repo / coke both vs stagger / gen_loose).

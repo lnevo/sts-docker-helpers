@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# Dev tool: uses docker directly by design (not the REST API).
 # Sweep order-generation gate (max_unfilled) and empty-reposition percent.
 set -euo pipefail
 

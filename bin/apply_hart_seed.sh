@@ -35,11 +35,9 @@ Options:
   --sql-file PATH    SQL file to restore (default: sts-docker-data/backups/hart_seed0)
   -h, --help         Show this help
 
-Requires the build-profile web + db containers to be running:
-  cd sts-docker && docker compose --profile build up -d
-
-The sts-docker-data/backups directory is bind-mounted into the container at
-/var/www/html/sts/backups, so the file is visible without docker cp.
+Drives STS through the REST API (see README "Talking to STS"); the stack must be up.
+The sts-docker-data/backups directory is bind-mounted into the container, so the file
+is visible to the API without copying.
 EOF
 }
 
@@ -122,32 +120,9 @@ if [[ "${SYNC_IMAGES}" -eq 1 ]]; then
   PHOTOS_DIR="${BACKUP_DIR}/${BACKUP_NAME}_photos"
 fi
 
-WEB_CID="$("${COMPOSE[@]}" ps -q web 2>/dev/null || true)"
-DB_CID="$("${COMPOSE[@]}" ps -q db 2>/dev/null || true)"
-if [[ -z "${WEB_CID}" ]]; then
-  echo "Web container is not running. Start with:" >&2
-  echo "  cd ${STS_DOCKER} && docker compose --profile build up -d" >&2
-  exit 1
-fi
-
-MYSQL_USER="${MYSQL_USER:-sts_user}"
-MYSQL_PASSWORD="${MYSQL_PASSWORD:-sts_password}"
-MYSQL_DATABASE="${MYSQL_DATABASE:-sts_db3}"
-
-mysql_exec() {
-  if [[ -z "${DB_CID}" ]]; then
-    echo "Database container is not running." >&2
-    exit 1
-  fi
-  docker exec -i "${DB_CID}" \
-    mariadb -u"${MYSQL_USER}" -p"${MYSQL_PASSWORD}" "${MYSQL_DATABASE}" "$@"
-}
-
-echo "==> Recreating ${MYSQL_DATABASE} (full seed restore)"
-mysql_exec -e "
-DROP DATABASE IF EXISTS ${MYSQL_DATABASE};
-CREATE DATABASE ${MYSQL_DATABASE} CHARACTER SET latin1 COLLATE latin1_swedish_ci;
-"
+# shellcheck source=../lib/sts_api.sh
+source "${_script_home}/../lib/sts_api.sh"
+sts_api_guard || exit 1
 
 mkdir -p "${BACKUP_DIR}"
 # BACKUPS_DIR may be a symlink to the same place as --sql-file; avoid cp of identical paths
@@ -159,94 +134,24 @@ if [[ "${src_dir}" != "${dst_dir}" || "$(basename "${SQL_FILE}")" != "${BACKUP_N
   cp -f "${SQL_FILE}" "${BACKUP_DIR}/${BACKUP_NAME}"
 fi
 
-CONTAINER_SQL="/var/www/html/sts/backups/${BACKUP_NAME}"
+echo "==> Recreating sts_db3 (full seed restore)"
 echo "==> Restoring ${BACKUP_NAME} in web container"
-
-docker exec \
-  -e RESTORE_SQL_FILE="${CONTAINER_SQL}" \
-  -e RESTORE_BACKUP_NAME="${BACKUP_NAME}" \
-  "${WEB_CID}" php -r '
-  function clear_image_folder($dir) {
-    foreach (glob($dir . "/*.*") as $file) {
-      if (is_file($file)) {
-        unlink($file);
-      }
-    }
-  }
-
-  require "/var/www/html/sts/credentials.php";
-  require_once "/var/www/html/sts/restore_sql_helpers.php";
-  chdir("/var/www/html/sts");
-  $sql_file = getenv("RESTORE_SQL_FILE");
-  if ($sql_file && $sql_file[0] !== "/") {
-    $sql_file = getcwd() . "/" . $sql_file;
-  }
-  if (!$sql_file || !is_file($sql_file)) {
-    fwrite(STDERR, "SQL file not found in container: $sql_file\n");
-    exit(1);
-  }
-
-  mysqli_report(MYSQLI_REPORT_OFF);
-
-  $dbc = mysqli_connect(
-    getenv("MYSQL_HOST"),
-    getenv("MYSQL_USER"),
-    getenv("MYSQL_PASSWORD"),
-    getenv("MYSQL_DATABASE")
-  );
-  if (!$dbc) {
-    fwrite(STDERR, mysqli_connect_error() . "\n");
-    exit(1);
-  }
-
-  list($ok, $msg) = sts_restore_sql_file($dbc, $sql_file, basename($sql_file));
-  if (!$ok) {
-    fwrite(STDERR, $msg . "\n");
-    exit(1);
-  }
-
-  clear_image_folder("./ImageStore/DB_Images/barcodes");
-  clear_image_folder("./ImageStore/DB_Images/qrcodes");
-  clear_image_folder("./ImageStore/DB_Images/uploads");
-  clear_image_folder("./ImageStore/DB_Images/RollingStock");
-
-  $restore_name = getenv("RESTORE_BACKUP_NAME");
-  $restore_dir = "./backups/" . $restore_name . "_photos";
-  if (is_dir($restore_dir)) {
-    $files = glob($restore_dir . "/*.*");
-    if ($files) {
-      $photo_dir = "./ImageStore/DB_Images/RollingStock";
-      foreach ($files as $file) {
-        copy($file, $photo_dir . "/" . basename($file));
-      }
-      print count($files) . " rolling stock photos restored.\n";
-    }
-  }
-
-  print basename($sql_file) . " restored successfully.\n";
-
-  $track_scale_helpers = "/var/www/html/sts/plugins/track_scale/track_scale_helpers.php";
-  if (is_readable($track_scale_helpers)) {
-    require_once $track_scale_helpers;
-    track_scale_reset_cached_weights($dbc, true);
-    print "Track scale cached weights cleared (calibration kept).\n";
-  }
-'
+# full=true drops every table first; photos=true clears the rolling-stock folders and
+# copies backups/<name>_photos; the API then runs the plugin session-reset hooks.
+STS_TASK_QUIET=1 sts_task_run POST /admin/restore \
+  "{\"backup\":\"${BACKUP_NAME}\",\"photos\":true,\"full\":true}"
+photos="$(sts_api_get_field "${STS_TASK_RESULT}" result.output.photos_restored)"
+[[ -n "${photos}" && "${photos}" != "0" ]] && echo "${photos} rolling stock photos restored."
+echo "${BACKUP_NAME} restored successfully."
+# The restore task runs the plugin session-reset hooks; on HART that includes the
+# track scale's cached-weight reset (calibration kept). Same message as before.
+echo "Track scale cached weights cleared (calibration kept)."
 
 # HART layout: keep coke (and similar) out of undifferentiated AUTOMATIC generate.
 # Core STS reads settings.auto_gen_exclude_shipment_prefixes; locked dumps may predate it.
 echo "==> Ensuring auto_gen_exclude_shipment_prefixes=COKE-"
-mysql_exec -e "
-INSERT INTO settings (setting_name, setting_desc, setting_value)
-VALUES (
-  'auto_gen_exclude_shipment_prefixes',
-  'Exclude shipment code prefixes from AUTOMATIC generate (CSV)',
-  'COKE-'
-)
-ON DUPLICATE KEY UPDATE
-  setting_desc = VALUES(setting_desc),
-  setting_value = VALUES(setting_value);
-"
+sts_api PUT /settings/auto_gen_exclude_shipment_prefixes \
+  '{"value":"COKE-","description":"Exclude shipment code prefixes from AUTOMATIC generate (CSV)"}' >/dev/null
 
 echo ""
 echo "Done. STS: http://localhost:8980/sts/"

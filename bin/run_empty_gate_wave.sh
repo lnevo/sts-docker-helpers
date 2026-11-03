@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# Dev tool: uses docker directly by design (not the REST API).
 # Empty-management / gate lever sweep from hart_session3_locked.
 # Phase A: 12 cases × 1 seed (score sessions 5..10)
 # Phase B: winner (+ close runner-up) × 5 random seeds

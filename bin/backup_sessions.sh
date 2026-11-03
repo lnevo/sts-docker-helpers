@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# Dev tool: uses docker directly by design (not the REST API).
 # Snapshot (and restore) the STS session state to a timestamped archive.
 #
 # Live session state now lives on the host-mounted sts-docker-data/backups volume at

@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# Dev tool: uses docker directly by design (not the REST API).
 # Fix session-output ownership when CLI scripts ran as root inside the web
 # container. Session data lives at backups/session_state/sessions (see
 # session_web_root()); this makes it www-data-writable again.

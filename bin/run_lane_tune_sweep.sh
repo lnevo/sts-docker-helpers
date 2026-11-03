@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# Dev tool: uses docker directly by design (not the REST API).
 # Island vs interchange lane tuning — uses finalized workflow (max_new=14, no gate, random seed).
 set -euo pipefail
 

@@ -32,26 +32,18 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-WEB_CID="$("${COMPOSE[@]}" ps -q web 2>/dev/null || true)"
-if [[ -z "${WEB_CID}" ]]; then
-  echo "Web container is not running. Start with:" >&2
-  echo "  cd ${STS_DOCKER} && docker compose --profile build up -d" >&2
-  exit 1
-fi
+# shellcheck source=../lib/sts_api.sh
+source "${_script_home}/../lib/sts_api.sh"
+sts_api_guard || exit 1
 
-echo "==> Syncing legacy play-session CLI into web container"
-sts_helpers_docker_cp_legacy_cli "${WEB_CID}" play_operating_session.php
-
-ARGS=()
+BODY='{}'
 if [[ -n "${BACKUP_NAME}" ]]; then
-  ARGS+=(--backup="${BACKUP_NAME}")
+  BODY="{\"backup\":\"${BACKUP_NAME}\"}"
 fi
 
 echo "==> Playing operating session"
-sts_helpers_docker_exec_www "${WEB_CID}" php /var/www/html/sts/play_operating_session.php "${ARGS[@]}"
+STS_TASK_DROP='^(task [^ ]+ \(.*\) started|task finished)$' \
+  sts_task_run POST /admin/sessions/play "${BODY}"
 
-SESSION="$(
-  sts_helpers_docker_exec_www "${WEB_CID}" php -r \
-    'chdir("/var/www/html/sts"); require "open_db.php"; $d=open_db(); $r=mysqli_query($d,"SELECT setting_value FROM settings WHERE setting_name=\"session_nbr\""); echo mysqli_fetch_row($r)[0];'
-)"
+SESSION="$(sts_session_nbr)"
 echo "==> Session ${SESSION} play complete (STG-SCULLY backlog ready for next begin_session)"

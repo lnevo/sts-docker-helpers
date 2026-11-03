@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# Dev tool: uses docker directly by design (not the REST API).
 # Compare queue gates and demand-based reposition from locked session 3.
 # 6 cases × 10 sessions (s4..s13). Default one seed for a true 6×10; set
 # SEEDS="11 22 33" for a 3-seed average.
