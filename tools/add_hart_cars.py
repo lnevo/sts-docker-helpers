@@ -30,7 +30,8 @@ HART_ROOT = HELPERS.parents[1]
 INPUTS = HELPERS / "seed/inputs"
 ADDED = INPUTS / "sts_added_cars.csv"
 BACKUPS = HART_ROOT / "external/sts-docker-data/backups"
-FINAL = HART_ROOT / "ops/car-cards/CarImagesFinal"
+FINAL = HART_ROOT / "ops/car-cards/car-images/CarImagesFinal"
+LIVE_PHOTOS = HART_ROOT / "external/sts-docker-data/Rolling Stock photos"  # what the running container serves
 SOUTH_YARD = "4"
 OWNER = "1"
 COLUMNS = ["roster_id", "sts_car_id", "aar_code", "reporting_marks", "remarks"]
@@ -137,18 +138,34 @@ def apply_live(cars: list[tuple[str, str, str, str, list[str]]]) -> None:
             )
 
 
-def save_photo(car_id: str, roster_id: str, seed_path: Path) -> None:
+def final_image(name: str) -> Path | None:
+    """The finished crop for a source photo. Crops are PNGs named after the photo's stem."""
+    stem = Path(name).stem
+    for candidate in (FINAL / name, FINAL / f"{stem}.png"):
+        if candidate.is_file():
+            return candidate
+    return None
+
+
+def save_photo(car_id: str, roster_id: str, seed_path: Path) -> bool:
+    """Write {car_id}.jpg for the seed and for the running container. False when there is no photo."""
     with (INPUTS / "image_metadata.csv").open(newline="", encoding="utf-8") as fh:
         row = next((r for r in csv.DictReader(fh) if r.get("roster_id") == roster_id), None)
     name = (row or {}).get("source_image", "")
-    if not name or not (FINAL / name).is_file():
-        return
+    source = final_image(name) if name else None
+    if source is None:
+        print(f"  {roster_id}: no photo found for STS car {car_id} (looked for {name or 'no source_image'})")
+        return False
     from PIL import Image
 
-    out = seed_path.with_name(f"{seed_path.name}_photos") / f"{car_id}.jpg"
-    out.parent.mkdir(parents=True, exist_ok=True)
-    with Image.open(FINAL / name) as image:
-        image.convert("RGB").save(out, "JPEG", quality=85, optimize=True)
+    targets = [seed_path.with_name(f"{seed_path.name}_photos")]
+    if LIVE_PHOTOS.is_dir():
+        targets.append(LIVE_PHOTOS)
+    with Image.open(source) as image:
+        for folder in targets:
+            folder.mkdir(parents=True, exist_ok=True)
+            image.convert("RGB").save(folder / f"{car_id}.jpg", "JPEG", quality=85, optimize=True)
+    return True
 
 
 def main() -> int:
