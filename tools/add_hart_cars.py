@@ -97,13 +97,27 @@ def live_db_running() -> bool:
     return bool(data) and data.get("db") == "ok"
 
 
+def keep_live_pools(pools: list[str], live: set[str], marks: str) -> list[str]:
+    """Drop pools whose shipment is gone from the running database, and say so.
+
+    The seed can still list a shipment that was deleted from the live database; STS rejects
+    the whole car if one pool is unknown.
+    """
+    gone = [p for p in pools if p not in live]
+    if gone:
+        print(f"  {marks}: shipments {' '.join(gone)} are not in the running database; left out of its pools")
+    return [p for p in pools if p in live]
+
+
 def apply_live(cars: list[tuple[str, str, str, str, list[str]]]) -> None:
     """POST /cars for (car_id, marks, code_id, remarks, pools); the new id must match car_id.
 
     The API assigns ids itself. Photos are named by car id, so an id that differs from the
     seed's is an error, not something to carry on with.
     """
+    live_shipments = {str(s["id"]) for s in sts_api.get("/shipments")}
     for car_id, marks, code_id, remarks, pools in cars:
+        pools = keep_live_pools(pools, live_shipments, marks)
         created = sts_api.post("/cars", {
             "reporting_marks": marks,
             "car_code_id": int(code_id),
