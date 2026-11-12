@@ -95,6 +95,15 @@ Through POHC↔CSX moves use the same Offline party pattern as island locals, bu
 | COKE-CLEV-BULK | NIL-SHEN-COKE | SCL-OUT-CLEV | POHC \| NS via McKees Rocks (5 cars) |
 | COKE-RELOAD-NORTH | SOUTH-SCALE | NORTH | Off-tolerance reload |
 
+### Coal into Shenango (added 2026-11-12, live codes)
+
+| Code | Load | Unload | Notes |
+|------|------|--------|-------|
+| COAL-SHEN-CONSOL | CONSOLEN-COAL (Mckeesport-PA, CSX) | SHEN-COKE-SHIPPING | HM, 1-2 cars when under 4 open |
+| COAL-SHEN-BAILEY | BAILEY-COAL (McKees Rocks-PA, POHC via NS at Duff Jct) | SHEN-COKE-SHIPPING | HM, 1-2 cars when under 4 open |
+
+Coal unloads on the coke works track, so the empty hopper is there for the next coke order; hoppers cycle coal in, coke out. The **Coal Shenango** section of `hart_session` generates both lanes, and `COAL-SHEN-` is excluded from the automatic generator. The coke bulk lanes draw 3-5 cars when under 10 open (were 2-4 under 8). Bailey is a plausible origin by seam and geography (Pittsburgh No. 8, Greene County), not a documented Shenango supplier.
+
 **Demmler Offline** (routing station 14) and **Scully Offline** (routing station 15) hold CSX and POHC offline party tracks (`DEM-IN-*`, `DEM-OUT-*`, `SCL-IN-*`, `SCL-OUT-*`). Interchange yards **Demmler Yard** (10) and **Scully Yard** (9) keep home yards only (`DEM`, `SCL`). **STG-DEMMLER** / **STG-SCULLY**: step 10 pickup at yard; step 11 setout at offline (yard receive); steps 12–50 pickup+setout at offline; step 60 pickup+setout at home yard. Cross-interchange offline transfers are **not** staging: **D749** step 15 moves South Yard → Demmler Offline, step 35 moves Demmler Yard → Scully Offline; **NVL** step 35 moves Scully Yard → Demmler Offline. **NVL** also picks for Demmler Offline and Scully Offline at Neville Island (steps 75, 85) and Scully Offline at South Yard (step 95).
 
 ### Track scale reassignment after weigh

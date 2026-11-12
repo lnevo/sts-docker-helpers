@@ -82,7 +82,7 @@
             "params": {
                 "variable": "open_orders",
                 "operator": ">=",
-                "value": "8",
+                "value": "10",
                 "commodity": "",
                 "shipment": "COKE-CLEV-BULK",
                 "car_code": "",
@@ -94,7 +94,7 @@
                 "step": "11"
             },
             "catalog_description": "When true, skip forward to a later section. When false, continue to the next step.",
-            "description": "Skip CLEV when open COKE-CLEV-BULK (MR) orders >= 8."
+            "description": "Skip CLEV when open COKE-CLEV-BULK (MR) orders >= 10."
         },
         {
             "function": "generate_orders",
@@ -120,19 +120,19 @@
             "params": {
                 "variable": "open_orders",
                 "operator": ">=",
-                "value": "8",
+                "value": "10",
                 "commodity": "",
                 "shipment": "COKE-USS-BULK",
                 "car_code": "",
                 "loading_location": "",
                 "unloading_location": "",
                 "final_destination": "",
-                "section": "step-14",
+                "section": "step-20",
                 "section_label": "Generate Orders",
-                "step": "14"
+                "step": "20"
             },
             "catalog_description": "When true, skip forward to a later section. When false, continue to the next step.",
-            "description": "Skip USS when open COKE-USS-BULK (MP) orders >= 8."
+            "description": "Skip USS when open COKE-USS-BULK (MP) orders >= 10."
         },
         {
             "function": "generate_orders",
@@ -149,6 +149,78 @@
         {
             "function": "section_label",
             "params": {
+                "label": "Coal Shenango"
+            }
+        },
+        {
+            "function": "if_then",
+            "params": {
+                "variable": "open_orders",
+                "operator": ">=",
+                "value": "4",
+                "commodity": "",
+                "shipment": "COAL-SHEN-CONSOL",
+                "car_code": "",
+                "loading_location": "",
+                "unloading_location": "",
+                "final_destination": "",
+                "section": "step-17",
+                "section_label": "Coal Bailey",
+                "step": "17"
+            },
+            "description": "Skip COAL-SHEN-CONSOL when its open orders >= 4."
+        },
+        {
+            "function": "generate_orders",
+            "params": {
+                "shipment": "COAL-SHEN-CONSOL",
+                "increment_session": "",
+                "max_unfilled": "",
+                "max_new": "",
+                "seed": "",
+                "exclude_prefixes": ""
+            },
+            "description": "COAL-SHEN-CONSOL when that lane's open backlog is under gate."
+        },
+        {
+            "function": "section_label",
+            "params": {
+                "label": "Coal Bailey"
+            }
+        },
+        {
+            "function": "if_then",
+            "params": {
+                "variable": "open_orders",
+                "operator": ">=",
+                "value": "4",
+                "commodity": "",
+                "shipment": "COAL-SHEN-BAILEY",
+                "car_code": "",
+                "loading_location": "",
+                "unloading_location": "",
+                "final_destination": "",
+                "section": "step-20",
+                "section_label": "Generate Orders",
+                "step": "20"
+            },
+            "description": "Skip COAL-SHEN-BAILEY when its open orders >= 4."
+        },
+        {
+            "function": "generate_orders",
+            "params": {
+                "shipment": "COAL-SHEN-BAILEY",
+                "increment_session": "",
+                "max_unfilled": "",
+                "max_new": "",
+                "seed": "",
+                "exclude_prefixes": ""
+            },
+            "description": "COAL-SHEN-BAILEY when that lane's open backlog is under gate."
+        },
+        {
+            "function": "section_label",
+            "params": {
                 "label": "Generate Orders"
             },
             "catalog_description": "Section heading with optional remarks (non-operational)."
@@ -161,7 +233,7 @@
                 "max_unfilled": "40",
                 "max_new": "4",
                 "seed": "",
-                "exclude_prefixes": "COKE-"
+                "exclude_prefixes": "COKE-,COAL-SHEN-"
             },
             "catalog_description": "Auto-generate car orders.",
             "description": "Flow throttle: add up to 4 orders only while unfilled backlog is 40 or less. Skips are expected when backlog is high. COKE-* stayed out of AUTOMATIC (gated coke steps above)."
