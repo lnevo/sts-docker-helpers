@@ -40,7 +40,7 @@ Run from **`external/sts-helpers/`** (the repo root, or its `bin/`):
 | `apply_hart_job_descriptions.sh` | Push crew instructions from seed config → DB                                                           |
 | `sync_hart_seed_config.sh`       | Export manual STS edits back into `hart_seed_config.json`                                              |
 | `merge_car_fleet_from_backup.sh` | Copy car roster from a backup into generated seed                                                      |
-| `apply_shipment_tune.sh`         | Tune shipment order intervals in the live DB                                                           |
+| `apply_shipment_tune.sh`         | Tune shipment order intervals (sandbox DB only)                                                        |
 | `rewind_ck1_weigh.sh`            | CK1 weigh simulation / rewind                                                                          |
 | `build_hart_seed_package.sh`     | Assemble portable `hart_seed_package/`                                                                 |
 | `tools/add_hart_cars.py`         | Add new cars to the seed and the running database, with fixed ids (run by hart-ops `bin/cars publish`) |
@@ -85,7 +85,7 @@ The core pipeline drives STS through its REST API v1
 
 - **Base URL:** `STS_API_URL`, else derived: `COMPOSE_PROJECT_NAME=sts-sandbox`
   gives `http://localhost:8981/sts/api/v1` (sandbox), anything else
-  `http://localhost:8980/sts/api/v1` (live).
+  `http://localhost:8980/sts/api/v1` (the Mac UAT stack).
 - **Token:** `STS_API_TOKEN`, else the file in `STS_API_TOKEN_FILE`, else
   `<sts-docker-data>/config/bootstrap_admin.token` (beside the backups dir; the
   sandbox uses `$STS_SANDBOX_DATA/config`). Reads need no token by default;
@@ -93,14 +93,30 @@ The core pipeline drives STS through its REST API v1
 - **Clients:** `lib/sts_api.sh` (`sts_api METHOD PATH [JSON]`, `sts_task_wait`,
   `sts_task_run`, `sts_session_nbr`) and `lib/sts_api.py` (`get`, `post`, `put`,
   `patch`, `task_wait`).
-- **Target guard:** the first write of a run prints
-  `==> STS API target: <stack> (<url>)` and checks `/health`. A sandbox compose
-  project must see stack `sandbox`, otherwise `live` (`STS_EXPECT_STACK`
-  overrides); a mismatch refuses the call, so a wrong URL cannot hit the other
-  stack.
-- **Sandbox vs live:** run parity work with
+- **Stacks:** `/health` names the stack. `sandbox` is the throwaway compose
+  project `sts-sandbox` on 8981; `uat` is the Mac build stack on 8980, the owner's
+  acceptance copy; `live` is the release stack on the Pi.
+- **Target guard:** every write checks `/health` first and the first one prints
+  `==> STS API target: <stack> (<url>)`. The expected stack is `STS_EXPECT_STACK`
+  (`live`, `uat` or `sandbox`; anything else is refused), else `sandbox` when
+  `COMPOSE_PROJECT_NAME=sts-sandbox`, else `uat`. A mismatch refuses the call.
+  No default reaches `live`: a write there needs `STS_EXPECT_STACK=live` set for
+  that one run. Reads are not guarded.
+- **Sandbox only:** simulations and sweeps (`run_session_simulations.sh`, every
+  `bin/run_*` except the generic `run_catalog_workflow.sh`) and these docker-exec
+  writers: `rewind_session.sh` (except `--dry-run`), `rewind_ck1_weigh.sh`,
+  `backfill_*`, `benchmark_home_split.sh`, `apply_shipment_tune.sh`. They refuse
+  to start unless the compose web container has `STS_STACK_NAME=sandbox` and
+  `/health` says `sandbox` (`sts_require_sandbox` in `lib/paths.sh`;
+  `sts_api_require_sandbox` for API-only scripts), and they pin
+  `STS_EXPECT_STACK=sandbox` for the scripts they call. Not guarded:
+  `backup_sessions.sh`, `fix_temp_permissions.sh`, `sync_operational_steps.sh`.
+  Run them with
   `COMPOSE_PROJECT_NAME=sts-sandbox STS_SANDBOX_DATA=... STS_BACKUPS_DIR=$STS_SANDBOX_DATA/backups STS_DOCKER=...`
-  set. Never point the simulation helpers at the live stack.
+  set.
+- **Older images:** sts-docker reports `live` when `STS_STACK_NAME` is unset, so
+  writes to an image without it are refused until the compose file names the
+  stack.
 - **Task output:** long jobs (restore, warm start, begin/play, workflow run) are
   API tasks; their log streams to the console. `STS_TASK_KEEP_TS=1` keeps the
   log timestamps. `STS_TASK_TIMEOUT=<seconds>` sends `timeout_seconds` with every

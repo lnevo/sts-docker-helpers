@@ -50,6 +50,10 @@ while [[ $# -gt 0 ]]; do
     *) echo "Unknown option: $1" >&2; exit 1 ;;
   esac
 done
+# A dry run only reads, so it may look at any stack; a real rewind is sandbox only.
+if [[ "${DRY_RUN}" -eq 0 ]]; then
+  sts_require_sandbox || exit 1
+fi
 
 WEB_CID="$("${COMPOSE[@]}" ps -q web 2>/dev/null || true)"
 if [[ -z "${WEB_CID}" ]]; then

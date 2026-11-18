@@ -51,6 +51,35 @@ sts_helpers_resolve_paths() {
   DIAGNOSTICS_DIR="${HELPERS_ROOT}/diagnostics"
 }
 
+# sts_require_sandbox: simulations, sweeps and docker-exec writers run only on the
+# sandbox stack. Refuses unless the compose web container (project from
+# COMPOSE_PROJECT_NAME) has STS_STACK_NAME=sandbox and the API target's /health
+# reports stack sandbox. Pins STS_EXPECT_STACK=sandbox for the scripts it calls.
+sts_require_sandbox() {
+  local cid stack
+  cid="$("${COMPOSE[@]}" ps -q web 2>/dev/null || true)"
+  if [[ -z "${cid}" ]]; then
+    echo "REFUSING: no running web container in compose project '${COMPOSE_PROJECT_NAME:-sts-docker}'." >&2
+    echo "$(basename "${0}") runs only on the sandbox stack: set COMPOSE_PROJECT_NAME=sts-sandbox and start it." >&2
+    return 1
+  fi
+  if [[ "${cid}" == *$'\n'* ]]; then
+    echo "REFUSING: more than one web container in compose project '${COMPOSE_PROJECT_NAME:-sts-docker}'." >&2
+    return 1
+  fi
+  stack="$(docker inspect -f '{{range .Config.Env}}{{println .}}{{end}}' "${cid}" | sed -n 's/^STS_STACK_NAME=//p')"
+  if [[ "${stack}" != "sandbox" ]]; then
+    echo "REFUSING: $(basename "${0}") runs only on the sandbox stack, but web container ${cid:0:12} is stack '${stack:-unknown}'." >&2
+    echo "Set COMPOSE_PROJECT_NAME=sts-sandbox." >&2
+    return 1
+  fi
+  if ! declare -F sts_api_require_sandbox >/dev/null; then
+    # shellcheck source=sts_api.sh
+    source "${HELPERS_ROOT}/lib/sts_api.sh"
+  fi
+  sts_api_require_sandbox
+}
+
 # Run a command in the web container as www-data (matches Apache/PHP web UI ownership).
 sts_helpers_docker_exec_www() {
   local web_cid="$1"
