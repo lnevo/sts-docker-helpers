@@ -78,19 +78,46 @@ sts_require_sandbox() {
     source "${HELPERS_ROOT}/lib/sts_api.sh"
   fi
   # docker exec writes go to this container and API writes to sts_api_base: they must be the
-  # same stack, so the API URL has to be this machine at the container's published port.
-  local base published api_port
+  # same stack, so docker must be local and the API URL a loopback address at one of the
+  # container's published ports.
+  local base api_port endpoint bindings line matched=0
   base="$(sts_api_base)"
-  published="$(docker port "${cid}" 80/tcp 2>/dev/null | head -n 1)"
-  published="${published##*:}"
-  if [[ ! "${base}" =~ ^http://(localhost|127\.0\.0\.1)(:([0-9]+))?/ ]]; then
-    echo "REFUSING: the API target ${base} is not on this machine, so it cannot be web container ${cid:0:12}." >&2
+  if ! endpoint="$(docker context inspect -f '{{.Endpoints.docker.Host}}' 2>&1)"; then
+    echo "REFUSING: cannot read the docker context: ${endpoint}" >&2
     return 1
   fi
-  api_port="${BASH_REMATCH[3]:-80}"
-  if [[ -z "${published}" || "${published}" != "${api_port}" ]]; then
-    echo "REFUSING: the API target ${base} (port ${api_port}) is not web container ${cid:0:12} (published port ${published:-none})." >&2
-    echo "Unset STS_API_URL or point it at that container." >&2
+  if [[ -n "${DOCKER_HOST:-}" ]]; then
+    endpoint="${DOCKER_HOST}"
+  fi
+  if [[ "${endpoint}" != unix://* && "${endpoint}" != npipe://* ]]; then
+    echo "REFUSING: docker talks to ${endpoint}, not this machine, so its container cannot be checked against ${base}." >&2
+    return 1
+  fi
+  if [[ ! "${base}" =~ ^(https?)://(localhost|127\.0\.0\.1|\[::1\])(:([0-9]+))?(/|$) ]]; then
+    echo "REFUSING: the API target ${base} is not a loopback address, so it cannot be web container ${cid:0:12}." >&2
+    return 1
+  fi
+  api_port="${BASH_REMATCH[4]:-}"
+  if [[ -z "${api_port}" ]]; then
+    [[ "${BASH_REMATCH[1]}" == "https" ]] && api_port=443 || api_port=80
+  fi
+  if ! bindings="$(docker port "${cid}" 80/tcp 2>&1)"; then
+    echo "REFUSING: docker port ${cid:0:12} failed: ${bindings}" >&2
+    return 1
+  fi
+  while IFS= read -r line; do
+    # 0.0.0.0:8981, [::]:8981, 127.0.0.1:8981 reach loopback; a binding to another address does not.
+    case "${line%:*}" in
+      0.0.0.0|127.0.0.1|"[::]"|"::"|"[::1]") [[ "${line##*:}" == "${api_port}" ]] && matched=1 ;;
+    esac
+  done <<< "${bindings}"
+  if [[ "${matched}" -ne 1 ]]; then
+    echo "REFUSING: the API target ${base} (port ${api_port}) is not web container ${cid:0:12} (published: ${bindings:-nothing})." >&2
+    if [[ -n "${STS_API_URL:-}" ]]; then
+      echo "Unset STS_API_URL or point it at that container." >&2
+    else
+      echo "The default URL for COMPOSE_PROJECT_NAME='${COMPOSE_PROJECT_NAME:-}' does not match; set STS_API_URL to that container." >&2
+    fi
     return 1
   fi
   sts_api_require_sandbox

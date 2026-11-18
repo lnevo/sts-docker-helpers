@@ -208,7 +208,10 @@ FAKE_DOCKER = """#!/usr/bin/env bash
 case "$*" in
   compose*"ps -q web"*) [[ -n "${FAKE_CID:-}" ]] && printf '%s\\n' "${FAKE_CID}" ;;
   inspect*) printf 'PATH=/usr/bin\\nSTS_STACK_NAME=%s\\n' "${FAKE_STACK}" ;;
-  port*) [[ -n "${FAKE_PORT:-}" ]] && printf '0.0.0.0:%s\\n' "${FAKE_PORT}" ;;
+  port*)
+    if [[ -n "${FAKE_PORT:-}" ]]; then printf '%s:%s\\n' "${FAKE_BIND:-0.0.0.0}" "${FAKE_PORT}"
+    else echo "Error: No public port '80/tcp' published for $2" >&2; exit 1; fi ;;
+  context*) printf '%s\\n' "${FAKE_ENDPOINT:-unix:///var/run/docker.sock}" ;;
   *) echo "unexpected docker $*" >&2; exit 9 ;;
 esac
 """
@@ -237,10 +240,12 @@ class ContainerGuard(unittest.TestCase):
         script = (f'set -u; source "{ROOT}/lib/paths.sh"; '
                   f'STS_DOCKER="{self.root}/sts-docker" sts_helpers_resolve_paths "{ROOT}/bin/x.sh"; '
                   'sts_require_sandbox')
-        e = clean_env(STS_API_URL=stub.url, FAKE_CID=cid, FAKE_STACK=stack,
+        e = clean_env(FAKE_CID=cid, FAKE_STACK=stack,
                       FAKE_PORT=stub_port if port is None else port,
                       PATH=f"{self.fake_bin}:{os.environ['PATH']}", **env)
+        e.setdefault("STS_API_URL", stub.url)
         e.pop("STS_BACKUPS_DIR", None)
+        e.pop("DOCKER_HOST", None)
         return run_bash(script, e), stub
 
     def test_sandbox_container_passes(self):
@@ -269,8 +274,27 @@ class ContainerGuard(unittest.TestCase):
         self.assertEqual(stub.requests, [])
 
     def test_unpublished_container_refused(self):
-        r, _ = self.run_guard("sandbox", port="")
+        r, stub = self.run_guard("sandbox", port="")
         self.assertNotEqual(r.returncode, 0)
+        self.assertIn("No public port", r.stderr)
+        self.assertEqual(stub.requests, [])
+
+    def test_binding_to_another_address_refused(self):
+        r, stub = self.run_guard("sandbox", FAKE_BIND="10.0.0.5")
+        self.assertNotEqual(r.returncode, 0)
+        self.assertEqual(stub.requests, [])
+
+    def test_remote_docker_refused(self):
+        r, stub = self.run_guard("sandbox", FAKE_ENDPOINT="tcp://10.0.0.150:2376")
+        self.assertNotEqual(r.returncode, 0)
+        self.assertIn("not this machine", r.stderr)
+        self.assertEqual(stub.requests, [])
+
+    def test_non_loopback_api_refused(self):
+        r, stub = self.run_guard("sandbox", STS_API_URL="http://10.0.0.150:8981/sts/api/v1")
+        self.assertNotEqual(r.returncode, 0)
+        self.assertIn("not a loopback address", r.stderr)
+        self.assertEqual(stub.requests, [])
 
     def test_override_to_other_stack_refused(self):
         r, _ = self.run_guard("sandbox", STS_EXPECT_STACK="uat")

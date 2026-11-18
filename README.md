@@ -112,7 +112,8 @@ The core pipeline drives STS through its REST API v1
   writers: `rewind_session.sh` (except `--dry-run`), `rewind_ck1_weigh.sh`,
   `backfill_*`, `benchmark_home_split.sh`, `apply_shipment_tune.sh`. They refuse
   to start unless the compose web container has `STS_STACK_NAME=sandbox` and
-  `/health` says `sandbox` (`sts_require_sandbox` in `lib/paths.sh`;
+  `/health` says `sandbox`, docker is local, and the API URL is a loopback address
+  at that container's published port (`sts_require_sandbox` in `lib/paths.sh`;
   `sts_api_require_sandbox` for API-only scripts), and they pin
   `STS_EXPECT_STACK=sandbox` for the scripts they call. Not guarded:
   `backup_sessions.sh`, `fix_temp_permissions.sh`, `sync_operational_steps.sh`.
