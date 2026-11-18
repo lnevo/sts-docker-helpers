@@ -13,7 +13,6 @@ BACKUP_NAME="hart_warm_start"
 SEED=42
 COMPLETED_SESSIONS=3
 MAX_SESSIONS=12
-CK1_TEST=0
 TRACKED=0
 RESTORE_BASE=1
 CONTINUE=0
@@ -31,7 +30,6 @@ Options:
   --seed N           Random seed for order generation (default: 42)
   --no-restore       Skip hart_seed restore (simulate from current DB state)
   --continue         Advance from current session (implies --no-restore, no re-seed)
-  --ck1-test         Run fixed sessions then CK1 weigh test instead of staging stop
   --tracked          Tracked sessions: CK1 each session, stop when STG-SCULLY ready at Scully
   --backup-name NAME Backup file name (default: hart_warm_start)
   -h, --help         Show this help
@@ -51,7 +49,6 @@ while [[ $# -gt 0 ]]; do
   case "$1" in
     --sessions) COMPLETED_SESSIONS="$2"; shift 2 ;;
     --max-sessions) MAX_SESSIONS="$2"; shift 2 ;;
-    --ck1-test) CK1_TEST=1; shift ;;
     --tracked) TRACKED=1; shift ;;
     --seed) SEED="$2"; shift 2 ;;
     --no-restore) RESTORE_BASE=0; shift ;;
@@ -82,8 +79,6 @@ fi
 
 BODY="{\"sessions\":${COMPLETED_SESSIONS},\"max_sessions\":${MAX_SESSIONS},\"backup\":\"${BACKUP_NAME}\""
 [[ "${TRACKED}" -eq 1 ]] && BODY+=',"tracked":true'
-# --ck1-test: same overrides simulate_warm_start.php applied for the flag.
-[[ "${CK1_TEST}" -eq 1 ]] && BODY+=',"config":{"stop_when_staging_ready":false,"run_ck1_test":true}'
 if [[ "${CONTINUE}" -eq 1 ]]; then
   echo "==> Advancing warm start from current session (min=${COMPLETED_SESSIONS}, max=${MAX_SESSIONS}, no re-seed)"
   BODY+=',"continue":true'
@@ -93,7 +88,7 @@ else
 fi
 BODY+='}'
 # The task log repeats the engine output; the wrapper lines and the summary are re-rendered
-# below in the CLI's format so the console output matches simulate_warm_start.php.
+# below in the CLI's format so the console output stays the same as the old CLI's.
 STS_TASK_DROP='^(task [^ ]+ \(.*\) started|task finished|seed [0-9]+|warm start finished at session .*|backup written: .*)$' \
   sts_task_run POST /admin/warm-start "${BODY}"
 printf '%s' "${STS_TASK_RESULT}" | python3 -c '

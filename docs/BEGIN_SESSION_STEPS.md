@@ -125,7 +125,7 @@ That snapshot is **“session open — crews leave the yard.”**
 ./bin/begin_session.sh --run-stg-scully --switchlists
 ```
 
-`--switchlists` runs `generate_switchlists.sh` immediately after prep.
+`--switchlists` is deprecated; run the saved workflow with `run_catalog_workflow.sh` for switch lists.
 
 ---
 
@@ -187,8 +187,8 @@ Footer guidance:
 # Prep only
 ./bin/begin_session.sh --run-stg-scully
 
-# Lists only (DB already at session open)
-./bin/generate_switchlists.sh --format=phased
+# Lists: run the saved workflow
+./bin/run_catalog_workflow.sh
 ```
 
 See also: **`WARM_START_STEPS.md`**, **`FULL_OPERATING_SESSION.md`**.

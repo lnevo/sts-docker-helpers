@@ -149,7 +149,6 @@ write_wrapper merge_car_fleet_from_backup.sh sts-docker-helpers/bin/merge_car_fl
 write_wrapper rewind_ck1_weigh.sh sts-docker-helpers/bin/rewind_ck1_weigh.sh
 write_wrapper apply_shipment_tune.sh sts-docker-helpers/bin/apply_shipment_tune.sh
 write_wrapper sync_hart_seed_config.sh sts-docker-helpers/bin/sync_hart_seed_config.sh
-write_wrapper generate_switchlists.sh sts-docker-helpers/bin/generate_switchlists.sh
 write_wrapper run_session_simulations.sh sts-docker-helpers/bin/run_session_simulations.sh
 
 if [[ "${INCLUDE_CAR_IMAGES:-1}" == "1" ]]; then
@@ -191,7 +190,6 @@ python3 generate_hart_seed.py --output ./hart_seed
 ./run_session_simulations.sh --sessions 10
 ./apply_warm_start.sh --tracked
 ./begin_session.sh --run-stg-scully --switchlists
-./generate_switchlists.sh --format=phased
 ```
 
 See `sts-docker-helpers/README.md` for full command reference.
