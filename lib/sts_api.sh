@@ -27,6 +27,13 @@ sts_api_base() {
   fi
 }
 
+# sts_app_url: the web app root of the API target (base URL without /api/v1), for messages.
+sts_app_url() {
+  local base
+  base="$(sts_api_base)"
+  printf '%s/' "${base%/api/v1}"
+}
+
 sts_api_expected_stack() {
   if [[ -n "${STS_EXPECT_STACK:-}" ]]; then
     case "${STS_EXPECT_STACK}" in

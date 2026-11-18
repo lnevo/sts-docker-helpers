@@ -135,4 +135,4 @@ fi
 
 echo ""
 echo "Done. Warm-start backup: ${BACKUPS_DIR}/${BACKUP_NAME}"
-echo "STS: http://localhost:8980/sts/"
+echo "STS: $(sts_app_url)"
