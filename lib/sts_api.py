@@ -7,7 +7,6 @@ Token: STS_API_TOKEN, else STS_API_TOKEN_FILE, else <backups>/../config/bootstra
 Writes are refused unless /health reports the expected stack: STS_EXPECT_STACK
 (live, uat or sandbox), else sandbox when COMPOSE_PROJECT_NAME=sts-sandbox, else uat.
 No default reaches live; a write there needs STS_EXPECT_STACK=live for that run.
-Simulations and sweeps call require_sandbox() first.
 """
 
 from __future__ import annotations
@@ -45,7 +44,7 @@ STACKS = ("live", "uat", "sandbox")
 
 
 def expected_stack() -> str:
-    env = os.environ.get("STS_EXPECT_STACK", "").strip()
+    env = os.environ.get("STS_EXPECT_STACK", "")
     if env:
         if env not in STACKS:
             raise SystemExit(f"STS_EXPECT_STACK='{env}' is not one of {', '.join(STACKS)}.")
@@ -106,15 +105,6 @@ def guard() -> str:
         os.environ["_STS_API_ANNOUNCED"] = "1"
     _guarded = True
     return stack
-
-
-def require_sandbox() -> None:
-    """Pin this run (and child processes) to the sandbox stack and check /health now."""
-    env = os.environ.get("STS_EXPECT_STACK", "").strip()
-    if env and env != "sandbox":
-        raise SystemExit(f"REFUSING: this tool runs only on the sandbox stack, but STS_EXPECT_STACK={env}.")
-    os.environ["STS_EXPECT_STACK"] = "sandbox"
-    guard()
 
 
 def request_raw(method: str, path: str, body: Any = None) -> dict:

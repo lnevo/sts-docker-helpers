@@ -106,17 +106,21 @@ The core pipeline drives STS through its REST API v1
   `COMPOSE_PROJECT_NAME=sts-sandbox`, else `uat`. A mismatch refuses the call.
   No default reaches `live`: a write there needs `STS_EXPECT_STACK=live` set for
   that one run. Reads are not guarded.
-- **Sandbox only:** simulations, sweeps and the scripts that write through
-  `docker exec` (`run_session_simulations.sh`, every `bin/run_*` except
-  `run_catalog_workflow.sh`, `rewind_session.sh`, `rewind_ck1_weigh.sh`,
-  `backfill_*`, `benchmark_home_split.sh`, `apply_shipment_tune.sh`,
-  `sync_operational_steps.sh`) refuse to start unless the compose web container
-  has `STS_STACK_NAME=sandbox` and `/health` says `sandbox`
-  (`sts_require_sandbox` in `lib/paths.sh`, `sts_api_require_sandbox` /
-  `sts_api.require_sandbox()` for API-only tools). They pin
-  `STS_EXPECT_STACK=sandbox` for the scripts they call. Run them with
+- **Sandbox only:** simulations and sweeps (`run_session_simulations.sh`, every
+  `bin/run_*` except the generic `run_catalog_workflow.sh`) and these docker-exec
+  writers: `rewind_session.sh` (except `--dry-run`), `rewind_ck1_weigh.sh`,
+  `backfill_*`, `benchmark_home_split.sh`, `apply_shipment_tune.sh`. They refuse
+  to start unless the compose web container has `STS_STACK_NAME=sandbox` and
+  `/health` says `sandbox` (`sts_require_sandbox` in `lib/paths.sh`;
+  `sts_api_require_sandbox` for API-only scripts), and they pin
+  `STS_EXPECT_STACK=sandbox` for the scripts they call. Not guarded:
+  `backup_sessions.sh`, `fix_temp_permissions.sh`, `sync_operational_steps.sh`.
+  Run them with
   `COMPOSE_PROJECT_NAME=sts-sandbox STS_SANDBOX_DATA=... STS_BACKUPS_DIR=$STS_SANDBOX_DATA/backups STS_DOCKER=...`
   set.
+- **Older images:** sts-docker reports `live` when `STS_STACK_NAME` is unset, so
+  writes to an image without it are refused until the compose file names the
+  stack.
 - **Task output:** long jobs (restore, warm start, begin/play, workflow run) are
   API tasks; their log streams to the console. `STS_TASK_KEEP_TS=1` keeps the
   log timestamps. `STS_TASK_TIMEOUT=<seconds>` sends `timeout_seconds` with every

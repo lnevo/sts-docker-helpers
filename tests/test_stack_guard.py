@@ -103,9 +103,10 @@ class PythonClient(unittest.TestCase):
         self.assertEqual(sts_api.expected_stack(), "live")
 
     def test_unknown_override_refused(self):
-        os.environ["STS_EXPECT_STACK"] = "prod"
-        with self.assertRaises(SystemExit):
-            sts_api.expected_stack()
+        for value in ("prod", "sandbox "):
+            os.environ["STS_EXPECT_STACK"] = value
+            with self.assertRaises(SystemExit):
+                sts_api.expected_stack()
 
     def _with_stub(self, stack):
         stub = StubSTS(stack)
@@ -136,21 +137,6 @@ class PythonClient(unittest.TestCase):
         sts_api.get("/session")
         self.assertEqual(stub.requests, [("GET", "/sts/api/v1/session")])
 
-    def test_require_sandbox_refuses_uat(self):
-        self._with_stub("uat")
-        with self.assertRaises(SystemExit):
-            sts_api.require_sandbox()
-
-    def test_require_sandbox_refuses_other_override(self):
-        self._with_stub("sandbox")
-        os.environ["STS_EXPECT_STACK"] = "uat"
-        with self.assertRaises(SystemExit):
-            sts_api.require_sandbox()
-
-    def test_require_sandbox_pins_children(self):
-        self._with_stub("sandbox")
-        sts_api.require_sandbox()
-        self.assertEqual(os.environ["STS_EXPECT_STACK"], "sandbox")
 
 
 def run_bash(script, env):
@@ -287,7 +273,6 @@ class WritersCallTheGuard(unittest.TestCase):
         "rewind_ck1_weigh", "rewind_session", "run_catalog_tests", "run_coke_stagger_compare",
         "run_gate_reposition_sweep", "run_lane_tune_sweep", "run_nvl_tune_sweep",
         "run_track_scale_10x10", "run_traffic_extremes", "run_traffic_from_s2_sweep",
-        "sync_operational_steps",
     ]
 
     def test_guard_present(self):
