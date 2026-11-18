@@ -145,5 +145,5 @@ else
   echo "Done. Continued from session ${WARM_SESSION}; ${SESSIONS} operating session(s) opened."
 fi
 echo "Phased switch lists (workflow engine): sessions ${FIRST_OPEN}–${LAST_OPEN}"
-echo "All sessions:   http://localhost:8980/sts/session.php"
-echo "Latest session: http://localhost:8980/sts/session.php?session=${LAST_OPEN}"
+echo "All sessions:   $(sts_app_url)session.php"
+echo "Latest session: $(sts_app_url)session.php?session=${LAST_OPEN}"

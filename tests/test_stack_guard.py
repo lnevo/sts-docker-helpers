@@ -208,6 +208,7 @@ FAKE_DOCKER = """#!/usr/bin/env bash
 case "$*" in
   compose*"ps -q web"*) [[ -n "${FAKE_CID:-}" ]] && printf '%s\\n' "${FAKE_CID}" ;;
   inspect*) printf 'PATH=/usr/bin\\nSTS_STACK_NAME=%s\\n' "${FAKE_STACK}" ;;
+  port*) [[ -n "${FAKE_PORT:-}" ]] && printf '0.0.0.0:%s\\n' "${FAKE_PORT}" ;;
   *) echo "unexpected docker $*" >&2; exit 9 ;;
 esac
 """
@@ -229,13 +230,15 @@ class ContainerGuard(unittest.TestCase):
         (root / "sts-docker-data" / "backups").mkdir(parents=True)
         self.root, self.fake_bin = root, fake_bin
 
-    def run_guard(self, stack, cid="abc123def4567890", **env):
+    def run_guard(self, stack, cid="abc123def4567890", port=None, **env):
         stub = StubSTS(stack)
         self.addCleanup(stub.close)
+        stub_port = stub.url.split(":")[2].split("/")[0]
         script = (f'set -u; source "{ROOT}/lib/paths.sh"; '
                   f'STS_DOCKER="{self.root}/sts-docker" sts_helpers_resolve_paths "{ROOT}/bin/x.sh"; '
                   'sts_require_sandbox')
         e = clean_env(STS_API_URL=stub.url, FAKE_CID=cid, FAKE_STACK=stack,
+                      FAKE_PORT=stub_port if port is None else port,
                       PATH=f"{self.fake_bin}:{os.environ['PATH']}", **env)
         e.pop("STS_BACKUPS_DIR", None)
         return run_bash(script, e), stub
@@ -258,6 +261,16 @@ class ContainerGuard(unittest.TestCase):
         r, _ = self.run_guard("sandbox", cid="")
         self.assertNotEqual(r.returncode, 0)
         self.assertIn("no running web container", r.stderr)
+
+    def test_api_url_on_another_port_refused(self):
+        r, stub = self.run_guard("sandbox", port="1")
+        self.assertNotEqual(r.returncode, 0)
+        self.assertIn("is not web container", r.stderr)
+        self.assertEqual(stub.requests, [])
+
+    def test_unpublished_container_refused(self):
+        r, _ = self.run_guard("sandbox", port="")
+        self.assertNotEqual(r.returncode, 0)
 
     def test_override_to_other_stack_refused(self):
         r, _ = self.run_guard("sandbox", STS_EXPECT_STACK="uat")

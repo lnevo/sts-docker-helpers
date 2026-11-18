@@ -154,4 +154,4 @@ sts_api PUT /settings/auto_gen_exclude_shipment_prefixes \
   '{"value":"COKE-","description":"Exclude shipment code prefixes from AUTOMATIC generate (CSV)"}' >/dev/null
 
 echo ""
-echo "Done. STS: http://localhost:8980/sts/"
+echo "Done. STS: $(sts_app_url)"

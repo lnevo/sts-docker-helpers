@@ -77,6 +77,22 @@ sts_require_sandbox() {
     # shellcheck source=sts_api.sh
     source "${HELPERS_ROOT}/lib/sts_api.sh"
   fi
+  # docker exec writes go to this container and API writes to sts_api_base: they must be the
+  # same stack, so the API URL has to be this machine at the container's published port.
+  local base published api_port
+  base="$(sts_api_base)"
+  published="$(docker port "${cid}" 80/tcp 2>/dev/null | head -n 1)"
+  published="${published##*:}"
+  if [[ ! "${base}" =~ ^http://(localhost|127\.0\.0\.1)(:([0-9]+))?/ ]]; then
+    echo "REFUSING: the API target ${base} is not on this machine, so it cannot be web container ${cid:0:12}." >&2
+    return 1
+  fi
+  api_port="${BASH_REMATCH[3]:-80}"
+  if [[ -z "${published}" || "${published}" != "${api_port}" ]]; then
+    echo "REFUSING: the API target ${base} (port ${api_port}) is not web container ${cid:0:12} (published port ${published:-none})." >&2
+    echo "Unset STS_API_URL or point it at that container." >&2
+    return 1
+  fi
   sts_api_require_sandbox
 }
 
