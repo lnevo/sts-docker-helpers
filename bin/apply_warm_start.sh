@@ -88,7 +88,7 @@ else
 fi
 BODY+='}'
 # The task log repeats the engine output; the wrapper lines and the summary are re-rendered
-# below in the CLI's format so the console output stays the same as the old CLI's.
+# below as the "Warm start summary" block, built from the task result's summary.
 STS_TASK_DROP='^(task [^ ]+ \(.*\) started|task finished|seed [0-9]+|warm start finished at session .*|backup written: .*)$' \
   sts_task_run POST /admin/warm-start "${BODY}"
 printf '%s' "${STS_TASK_RESULT}" | python3 -c '

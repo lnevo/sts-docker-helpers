@@ -189,8 +189,10 @@ python3 generate_hart_seed.py --output ./hart_seed
 ```bash
 ./run_session_simulations.sh --sessions 10
 ./apply_warm_start.sh --tracked
-./begin_session.sh --run-stg-scully --switchlists
+./begin_session.sh --run-stg-scully
 ```
+
+Switch lists come from the session workflow's build-switch-list steps (Session Editor).
 
 See `sts-docker-helpers/README.md` for full command reference.
 

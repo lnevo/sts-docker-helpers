@@ -122,10 +122,13 @@ That snapshot is **“session open — crews leave the yard.”**
 **Command:**
 
 ```bash
-./bin/begin_session.sh --run-stg-scully --switchlists
+./bin/begin_session.sh --run-stg-scully
 ```
 
-`--switchlists` is deprecated; run the saved workflow with `run_catalog_workflow.sh` for switch lists.
+`--switchlists` is deprecated and only prints a notice. Switch lists come from the build-switch-list steps of the session workflow: run it from the
+Session Editor, or with `run_catalog_workflow.sh`, which runs the whole active workflow and
+changes the database (it is not a lists-only step). To re-render the stored lists of a past
+session N without changing the database, call `POST /sts/api/v1/sessions/N/rerender`.
 
 ---
 
@@ -181,14 +184,11 @@ Footer guidance:
 ## Related commands
 
 ```bash
-# Open session + lists (typical)
-./bin/begin_session.sh --run-stg-scully --switchlists
-
-# Prep only
+# Open the session (prep)
 ./bin/begin_session.sh --run-stg-scully
 
-# Lists: run the saved workflow
-./bin/run_catalog_workflow.sh
+# Re-render stored lists for session N (no database change)
+#   POST /sts/api/v1/sessions/N/rerender
 ```
 
 See also: **`WARM_START_STEPS.md`**, **`FULL_OPERATING_SESSION.md`**.

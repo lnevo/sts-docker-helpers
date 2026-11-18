@@ -54,9 +54,14 @@ Run from **`external/sts-helpers/`** (the repo root, or its `bin/`):
 # Ten operating sessions: warm start once → begin + switch lists + play (×10)
 ./sts-docker-helpers/bin/run_session_simulations.sh --sessions 10
 
-# Single session prep + switch lists (after STG-SCULLY backlog exists)
-./sts-docker-helpers/bin/begin_session.sh --run-stg-scully --switchlists
+# Single session prep (after STG-SCULLY backlog exists)
+./sts-docker-helpers/bin/begin_session.sh --run-stg-scully
 ```
+
+Switch lists come from the build-switch-list steps of the session workflow: run it from the
+Session Editor, or with `run_catalog_workflow.sh`, which runs the whole active workflow and
+changes the database (it is not a lists-only step). To re-render the stored lists of a past
+session N without changing the database, call `POST /sts/api/v1/sessions/N/rerender`.
 
 Browse switch lists: `http://localhost:8980/switchlists/index.html`
 
