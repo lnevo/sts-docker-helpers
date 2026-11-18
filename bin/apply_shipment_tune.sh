@@ -54,6 +54,7 @@ while [[ $# -gt 0 ]]; do
       ;;
   esac
 done
+sts_require_sandbox || exit 1  # simulations, sweeps and docker-exec writers: sandbox only
 
 if [[ ! -f "${SQL_FILE}" ]]; then
   echo "SQL file not found: ${SQL_FILE}" >&2

@@ -4,8 +4,9 @@
 
 Base URL: STS_API_URL, else :8981 when COMPOSE_PROJECT_NAME=sts-sandbox, else :8980.
 Token: STS_API_TOKEN, else STS_API_TOKEN_FILE, else <backups>/../config/bootstrap_admin.token.
-Writes are refused unless /health reports the expected stack (sandbox when
-COMPOSE_PROJECT_NAME=sts-sandbox, else live; STS_EXPECT_STACK overrides).
+Writes are refused unless /health reports the expected stack: STS_EXPECT_STACK
+(live, uat or sandbox), else sandbox when COMPOSE_PROJECT_NAME=sts-sandbox, else uat.
+No default reaches live; a write there needs STS_EXPECT_STACK=live for that run.
 """
 
 from __future__ import annotations
@@ -39,11 +40,16 @@ def base_url() -> str:
     return "http://localhost:8980/sts/api/v1"
 
 
+STACKS = ("live", "uat", "sandbox")
+
+
 def expected_stack() -> str:
-    env = os.environ.get("STS_EXPECT_STACK", "").strip()
+    env = os.environ.get("STS_EXPECT_STACK", "")
     if env:
+        if env not in STACKS:
+            raise SystemExit(f"STS_EXPECT_STACK='{env}' is not one of {', '.join(STACKS)}.")
         return env
-    return "sandbox" if os.environ.get("COMPOSE_PROJECT_NAME") == "sts-sandbox" else "live"
+    return "sandbox" if os.environ.get("COMPOSE_PROJECT_NAME") == "sts-sandbox" else "uat"
 
 
 def token() -> str:
@@ -86,11 +92,13 @@ def _send(method: str, path: str, body: Any = None) -> dict:
 def guard() -> str:
     """Print the target stack once; raise when it is not the expected one."""
     global _guarded
-    stack = _send("GET", "/health").get("data", {}).get("stack", "")
-    if stack != expected_stack():
+    expected = expected_stack()
+    data = _send("GET", "/health").get("data")
+    stack = data.get("stack", "") if isinstance(data, dict) else ""
+    if stack != expected:
         raise SystemExit(
             f"REFUSING: {base_url()} is stack '{stack or 'unknown'}' but this run expects "
-            f"'{expected_stack()}'. Check COMPOSE_PROJECT_NAME / STS_API_URL / STS_EXPECT_STACK."
+            f"'{expected}'. Check COMPOSE_PROJECT_NAME / STS_API_URL / STS_EXPECT_STACK."
         )
     if not _guarded and os.environ.get("_STS_API_ANNOUNCED") != "1":
         print(f"==> STS API target: {stack} ({base_url()})", file=sys.stderr)

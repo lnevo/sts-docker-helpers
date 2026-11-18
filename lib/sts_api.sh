@@ -9,8 +9,13 @@
 #   sts_session_nbr              current session number from GET /session
 #   sts_api_guard                print the target once and refuse a wrong stack
 #
+#   sts_api_require_sandbox      pin the run to the sandbox stack (simulations and sweeps)
+#
 # Environment: STS_API_URL, STS_API_TOKEN, STS_API_TOKEN_FILE, STS_EXPECT_STACK, STS_TASK_TIMEOUT.
 # Base URL default: COMPOSE_PROJECT_NAME=sts-sandbox -> :8981, otherwise :8980.
+# Expected stack: STS_EXPECT_STACK (live, uat or sandbox), else sandbox for
+# COMPOSE_PROJECT_NAME=sts-sandbox, else uat. No default reaches live: a write
+# there needs STS_EXPECT_STACK=live set for that run.
 
 sts_api_base() {
   if [[ -n "${STS_API_URL:-}" ]]; then
@@ -24,11 +29,16 @@ sts_api_base() {
 
 sts_api_expected_stack() {
   if [[ -n "${STS_EXPECT_STACK:-}" ]]; then
-    printf '%s' "${STS_EXPECT_STACK}"
+    case "${STS_EXPECT_STACK}" in
+      live|uat|sandbox) printf '%s' "${STS_EXPECT_STACK}" ;;
+      *)
+        echo "STS_EXPECT_STACK='${STS_EXPECT_STACK}' is not one of live, uat, sandbox." >&2
+        return 1 ;;
+    esac
   elif [[ "${COMPOSE_PROJECT_NAME:-}" == "sts-sandbox" ]]; then
     printf '%s' "sandbox"
   else
-    printf '%s' "live"
+    printf '%s' "uat"
   fi
 }
 
@@ -85,11 +95,21 @@ _sts_api_call() {
 sts_api_guard() {
   [[ "${_STS_API_GUARDED:-}" == "1" ]] && return 0
   local expected actual
-  expected="$(sts_api_expected_stack)"
+  expected="$(sts_api_expected_stack)" || return 1
   _sts_api_call GET /health || return 1
-  actual="$(sts_api_get_field "$(printf '%s' "${STS_API_BODY}" | python3 -c 'import json,sys; print(json.dumps(json.load(sys.stdin).get("data", {})))' 2>/dev/null || echo '{}')" stack)"
+  if [[ "${STS_API_HTTP}" != "200" ]]; then
+    echo "REFUSING: $(sts_api_base)/health answered HTTP ${STS_API_HTTP}; cannot tell which stack this is." >&2
+    return 1
+  fi
+  actual="$(printf '%s' "${STS_API_BODY}" | python3 -c '
+import json, sys
+try:
+    print(json.load(sys.stdin)["data"]["stack"])
+except (ValueError, KeyError, TypeError):
+    print("")
+')"
   if [[ "${actual}" != "${expected}" ]]; then
-    echo "REFUSING: ${STS_API_URL:-$(sts_api_base)} is stack '${actual:-unknown}' but this run expects '${expected}'." >&2
+    echo "REFUSING: $(sts_api_base) is stack '${actual:-unknown}' but this run expects '${expected}'." >&2
     echo "Check COMPOSE_PROJECT_NAME / STS_API_URL / STS_EXPECT_STACK." >&2
     return 1
   fi
@@ -98,6 +118,19 @@ sts_api_guard() {
     export _STS_API_ANNOUNCED=1
   fi
   _STS_API_GUARDED=1
+}
+
+# sts_api_require_sandbox: for simulations, sweeps and other bulk writers. Pins
+# STS_EXPECT_STACK=sandbox for this shell and its children, then checks /health now,
+# so the run stops before its first step instead of at its first write.
+sts_api_require_sandbox() {
+  if [[ -n "${STS_EXPECT_STACK:-}" && "${STS_EXPECT_STACK}" != "sandbox" ]]; then
+    echo "REFUSING: $(basename "${0}") runs only on the sandbox stack, but STS_EXPECT_STACK=${STS_EXPECT_STACK}." >&2
+    return 1
+  fi
+  export STS_EXPECT_STACK=sandbox
+  _STS_API_GUARDED=""
+  sts_api_guard
 }
 
 # sts_api_raw METHOD PATH [JSON]: whole envelope on stdout.
