@@ -59,7 +59,7 @@ done
 
 # shellcheck source=../lib/sts_api.sh
 source "${_script_home}/../lib/sts_api.sh"
-sts_api_guard || exit 1
+sts_api_require_sandbox || exit 1  # simulations run only on the sandbox
 
 OUTPUT_ROOT="${HELPERS_ROOT}/../switchlists"
 mkdir -p "${OUTPUT_ROOT}"

@@ -7,6 +7,7 @@ _script_home="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=../lib/paths.sh
 source "${_script_home}/../lib/paths.sh"
 sts_helpers_resolve_paths "${_script_home}/$(basename "${BASH_SOURCE[0]}")"
+sts_require_sandbox || exit 1  # simulations, sweeps and docker-exec writers: sandbox only
 
 STAMP="$(date +%Y%m%d_%H%M%S)"
 BASE_WF="${BACKUPS_DIR}/session_editor/hart_flow_fill_gap_best.workflow.json"

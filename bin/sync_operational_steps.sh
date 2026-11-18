@@ -29,6 +29,7 @@ while [[ $# -gt 0 ]]; do
     *) echo "Unknown option: $1" >&2; usage >&2; exit 1 ;;
   esac
 done
+sts_require_sandbox || exit 1  # simulations, sweeps and docker-exec writers: sandbox only
 
 if [[ ! -d "${STS_WEB}" ]]; then
   echo "Missing ${STS_WEB} — sts-docker/sts not found" >&2
