@@ -251,7 +251,6 @@
     "min_sessions": 3,
     "max_sessions": 12,
     "stop_when_staging_ready": true,
-    "run_ck1_test": false,
     "seed": 54321,
     "max_unfilled_before_generate": 35,
     "staging_jobs": [
@@ -260,11 +259,6 @@
     ],
     "reposition_fraction": 0.65,
     "scale_calibrate_every_sessions": 3,
-    "ck1_test": {
-      "weigh_required": true,
-      "min_outbound_on_train": 1,
-      "reference_manual_state": "Session 7: BO31000+WLE621 Loaded COKE-CLEV-BULK on CK1; scale weigh outbound/reload without re-assigning existing outbound orders"
-    },
     "partial": {
       "fill_orders": 0.88,
       "reposition": 0.5,

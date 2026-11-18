@@ -35,7 +35,6 @@ Run from **`external/sts-helpers/`** (the repo root, or its `bin/`):
 | `apply_warm_start.sh`            | Simulate prior operating sessions                                                                      |
 | `run_session_simulations.sh`     | Warm start once, then begin + switch lists + play per session                                          |
 | `play_operating_session.sh`      | Play through one operating session (after begin_session)                                               |
-| `generate_switchlists.sh`        | Dry-run phased switch lists (D749, NVL, CK1)                                                           |
 | `sync_operational_steps.sh`      | Hot-deploy session editor to the web container                                                         |
 | `begin_session.sh`               | Live session prep after STG-SCULLY                                                                     |
 | `apply_hart_job_descriptions.sh` | Push crew instructions from seed config → DB                                                           |
@@ -55,12 +54,14 @@ Run from **`external/sts-helpers/`** (the repo root, or its `bin/`):
 # Ten operating sessions: warm start once → begin + switch lists + play (×10)
 ./sts-docker-helpers/bin/run_session_simulations.sh --sessions 10
 
-# Single session prep + switch lists (after STG-SCULLY backlog exists)
-./sts-docker-helpers/bin/begin_session.sh --run-stg-scully --switchlists
-
-# Regenerate switch lists only (current DB session)
-./sts-docker-helpers/bin/generate_switchlists.sh --format=phased
+# Single session prep (after STG-SCULLY backlog exists)
+./sts-docker-helpers/bin/begin_session.sh --run-stg-scully
 ```
+
+Switch lists come from the build-switch-list steps of the session workflow: run it from the
+Session Editor, or with `run_catalog_workflow.sh`, which runs the whole active workflow and
+changes the database (it is not a lists-only step). To re-render the stored lists of a past
+session N without changing the database, call `POST /sts/api/v1/sessions/N/rerender`.
 
 Browse switch lists: `http://localhost:8980/switchlists/index.html`
 
@@ -130,7 +131,7 @@ The core pipeline drives STS through its REST API v1
   default, as before); `validate_hart_seed_references.sh`
   resolves legacy aliases with `GET /locations/{code}`.
 
-Use the API: `apply_hart_seed.sh`, `apply_warm_start.sh` (including `--ck1-test`, sent as `config` overrides),
+Use the API: `apply_hart_seed.sh`, `apply_warm_start.sh`,
 `begin_session.sh`, `play_operating_session.sh`, `run_catalog_workflow.sh`,
 `run_session_simulations.sh`, `snapshot_session_db.sh`,
 `validate_hart_seed_references.sh`, `apply_hart_job_descriptions.sh`,

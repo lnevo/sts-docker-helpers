@@ -268,7 +268,7 @@ class WritersCallTheGuard(unittest.TestCase):
     """Every simulation, sweep and docker-exec writer refuses anything but the sandbox."""
 
     SANDBOX_ONLY = [
-        "apply_shipment_tune", "backfill_starting_after_reposition", "backfill_starting_reports",
+        "apply_shipment_tune", "backfill_starting_after_reposition",
         "benchmark_home_split",
         "rewind_ck1_weigh", "rewind_session", "run_catalog_tests", "run_coke_stagger_compare",
         "run_gate_reposition_sweep", "run_lane_tune_sweep", "run_nvl_tune_sweep",
@@ -278,8 +278,7 @@ class WritersCallTheGuard(unittest.TestCase):
     def test_guard_present(self):
         for name in self.SANDBOX_ONLY:
             path = ROOT / "bin" / f"{name}.sh"
-            if not path.exists():
-                continue  # deleted scripts need no guard
+            self.assertTrue(path.exists(), f"{name}.sh is listed but missing; update SANDBOX_ONLY")
             with self.subTest(script=name):
                 self.assertIn("sts_require_sandbox || exit 1", path.read_text())
         sims = (ROOT / "bin" / "run_session_simulations.sh").read_text()

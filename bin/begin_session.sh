@@ -54,7 +54,7 @@ done
 # shellcheck source=../lib/sts_api.sh
 source "${_script_home}/../lib/sts_api.sh"
 
-# Map the CLI flags onto POST /admin/sessions/begin (defaults match begin_operating_session.php).
+# Map the CLI flags onto POST /admin/sessions/begin (the old begin_operating_session.php CLI is gone).
 BODY="$(python3 - "${PHP_ARGS[@]+"${PHP_ARGS[@]}"}" <<'PY'
 import json, sys
 body, options = {}, {}
