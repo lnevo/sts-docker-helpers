@@ -1,1 +1,0 @@
-bin/rewind_ck1_weigh.sh

@@ -307,7 +307,7 @@ class WritersCallTheGuard(unittest.TestCase):
     SANDBOX_ONLY = [
         "apply_shipment_tune", "backfill_starting_after_reposition",
         "benchmark_home_split",
-        "rewind_ck1_weigh", "rewind_session", "run_catalog_tests", "run_coke_stagger_compare",
+        "rewind_session", "run_catalog_tests", "run_coke_stagger_compare",
         "run_gate_reposition_sweep", "run_lane_tune_sweep", "run_nvl_tune_sweep",
         "run_track_scale_10x10", "run_traffic_extremes", "run_traffic_from_s2_sweep",
     ]

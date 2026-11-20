@@ -47,7 +47,6 @@ sts_helpers_resolve_paths() {
   BACKUPS_DIR="$(cd "${backups}" && pwd)"
 
   STS_WEB="${STS_DOCKER}/sts"
-  LEGACY_STS="${HELPERS_ROOT}/sts"
   DIAGNOSTICS_DIR="${HELPERS_ROOT}/diagnostics"
 }
 
@@ -128,21 +127,6 @@ sts_helpers_docker_exec_www() {
   local web_cid="$1"
   shift
   docker exec -u www-data "${web_cid}" "$@"
-}
-
-# Hot-copy optional legacy CLI scripts from sts-docker-helpers/sts (not baked into the image).
-sts_helpers_docker_cp_legacy_cli() {
-  local web_cid="$1"
-  shift
-  local php
-  for php in "$@"; do
-    if [[ -f "${LEGACY_STS}/${php}" ]]; then
-      docker cp "${LEGACY_STS}/${php}" "${web_cid}:/var/www/html/sts/${php}"
-    else
-      echo "Legacy CLI not found: ${LEGACY_STS}/${php}" >&2
-      return 1
-    fi
-  done
 }
 
 # Resolve an end-of-session dump for session N under the pre/post scheme:
