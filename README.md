@@ -41,7 +41,6 @@ Run from **`external/sts-helpers/`** (the repo root, or its `bin/`):
 | `sync_hart_seed_config.sh`       | Export manual STS edits back into `hart_seed_config.json`                                              |
 | `merge_car_fleet_from_backup.sh` | Copy car roster from a backup into generated seed                                                      |
 | `apply_shipment_tune.sh`         | Tune shipment order intervals (sandbox DB only)                                                        |
-| `rewind_ck1_weigh.sh`            | CK1 weigh simulation / rewind                                                                          |
 | `build_hart_seed_package.sh`     | Assemble portable `hart_seed_package/`                                                                 |
 | `tools/add_hart_cars.py`         | Add new cars to the seed and the running database, with fixed ids (run by hart-ops `bin/cars publish`) |
 
@@ -109,7 +108,7 @@ The core pipeline drives STS through its REST API v1
   that one run. Reads are not guarded.
 - **Sandbox only:** simulations and sweeps (`run_session_simulations.sh`, every
   `bin/run_*` except the generic `run_catalog_workflow.sh`) and these docker-exec
-  writers: `rewind_session.sh` (except `--dry-run`), `rewind_ck1_weigh.sh`,
+  writers: `rewind_session.sh` (except `--dry-run`),
   `backfill_*`, `benchmark_home_split.sh`, `apply_shipment_tune.sh`. They refuse
   to start unless the compose web container has `STS_STACK_NAME=sandbox` and
   `/health` says `sandbox`, docker is local, and the API URL is a loopback address

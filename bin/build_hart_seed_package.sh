@@ -146,7 +146,6 @@ write_wrapper apply_warm_start.sh sts-docker-helpers/bin/apply_warm_start.sh
 write_wrapper begin_session.sh sts-docker-helpers/bin/begin_session.sh
 write_wrapper apply_hart_job_descriptions.sh sts-docker-helpers/bin/apply_hart_job_descriptions.sh
 write_wrapper merge_car_fleet_from_backup.sh sts-docker-helpers/bin/merge_car_fleet_from_backup.sh
-write_wrapper rewind_ck1_weigh.sh sts-docker-helpers/bin/rewind_ck1_weigh.sh
 write_wrapper apply_shipment_tune.sh sts-docker-helpers/bin/apply_shipment_tune.sh
 write_wrapper sync_hart_seed_config.sh sts-docker-helpers/bin/sync_hart_seed_config.sh
 write_wrapper run_session_simulations.sh sts-docker-helpers/bin/run_session_simulations.sh
